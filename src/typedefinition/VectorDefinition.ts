@@ -1,7 +1,7 @@
-import DefaultDefinition from './DefaultDefinition';
+import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { writeTinyString } from '../Utils';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 
 
 export class Vector2 {

@@ -1,4 +1,4 @@
-import BooleanDefinition from '../typedefinition/BooleanDefinition';
+import { BooleanDefinition } from '../typedefinition/BooleanDefinition';
 import { ValueParameter } from './ValueParameter';
 
 export class BooleanParameter extends ValueParameter<boolean> {

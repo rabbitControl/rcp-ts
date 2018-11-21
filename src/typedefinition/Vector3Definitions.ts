@@ -1,6 +1,6 @@
 import KaitaiStream from '../KaitaiStream'
 import { pushFloat32ToArrayBe } from '../Utils'
-import RcpTypes from '../RcpTypes'
+import { RcpTypes } from '../RcpTypes'
 import VectorDefinition, { Vector3 } from './VectorDefinition';
 
 

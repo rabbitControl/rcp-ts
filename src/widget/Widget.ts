@@ -1,5 +1,5 @@
-import Writeable from '../Writeable';
-import RcpTypes from '../RcpTypes';
+import { Writeable } from '../Writeable';
+import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { pushIn16ToArrayBe } from '../Utils';
 import { Parameter } from '../parameter/Parameter';

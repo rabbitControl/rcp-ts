@@ -1,6 +1,6 @@
-import { ValueParameter } from "./ValueParameter";
-import { RangeDefinition, Range } from "../typedefinition/RangeDefinition";
-import RcpTypes from "../RcpTypes";
+import { ValueParameter } from './ValueParameter';
+import { RangeDefinition, Range } from '../typedefinition/RangeDefinition';
+import { RcpTypes } from '../RcpTypes';
 
 export class RangeParameter extends ValueParameter<Range> {
 

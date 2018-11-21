@@ -1,5 +1,5 @@
 import { ClientTransporter } from './Transport';
-import RcpTypes from './RcpTypes';
+import { RcpTypes } from './RcpTypes';
 
 export class WebSocketClientTransporter extends ClientTransporter {
 

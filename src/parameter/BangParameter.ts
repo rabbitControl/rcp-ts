@@ -1,7 +1,7 @@
-import { Parameter } from "./Parameter";
-import BangDefinition from "../typedefinition/BangDefinition";
-import { pushIn16ToArrayBe } from "../Utils";
-import RcpTypes from "../RcpTypes";
+import { Parameter } from './Parameter';
+import { BangDefinition } from '../typedefinition/BangDefinition';
+import { pushIn16ToArrayBe } from '../Utils';
+import { RcpTypes } from '../RcpTypes';
 
 /**
  * BangParameter without value

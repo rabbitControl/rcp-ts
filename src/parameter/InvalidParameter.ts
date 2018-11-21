@@ -1,6 +1,6 @@
 import { Parameter } from './Parameter'
 import KaitaiStream from '../KaitaiStream';
-import InvalidDefinition from '../typedefinition/InvalidDefinition';
+import { InvalidDefinition } from '../typedefinition/InvalidDefinition';
 
 export class InvalidParameter extends Parameter {
 

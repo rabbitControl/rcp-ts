@@ -1,10 +1,10 @@
-import DefaultDefinition from "./DefaultDefinition";
-import RcpTypes from "../RcpTypes";
-import KaitaiStream from "../KaitaiStream";
+import { DefaultDefinition } from './DefaultDefinition';
+import { RcpTypes } from '../RcpTypes';
+import KaitaiStream from '../KaitaiStream';
 import { IPv6 } from 'ip-num';
-import * as bigInt from "big-integer";
+import * as bigInt from 'big-integer';
 
-export default class IPv6Definition extends DefaultDefinition<IPv6> {
+export class IPv6Definition extends DefaultDefinition<IPv6> {
 
     static readonly allOptions: Map<number, boolean> = new Map().
         set(RcpTypes.Ipv6Options.DEFAULT, true);
@@ -26,11 +26,11 @@ export default class IPv6Definition extends DefaultDefinition<IPv6> {
 
     readValue(io: KaitaiStream): IPv6 {
         io.readS4be();
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 
     writeValue(value: IPv6, buffer: number[]): void {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 
     getDefaultId(): number {
@@ -43,6 +43,6 @@ export default class IPv6Definition extends DefaultDefinition<IPv6> {
     }
 
     writeOptions(output: number[], all: boolean): void {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 }

@@ -1,12 +1,12 @@
 import KaitaiStream from '../KaitaiStream';
-import {TypeDefinition} from './TypeDefinition';
-import RcpTypes from '../RcpTypes';
+import { TypeDefinition } from './TypeDefinition';
+import { RcpTypes } from '../RcpTypes';
 
 /**
  * GroupDefinition for GroupParameter
  * has no value
  */
-export default class GroupDefinition extends TypeDefinition {
+export class GroupDefinition extends TypeDefinition {
     constructor() {
         super(RcpTypes.Datatype.GROUP);
     }

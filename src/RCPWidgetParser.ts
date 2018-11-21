@@ -1,6 +1,6 @@
 import KaitaiStream from './KaitaiStream';
 import { Parameter } from './parameter/Parameter';
-import RcpTypes from './RcpTypes';
+import { RcpTypes } from './RcpTypes';
 import { Widget } from './widget/Widget';
 import CustomWidget from './widget/CustomWidget';
 import { DialWidget } from './widget/DialWidget';

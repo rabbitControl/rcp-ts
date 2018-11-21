@@ -2,7 +2,7 @@ import KaitaiStream from './KaitaiStream'
 
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
-export default abstract class RcpTypes {
+export abstract class RcpTypes {
   
   static readonly TERMINATOR = 0;
 

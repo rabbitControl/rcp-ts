@@ -1,10 +1,10 @@
 import { ClientTransporter } from './Transport';
 import { Parameter } from './parameter/Parameter';
 import KaitaiStream from './KaitaiStream';
-import Packet from './Packet';
-import RcpTypes from './RcpTypes';
-import ParameterManager from './ParameterManager';
-import VersionData from './VersionData';
+import { Packet } from './Packet';
+import { RcpTypes } from './RcpTypes';
+import { ParameterManager } from './ParameterManager';
+import { VersionData } from './VersionData';
 import { parsePacket } from './RCPPacketParser';
 
 export class Client implements ParameterManager {

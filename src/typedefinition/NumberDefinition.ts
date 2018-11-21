@@ -1,4 +1,4 @@
-import DefaultDefinition from './DefaultDefinition';
+import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import {
     writeTinyString,
@@ -7,9 +7,9 @@ import {
     pushIn16ToArrayBe,
     pushIn64ToArrayBe
 } from '../Utils';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 
-export default abstract class NumberDefinition extends DefaultDefinition<number> {
+export abstract class NumberDefinition extends DefaultDefinition<number> {
     
     static readonly  allOptions: Map<number, boolean> = new Map().
                     set(RcpTypes.NumberOptions.DEFAULT, true).
@@ -238,7 +238,7 @@ export class Int8Definition extends NumberDefinition {
     readValue(io: KaitaiStream): number {
         return io.readU1();
     }
-    
+
     writeValue(value: number, buffer: Array<number>) {
         if (value != null) {
             buffer.push(value);
@@ -259,7 +259,7 @@ export class Int16Definition extends NumberDefinition {
     readValue(io: KaitaiStream): number {
         return io.readU2be();
     }
-    
+
     writeValue(value: number, buffer: Array<number>) {
         if (value != null) {
             pushIn16ToArrayBe(value, buffer);
@@ -280,7 +280,7 @@ export class Int64Definition extends NumberDefinition {
     readValue(io: KaitaiStream): number {
         return io.readU8be();
     }
-    
+
     writeValue(value: number, buffer: Array<number>) {
         if (value != null) {
             pushIn64ToArrayBe(value, buffer);
@@ -301,7 +301,7 @@ export class Float32Definition extends NumberDefinition {
     readValue(io: KaitaiStream): number {
         return io.readF4be();
     }
-    
+
     writeValue(value: number, buffer: Array<number>) {
         if (value != null) {
             pushFloat32ToArrayBe(value, buffer);
@@ -322,7 +322,7 @@ export class Float64Definition extends NumberDefinition {
     readValue(io: KaitaiStream): number {
         return io.readF8be();
     }
-    
+
     writeValue(value: number, buffer: Array<number>) {
         if (value != null) {
             pushFloat64ToArrayBe(value, buffer);

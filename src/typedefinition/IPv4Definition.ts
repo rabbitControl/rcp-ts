@@ -1,11 +1,11 @@
-import DefaultDefinition from "./DefaultDefinition";
-import RcpTypes from "../RcpTypes";
-import KaitaiStream from "../KaitaiStream";
-import { pushFloat32ToArrayBe, pushIn32ToArrayBe } from "../Utils";
+import { DefaultDefinition } from './DefaultDefinition';
+import { RcpTypes } from '../RcpTypes';
+import KaitaiStream from '../KaitaiStream';
+import { pushFloat32ToArrayBe, pushIn32ToArrayBe } from '../Utils';
 import { IPv4 } from 'ip-num';
-import * as bigInt from "big-integer";
+import * as bigInt from 'big-integer';
 
-export default class IPv4Definition extends DefaultDefinition<IPv4> {
+export class IPv4Definition extends DefaultDefinition<IPv4> {
 
     static readonly allOptions: Map<number, boolean> = new Map().
         set(RcpTypes.Ipv4Options.DEFAULT, true);

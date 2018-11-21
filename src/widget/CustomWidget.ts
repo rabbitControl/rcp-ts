@@ -1,5 +1,5 @@
 import { Widget } from './Widget';
-import RcpTypes, { Userdata } from '../RcpTypes'
+import { RcpTypes, Userdata } from '../RcpTypes'
 import KaitaiStream from '../KaitaiStream';
 import { pushFloat32ToArrayBe, pushIn64ToArrayBe } from '../Utils';
 

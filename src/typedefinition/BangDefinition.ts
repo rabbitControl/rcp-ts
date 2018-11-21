@@ -1,12 +1,12 @@
-import {TypeDefinition} from "./TypeDefinition";
-import KaitaiStream from "../KaitaiStream";
-import RcpTypes from "../RcpTypes";
+import { TypeDefinition } from './TypeDefinition';
+import KaitaiStream from '../KaitaiStream';
+import { RcpTypes } from '../RcpTypes';
 
 /**
  * BangDefinition for BangParameter
  * has no value
  */
-export default class BangDefinition extends TypeDefinition {
+export class BangDefinition extends TypeDefinition {
     constructor() {
       super(RcpTypes.Datatype.BANG);
     }

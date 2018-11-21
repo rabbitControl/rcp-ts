@@ -1,8 +1,8 @@
-import DefaultDefinition from './DefaultDefinition';
+import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 
-export default class BooleanDefinition extends DefaultDefinition<boolean> {
+export class BooleanDefinition extends DefaultDefinition<boolean> {
 
     static readonly allOptions: Map<number, boolean> = new Map().
                             set(RcpTypes.BooleanOptions.DEFAULT, true);

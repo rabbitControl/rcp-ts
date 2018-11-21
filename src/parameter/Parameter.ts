@@ -1,11 +1,11 @@
 
-import {GroupParameter} from './GroupParameter';
+import { GroupParameter } from './GroupParameter';
 import KaitaiStream from '../KaitaiStream';
-import {TypeDefinition} from '../typedefinition/TypeDefinition';
-import Writeable from '../Writeable';
+import { TypeDefinition } from '../typedefinition/TypeDefinition';
+import { Writeable } from '../Writeable';
 import { writeTinyString, writeShortString, pushIn32ToArrayBe, pushIn16ToArrayBe } from '../Utils';
-import RcpTypes, { TinyString, ShortString, Userdata } from '../RcpTypes';
-import ParameterManager from '../ParameterManager';
+import { RcpTypes, TinyString, ShortString, Userdata } from '../RcpTypes';
+import { ParameterManager } from '../ParameterManager';
 import { Widget } from '../widget/Widget';
 import { ChangedListener } from '../ChangeListener';
 import { parseWidget } from '../RCPWidgetParser';

@@ -1,9 +1,9 @@
-import DefaultDefinition from './DefaultDefinition';
+import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { writeLongString } from '../Utils';
-import RcpTypes, { LongString } from '../RcpTypes';
+import { RcpTypes, LongString } from '../RcpTypes';
 
-export default class StringDefinition extends DefaultDefinition<string> {
+export class StringDefinition extends DefaultDefinition<string> {
     
     static readonly allOptions: Map<number, boolean> = new Map().
                     set(RcpTypes.StringOptions.DEFAULT, true).

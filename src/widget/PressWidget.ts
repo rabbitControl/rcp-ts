@@ -1,5 +1,5 @@
 import { Widget } from './Widget';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 
 export default class PressWidget extends Widget {

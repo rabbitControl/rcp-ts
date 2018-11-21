@@ -1,8 +1,8 @@
-import {TypeDefinition} from './TypeDefinition';
+import { TypeDefinition } from './TypeDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { Parameter } from '../parameter/Parameter';
 
-export default abstract class DefaultDefinition<T> extends TypeDefinition {
+export abstract class DefaultDefinition<T> extends TypeDefinition {
 
     // optionals
     protected _defaultValue?: T;

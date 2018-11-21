@@ -1,8 +1,8 @@
-import Packet from './Packet';
-import RcpTypes, { TinyString } from './RcpTypes';
+import { Packet } from './Packet';
+import { RcpTypes, TinyString } from './RcpTypes';
 import KaitaiStream from './KaitaiStream';
-import ParameterManager from './ParameterManager';
-import VersionData from './VersionData';
+import { ParameterManager } from './ParameterManager';
+import { VersionData } from './VersionData';
 import { parseParameter } from './RCPParameterParser';
 
 export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet {

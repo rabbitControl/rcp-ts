@@ -1,8 +1,8 @@
 import { Parameter } from './Parameter';
-import GroupDefinition from '../typedefinition/GroupDefinition';
+import { GroupDefinition } from '../typedefinition/GroupDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { pushIn16ToArrayBe } from '../Utils';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 
 export class GroupParameter extends Parameter {
 

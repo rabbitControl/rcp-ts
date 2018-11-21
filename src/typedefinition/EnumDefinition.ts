@@ -1,9 +1,9 @@
-import DefaultDefinition from './DefaultDefinition';
+import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
-import RcpTypes, { TinyString } from '../RcpTypes';
+import { RcpTypes, TinyString } from '../RcpTypes';
 import { writeTinyString } from '../Utils';
 
-export default class EnumDefinition extends DefaultDefinition<string> {
+export class EnumDefinition extends DefaultDefinition<string> {
     
     static readonly allOptions: Map<number, boolean> = new Map().
                             set(RcpTypes.EnumOptions.DEFAULT, true).

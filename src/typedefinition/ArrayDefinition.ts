@@ -1,4 +1,4 @@
-// import DefaultDefinition from "./DefaultDefinition";
+// import { DefaultDefinition } from "./DefaultDefinition";
 // import RcpTypes from "../RcpTypes";
 // import KaitaiStream from "../KaitaiStream";
 // import { pushIn32ToArrayBe } from "../utils";

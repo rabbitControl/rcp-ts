@@ -1,5 +1,5 @@
 import { ValueParameter } from './ValueParameter';
-import EnumDefinition from '../typedefinition/EnumDefinition';
+import { EnumDefinition } from '../typedefinition/EnumDefinition';
 
 export class EnumParameter extends ValueParameter<string> {
 

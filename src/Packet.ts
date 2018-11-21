@@ -1,8 +1,8 @@
 import { pushIn64ToArrayBe } from './Utils';
-import Writeable from './Writeable';
-import RcpTypes from './RcpTypes';
+import { Writeable } from './Writeable';
+import { RcpTypes } from './RcpTypes';
 
-export default class Packet implements Writeable {
+export class Packet implements Writeable {
 
   readonly command: number;
   timestamp?: number;

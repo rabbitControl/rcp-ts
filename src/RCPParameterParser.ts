@@ -1,18 +1,18 @@
 import { Parameter } from './parameter/Parameter';
 import KaitaiStream from './KaitaiStream';
-import ParameterManager from './ParameterManager';
-import {BooleanParameter} from './parameter/BooleanParameter';
-import {EnumParameter} from './parameter/EnumParameter';
-import {GroupParameter} from './parameter/GroupParameter';
-import {BangParameter} from './parameter/BangParameter';
+import { ParameterManager } from './ParameterManager';
+import { BooleanParameter } from './parameter/BooleanParameter';
+import { EnumParameter } from './parameter/EnumParameter';
+import { GroupParameter } from './parameter/GroupParameter';
+import { BangParameter } from './parameter/BangParameter';
 import { RGBParameter, RGBAParameter } from './parameter/ColorParameter';
-import {UriParameter} from './parameter/UriParameter';
-import {IPv4Parameter} from './parameter/IPv4Parameter';
-import {RangeParameter} from './parameter/RangeParameter';
-import {StringParameter} from './parameter/StringParameter';
+import { UriParameter } from './parameter/UriParameter';
+import { IPv4Parameter } from './parameter/IPv4Parameter';
+import { RangeParameter } from './parameter/RangeParameter';
+import { StringParameter } from './parameter/StringParameter';
 import { Int8Parameter, Int16Parameter, Int32Parameter, Int64Parameter, Float32Parameter, Float64Parameter } from './parameter/NumberParameter';
 import { Vector3F32Parameter } from './parameter/Vector3Parameters';
-import RcpTypes from './RcpTypes';
+import { RcpTypes } from './RcpTypes';
 
 export function parseParameter(io: KaitaiStream, manager: ParameterManager): Parameter {
 

@@ -5,7 +5,7 @@ import {
     Int16Definition,
     Int64Definition
 } from '../typedefinition/NumberDefinition';
-import Int32Definition from '../typedefinition/Int32Definition';
+import { Int32Definition } from '../typedefinition/Int32Definition';
 import { ValueParameter } from './ValueParameter';
 
 export abstract class NumberParameter extends ValueParameter<number> {}
@@ -105,7 +105,7 @@ export class Float64Parameter extends NumberParameter {
     constructor(id: number) {
         super(id, new Float64Definition());
     }
-    
+
     setStringValue(value: string): boolean {
         
         const num = parseFloat(value);

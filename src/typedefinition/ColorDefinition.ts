@@ -1,7 +1,7 @@
-import DefaultDefinition from "./DefaultDefinition";
-import RcpTypes from "../RcpTypes";
-import KaitaiStream from "../KaitaiStream";
-import { pushIn32ToArrayBe } from "../Utils";
+import { DefaultDefinition } from './DefaultDefinition';
+import { RcpTypes } from '../RcpTypes';
+import KaitaiStream from '../KaitaiStream';
+import { pushIn32ToArrayBe } from '../Utils';
 
 function byteToHex(num: number): string {
     // Turns a number (0-255) into a 2-character hex number (00-ff);
@@ -134,7 +134,7 @@ export class RGBDefinition extends ColorDefinition {
     }
 
     writeValue(value: string, buffer: number[]): void {
-        
+
         if (value != null) {
             pushIn32ToArrayBe(RGBToNum(value), buffer);
         } else if (this._defaultValue) {

@@ -1,7 +1,7 @@
 import { Widget } from './Widget';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
-import NumberDefinition from '../typedefinition/NumberDefinition';
+import { NumberDefinition } from '../typedefinition/NumberDefinition';
 
 export class NumberboxWidget extends Widget {
     

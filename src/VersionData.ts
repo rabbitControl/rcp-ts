@@ -1,6 +1,6 @@
-import Writeable from "./Writeable";
+import { Writeable } from "./Writeable";
 
-export default class VersionData implements Writeable {
+export class VersionData implements Writeable {
 
     version: string;
 

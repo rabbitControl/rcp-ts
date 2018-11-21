@@ -1,7 +1,7 @@
-import {TypeDefinition} from "./TypeDefinition";
+import { TypeDefinition } from "./TypeDefinition";
 import KaitaiStream from "../KaitaiStream";
 
-export default class InvalidDefinition extends TypeDefinition {
+export class InvalidDefinition extends TypeDefinition {
 
     constructor() {
         super(0);

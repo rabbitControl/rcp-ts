@@ -1,7 +1,7 @@
-import {Parameter } from './Parameter';
-import DefaultDefinition from '../typedefinition/DefaultDefinition';
+import { Parameter } from './Parameter';
+import { DefaultDefinition } from '../typedefinition/DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 import { pushIn16ToArrayBe } from '../Utils';
 import { ChangedListener } from '../ChangeListener';
 
@@ -100,10 +100,10 @@ export abstract class ValueParameter<T> extends Parameter {
 
         if (optionId === RcpTypes.ParameterOptions.VALUE) {
             this._value = this.defaultTypeDefintion.readValue(io);
-            return true
+            return true;
         }
 
-        return false
+        return false;
     }
 
     // setter /getter

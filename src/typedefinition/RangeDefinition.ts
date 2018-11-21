@@ -1,8 +1,8 @@
-import DefaultDefinition from "./DefaultDefinition";
-import RcpTypes from "../RcpTypes";
-import KaitaiStream from "../KaitaiStream";
-import NumberDefinition from "./NumberDefinition";
-import { createTypeDefinition } from "../RCPDefinitionFactory";
+import { DefaultDefinition } from './DefaultDefinition';
+import { RcpTypes } from '../RcpTypes';
+import KaitaiStream from '../KaitaiStream';
+import { NumberDefinition } from './NumberDefinition';
+import { createTypeDefinition } from '../RCPDefinitionFactory';
 
 export class Range {
 
@@ -40,7 +40,7 @@ export class RangeDefinition extends DefaultDefinition<Range> {
             return new Range(this.elementType.readValue(io), this.elementType.readValue(io));
         }
 
-        throw new Error("could not read from elementType");
+        throw new Error('could not read from elementType');
     }
 
     writeValue(value: Range | null, buffer: number[]): void {
@@ -74,7 +74,7 @@ export class RangeDefinition extends DefaultDefinition<Range> {
     writeMandatory(output: number[], all: boolean) : void {
 
         if (!this.elementType) {
-            throw new Error("RangeDefinition without elementType!");
+            throw new Error('RangeDefinition without elementType!');
         }
         this.elementType.write(output, all);
     }

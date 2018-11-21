@@ -1,6 +1,6 @@
-import Writeable from '../Writeable';
+import { Writeable } from '../Writeable';
 import KaitaiStream from '../KaitaiStream';
-import RcpTypes from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 
 export abstract class TypeDefinition implements Writeable {
 

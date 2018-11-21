@@ -1,16 +1,16 @@
 
-import RcpTypes from './RcpTypes';
-import {TypeDefinition} from './typedefinition/TypeDefinition';
-import BooleanDefinition from './typedefinition/BooleanDefinition';
+import { RcpTypes } from './RcpTypes';
+import { TypeDefinition } from './typedefinition/TypeDefinition';
+import { BooleanDefinition } from './typedefinition/BooleanDefinition';
 import { Int8Definition, Int16Definition, Int64Definition, Float32Definition, Float64Definition } from './typedefinition/NumberDefinition';
-import Int32Definition from './typedefinition/Int32Definition';
-import StringDefinition from './typedefinition/StringDefinition';
+import { Int32Definition } from './typedefinition/Int32Definition';
+import { StringDefinition } from './typedefinition/StringDefinition';
 import { RGBDefinition, RGBADefinition } from './typedefinition/ColorDefinition';
-import EnumDefinition from './typedefinition/EnumDefinition';
-import BangDefinition from './typedefinition/BangDefinition';
-import GroupDefinition from './typedefinition/GroupDefinition';
-import IPv4Definition from './typedefinition/IPv4Definition';
-import IPv6Definition from './typedefinition/IPv6Definition';
+import { EnumDefinition } from './typedefinition/EnumDefinition';
+import { BangDefinition } from './typedefinition/BangDefinition';
+import { GroupDefinition } from './typedefinition/GroupDefinition';
+import { IPv4Definition } from './typedefinition/IPv4Definition';
+import { IPv6Definition } from './typedefinition/IPv6Definition';
 import { UriDefinition } from './typedefinition/UriDefinition';
 import { Vector3F32Definition } from './typedefinition/Vector3Definitions';
 

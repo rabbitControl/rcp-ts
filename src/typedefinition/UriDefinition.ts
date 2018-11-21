@@ -1,5 +1,5 @@
-import DefaultDefinition from './DefaultDefinition';
-import RcpTypes, { LongString, TinyString } from '../RcpTypes';
+import { DefaultDefinition } from './DefaultDefinition';
+import { RcpTypes, LongString, TinyString } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { writeLongString, writeTinyString } from '../Utils';
 

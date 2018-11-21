@@ -1,9 +1,9 @@
-import NumberDefinition from './NumberDefinition';
-import RcpTypes from '../RcpTypes';
+import { NumberDefinition } from './NumberDefinition';
+import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { pushIn32ToArrayBe } from '../Utils';
 
-export default class Int32Definition extends NumberDefinition {
+export class Int32Definition extends NumberDefinition {
 
     constructor() {
         super(RcpTypes.Datatype.INT32);
