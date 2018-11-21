@@ -1,0 +1,21 @@
+{
+    "name": "rabbitcontrol",
+    "version": "0.0.1",
+    "description": "RabbitControl: A binary data-format definition to describe data values and user interface elements.",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "author": "Ingo Randolf <ingo.randolf@servus.at>",
+    "license": "LGPL-3.0-or-later",
+    "homepage": "https://rabbitcontrol.github.io",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rabbitControl/rcp-ts.git"
+    },
+    "dependencies": {
+        "@types/debug": "0.0.31",
+        "@types/node": "^10.12.9",
+        "@types/text-encoding": "0.0.35",
+        "ip-num": "^1.1.1"
+    },
+    "devDependencies": {}
+}

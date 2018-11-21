@@ -1,0 +1,44 @@
+import {TypeDefinition} from './TypeDefinition';
+import KaitaiStream from '../KaitaiStream';
+import { Parameter } from '../parameter/Parameter';
+
+export default abstract class DefaultDefinition<T> extends TypeDefinition {
+
+    // optionals
+    protected _defaultValue?: T;
+
+    //
+    protected changed: Map<number, boolean> = new Map();
+    parameter: Parameter;
+
+    abstract readValue(io: KaitaiStream): T;
+    abstract writeValue(value: T | null, buffer: Array<number>): void;
+    abstract getDefaultId(): number;
+    abstract getTypeDefault(): T;
+
+    constructor(datatype: number) {
+        super(datatype);
+    }
+
+    protected setDirty() {
+        if (this.parameter) {
+            this.parameter.setDirty();
+        }
+    }
+
+    // setter / getter
+    set defaultValue(defaultValue: T) {
+
+        if (this._defaultValue === defaultValue) {
+            return;
+        }
+
+        this._defaultValue = defaultValue;
+        this.changed.set(this.getDefaultId(), true);
+        this.setDirty();
+    }
+
+    get defaultValue(): T {
+        return this._defaultValue ? this._defaultValue : this.getTypeDefault();
+    }
+}
