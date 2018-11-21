@@ -3,10 +3,16 @@
     "module": "commonjs",
     "target": "es5",
     "declaration": true,
-    "outDir": "./dist",
+    "declarationDir": "dist/types",
+    "outDir": "./compiled",
     "lib": ["es2015", "dom"]
   },
   "include": [
     "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "compiled",
+    "dist"
   ]
 }
