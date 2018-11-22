@@ -11,6 +11,7 @@ import InfoWidget from './widget/InfoWidget';
 import BangWidget from './widget/BangWidget';
 import PressWidget from './widget/PressWidget';
 import ToggleWidget from './widget/ToggleWidget';
+import { DefaultWidget } from './widget/DefaultWidget';
 
 export function parseWidget(io: KaitaiStream, parameter: Parameter): Widget {
 
@@ -26,6 +27,8 @@ export function parseWidget(io: KaitaiStream, parameter: Parameter): Widget {
 export function createWidget(type: number): Widget {
         
     switch (type) {
+        case RcpTypes.Widgettype.DEFAULT:
+            return new DefaultWidget();
         case RcpTypes.Widgettype.CUSTOM:
             return new CustomWidget();
         case RcpTypes.Widgettype.INFO:
