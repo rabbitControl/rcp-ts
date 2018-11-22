@@ -3,7 +3,7 @@ import { RcpTypes, Userdata } from '../RcpTypes'
 import KaitaiStream from '../KaitaiStream';
 import { pushFloat32ToArrayBe, pushIn64ToArrayBe } from '../Utils';
 
-export default class CustomWidget extends Widget {
+export class CustomWidget extends Widget {
 
     private _uuid?: Uint8Array;
     private _config?: Uint8Array; //??

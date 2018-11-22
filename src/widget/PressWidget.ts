@@ -2,7 +2,7 @@ import { Widget } from './Widget';
 import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 
-export default class PressWidget extends Widget {
+export class PressWidget extends Widget {
 
     constructor() {
         super(RcpTypes.Widgettype.PRESS);

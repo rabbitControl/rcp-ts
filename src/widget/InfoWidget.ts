@@ -2,7 +2,7 @@ import { Widget } from './Widget';
 import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 
-export default class InfoWidget extends Widget {
+export class InfoWidget extends Widget {
 
     constructor() {
         super(RcpTypes.Widgettype.INFO);

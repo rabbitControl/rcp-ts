@@ -2,15 +2,15 @@ import KaitaiStream from './KaitaiStream';
 import { Parameter } from './parameter/Parameter';
 import { RcpTypes } from './RcpTypes';
 import { Widget } from './widget/Widget';
-import CustomWidget from './widget/CustomWidget';
+import { CustomWidget } from './widget/CustomWidget';
 import { DialWidget } from './widget/DialWidget';
 import { SliderWidget } from './widget/SliderWidget';
 import { NumberboxWidget } from './widget/NumberboxWidget';
 import { TextboxWidget } from './widget/TextboxWidget';
-import InfoWidget from './widget/InfoWidget';
-import BangWidget from './widget/BangWidget';
-import PressWidget from './widget/PressWidget';
-import ToggleWidget from './widget/ToggleWidget';
+import { InfoWidget } from './widget/InfoWidget';
+import { BangWidget } from './widget/BangWidget';
+import { PressWidget } from './widget/PressWidget';
+import { ToggleWidget } from './widget/ToggleWidget';
 import { DefaultWidget } from './widget/DefaultWidget';
 
 export function parseWidget(io: KaitaiStream, parameter: Parameter): Widget {
@@ -67,5 +67,5 @@ export function createWidget(type: number): Widget {
             break;
     }        
 
-    throw new Error("could not create widget for tpye: " + type);
+    throw new Error("could not create widget for type: " + type);
 }
