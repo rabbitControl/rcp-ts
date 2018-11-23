@@ -353,6 +353,9 @@ export abstract class Parameter implements Writeable {
 
   parseOptions(io: KaitaiStream) {
 
+    // parse mandatory first!
+    this.typeDefinition.readMandatory(io);
+
     // first parse type options
     this.typeDefinition.parseOptions(io);
 

@@ -23,6 +23,34 @@ export class RangeDefinition extends DefaultDefinition<Range> {
         super(RcpTypes.Datatype.RANGE);
     }
 
+    readMandatory(io: KaitaiStream): void {
+
+        // read mandatory data after typeid!
+        const elementType = createTypeDefinition(io.readU1());
+        elementType.readMandatory(io);
+
+        // can we do this nicer?
+        if (elementType instanceof NumberDefinition) {
+            this.elementType = elementType as NumberDefinition;
+        } else {
+            throw Error("RangeDefinition: wrong element type: " + elementType.datatype);
+        }
+    }
+
+    // override
+    parseOptions(io: KaitaiStream) {
+
+        if (!this.elementType) {
+            throw new Error("cannot parse elementType options without elementType");
+        }
+        // first parse options for element type..
+        this.elementType.parseOptions(io);
+
+        // then parse own options
+        super.parseOptions(io);
+    }
+
+    // override
     handleOption(optionId: number, io: KaitaiStream): boolean {
 
         switch (optionId) {
@@ -94,18 +122,5 @@ export class RangeDefinition extends DefaultDefinition<Range> {
         if (!all) {
             this.changed.clear();
         }
-    }
-
-    // override
-    parseOptions(io: KaitaiStream) {
-
-        let elementType = createTypeDefinition(io.readU1());
-        elementType.parseOptions(io);
-
-        if (elementType instanceof NumberDefinition) {
-            this.elementType = elementType as NumberDefinition
-        }
-
-        super.parseOptions(io);
     }
 }
