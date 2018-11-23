@@ -64,17 +64,17 @@ export class RangeDefinition extends DefaultDefinition<Range> {
 
     readValue(io: KaitaiStream): Range {
 
-        if (this.elementType) {
-            return new Range(this.elementType.readValue(io), this.elementType.readValue(io));
+        if (!this.elementType) {
+            throw new Error('could not read from elementType');
         }
 
-        throw new Error('could not read from elementType');
+        return new Range(this.elementType.readValue(io), this.elementType.readValue(io));
     }
 
     writeValue(value: Range | null, buffer: number[]): void {
 
         if (!this.elementType) {
-            return;
+            throw new Error('could not write value without elementType');
         }
 
         if (value != null) {

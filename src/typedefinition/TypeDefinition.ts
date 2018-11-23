@@ -22,9 +22,10 @@ export abstract class TypeDefinition implements Writeable {
   }
 
   parseOptions(io: KaitaiStream) {
+
     while (true) {
       // read option
-      let optionId = io.readU1();
+      const optionId = io.readU1();
 
       if (optionId === RcpTypes.TERMINATOR) {
         break;
