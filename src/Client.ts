@@ -51,12 +51,12 @@ export class Client implements ParameterManager {
     this.transporter.received = (data: ArrayBuffer) => {
     
       if (Client.VERBOSE) {
-        var view = new Int8Array(data);
-        console.log(view);
+        const view = new Int8Array(data);
+        console.log("client received: ", view);
       }
 
-      let io = new KaitaiStream(data, 0);
-      let packet = parsePacket(io, this);
+      const io = new KaitaiStream(data, 0);
+      const packet = parsePacket(io, this);
   
       switch (packet.command) {
         case RcpTypes.Command.INVALID:
@@ -162,9 +162,16 @@ export class Client implements ParameterManager {
       if (this.transporter.isConnected()) {
 
         this.dirtyParams.forEach((parameter) => {
+          
           const packet = new Packet(RcpTypes.Command.UPDATE);
           packet.data = parameter;
-          this.transporter.send(new Int8Array(packet.serialize(false)));
+          const dataOut = new Int8Array(packet.serialize(false))
+
+          if (Client.VERBOSE) {
+            console.log("client writing: ", dataOut);
+          }
+
+          this.transporter.send(dataOut);
         })
 
         this.dirtyParams = [];

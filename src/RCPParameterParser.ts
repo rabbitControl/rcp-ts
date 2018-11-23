@@ -16,16 +16,16 @@ import { RcpTypes } from './RcpTypes';
 
 export function parseParameter(io: KaitaiStream, manager: ParameterManager): Parameter {
 
-  // read parameter id
-  let parameter_id = io.readS2be();
-  let datatype = io.readU1();
+    // read parameter id
+    const parameter_id = io.readS2be();
+    const datatype = io.readU1();
 
-  let parameter = null;
-  parameter = createParameter(parameter_id, datatype);
+    const parameter = createParameter(parameter_id, datatype);    
+    parameter.manager = manager;
 
-  parameter.manager = manager;
-  parameter.parseOptions(io);
-  return parameter;
+    parameter.parseOptions(io);
+
+    return parameter;
 }
 
 
