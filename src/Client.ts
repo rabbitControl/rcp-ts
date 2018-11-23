@@ -6,6 +6,7 @@ import { RcpTypes } from './RcpTypes';
 import { ParameterManager } from './ParameterManager';
 import { VersionData } from './VersionData';
 import { parsePacket } from './RCPPacketParser';
+import { BangParameter } from './parameter/BangParameter';
 
 export class Client implements ParameterManager {
 
@@ -160,7 +161,19 @@ export class Client implements ParameterManager {
 
         this.dirtyParams.forEach((parameter) => {
           
-          const packet = new Packet(RcpTypes.Command.UPDATE);
+          let packetCommand = RcpTypes.Command.UPDATE;
+          
+          // check if we can write updatevalue
+          if (parameter instanceof BangParameter || 
+              (!parameter.typeDefinition.didChange() &&               
+                parameter.changed.size === 1 && 
+                parameter.changed.has(RcpTypes.ParameterOptions.VALUE)
+              )
+          ){
+            packetCommand = RcpTypes.Command.UPDATEVALUE;
+          }
+
+          const packet = new Packet(packetCommand);
           packet.data = parameter;
           const dataOut = new Int8Array(packet.serialize(false))
 
