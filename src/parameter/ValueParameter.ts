@@ -67,6 +67,8 @@ export abstract class ValueParameter<T> extends Parameter {
         // update other properties
         super.update(parameter);
     }
+
+    
     //------------------------------------
     // override
     writeOptions(output: Array<number>, all: boolean): void {
@@ -88,7 +90,23 @@ export abstract class ValueParameter<T> extends Parameter {
         super.writeOptions(output, all);
     }
 
+    writeValueUpdate(output) {
+        
+        // write id
+        pushIn16ToArrayBe(this.id, output);
 
+        // typedefinition
+        output.push(this.typeDefinition.datatype);
+
+        // write mandatory
+        this.typeDefinition.writeMandatory(output);
+
+        // write value
+        this.defaultTypeDefintion.writeValue(this._value, output);        
+    }
+
+    //------------------------------------
+    // override
     handleOption(optionId: number, io: KaitaiStream): boolean {
 
         if (optionId === RcpTypes.ParameterOptions.VALUE) {
@@ -99,6 +117,7 @@ export abstract class ValueParameter<T> extends Parameter {
         return false;
     }
 
+    //------------------------------------
     // setter /getter
     set value(value: T) {
         if (this._value === value) {

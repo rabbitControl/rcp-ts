@@ -13,6 +13,7 @@ import { StringParameter } from './parameter/StringParameter';
 import { Int8Parameter, Int16Parameter, Int32Parameter, Int64Parameter, Float32Parameter, Float64Parameter } from './parameter/NumberParameter';
 import { Vector3F32Parameter } from './parameter/Vector3Parameters';
 import { RcpTypes } from './RcpTypes';
+import { ValueParameter } from './parameter/ValueParameter';
 
 export function parseParameter(io: KaitaiStream, manager: ParameterManager): Parameter {
 
@@ -28,6 +29,27 @@ export function parseParameter(io: KaitaiStream, manager: ParameterManager): Par
     return parameter;
 }
 
+
+export function parseUpdateValue(io: KaitaiStream, manager: ParameterManager): Parameter {
+    // read parameter id
+    const parameter_id = io.readS2be();
+
+    const datatype = io.readU1();
+    // read all mandatory typedefinition data
+
+    const parameter = createParameter(parameter_id, datatype);
+    parameter.manager = manager;
+
+    if (parameter instanceof ValueParameter) {
+        // handle mandatory typedefinition data
+        parameter.typeDefinition.readMandatory(io);
+        // read value
+        parameter.handleOption(RcpTypes.ParameterOptions.VALUE, io);
+        return parameter;
+    }
+
+    throw new Error(`valueupdate for parameter (${parameter_id}) with wrong datatype: ${datatype}`);
+}
 
 export function createParameter(id: number, datatype: number): Parameter {
 

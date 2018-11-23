@@ -3,19 +3,35 @@ import { RcpTypes, TinyString } from './RcpTypes';
 import KaitaiStream from './KaitaiStream';
 import { ParameterManager } from './ParameterManager';
 import { VersionData } from './VersionData';
-import { parseParameter } from './RCPParameterParser';
+import { parseParameter, parseUpdateValue } from './RCPParameterParser';
 
 export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet {
-    // read command
-    let commandId = io.readU1();
+
+    // read packet command
+    let packetCommandId = io.readU1();
   
   
-    if (commandId < RcpTypes.Command.INVALID || commandId > RcpTypes.Command.UPDATEVALUE) {
+    if (packetCommandId < RcpTypes.Command.INVALID || packetCommandId > RcpTypes.Command.UPDATEVALUE) {
       throw new Error('no valid command when parsing packet');
     }
   
-    let packet = new Packet(commandId);
+    let packet = new Packet(packetCommandId);
   
+
+    if (packet.command === RcpTypes.Command.UPDATEVALUE) {
+      // no options
+      packet.data = parseUpdateValue(io, manager);
+
+      // check data inconsistency
+      if (!io.isEof()) {
+        // still data to read!
+        throw new Error("updatevalue - leftover data");
+      }
+
+      return packet;
+    }
+
+
     while (true) {
   
       let optionId = io.readU1();
@@ -54,14 +70,11 @@ export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet
                 throw new Error('packet already has data');
               }
   
-              let parameter = parseParameter(io, manager);
-              packet.data = parameter;
-  
+              packet.data = parseParameter(io, manager);
               break;
   
             case RcpTypes.Command.UPDATEVALUE:
-              // special update value command
-              break;
+              throw new Error('invalid command: updatevalue');
   
             case RcpTypes.Command.INVALID:
             default:

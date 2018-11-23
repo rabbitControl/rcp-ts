@@ -1,6 +1,7 @@
 import { pushIn64ToArrayBe } from './Utils';
 import { Writeable } from './Writeable';
 import { RcpTypes } from './RcpTypes';
+import { ValueParameter } from './parameter/ValueParameter';
 
 export class Packet implements Writeable {
 
@@ -23,16 +24,27 @@ export class Packet implements Writeable {
     // push command
     output.push(this.command);
 
-    if (this.timestamp) {
-      output.push(RcpTypes.PacketOptions.TIMESTAMP);
-      pushIn64ToArrayBe(this.timestamp, output);
-    }
+    if (this.command === RcpTypes.Command.UPDATEVALUE) {
+      //
+      if (this.data instanceof ValueParameter) {
+        this.data.writeValueUpdate(output);
+      } else {
+        throw new Error("wrong data in updatevalue packet");
+      }
 
-    if (this.data) {      
-      output.push(RcpTypes.PacketOptions.DATA);
-      this.data.write(output, all);
-    }
+    } else {
+      // other command
+      if (this.timestamp) {
+        output.push(RcpTypes.PacketOptions.TIMESTAMP);
+        pushIn64ToArrayBe(this.timestamp, output);
+      }
+  
+      if (this.data) {      
+        output.push(RcpTypes.PacketOptions.DATA);
+        this.data.write(output, all);
+      }
 
-    output.push(RcpTypes.TERMINATOR);
+      output.push(RcpTypes.TERMINATOR);
+    }
   }
 }
