@@ -1,7 +1,7 @@
 import { pushIn64ToArrayBe } from './Utils';
 import { Writeable } from './Writeable';
 import { RcpTypes } from './RcpTypes';
-import { ValueParameter } from './parameter/ValueParameter';
+import { Parameter } from './parameter/Parameter';
 
 export class Packet implements Writeable {
 
@@ -26,7 +26,7 @@ export class Packet implements Writeable {
 
     if (this.command === RcpTypes.Command.UPDATEVALUE) {
       //
-      if (this.data instanceof ValueParameter) {
+      if (this.data instanceof Parameter) {
         this.data.writeValueUpdate(output);
       } else {
         throw new Error("wrong data in updatevalue packet");

@@ -163,6 +163,20 @@ export abstract class Parameter implements Writeable {
   }
 
   //------------------------------------
+  //
+  writeValueUpdate(output: Array<number>) {
+        
+    // write id
+    pushIn16ToArrayBe(this.id, output);
+
+    // typedefinition
+    output.push(this.typeDefinition.datatype);
+
+    // write mandatory
+    this.typeDefinition.writeMandatory(output);
+}
+
+  //------------------------------------
   // 
   writeLabel(output: number[]) {
 

@@ -2,7 +2,6 @@ import { Parameter } from './Parameter';
 import { DefaultDefinition } from '../typedefinition/DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { RcpTypes } from '../RcpTypes';
-import { pushIn16ToArrayBe } from '../Utils';
 import { ChangedListener } from '../ChangeListener';
 
 export abstract class ValueParameter<T> extends Parameter {
@@ -86,14 +85,7 @@ export abstract class ValueParameter<T> extends Parameter {
 
     writeValueUpdate(output: Array<number>) {
         
-        // write id
-        pushIn16ToArrayBe(this.id, output);
-
-        // typedefinition
-        output.push(this.typeDefinition.datatype);
-
-        // write mandatory
-        this.typeDefinition.writeMandatory(output);
+        super.writeValueUpdate(output);
 
         // write value
         this.defaultTypeDefintion.writeValue(output, this._value);
