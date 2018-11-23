@@ -90,7 +90,7 @@ export abstract class ValueParameter<T> extends Parameter {
         super.writeOptions(output, all);
     }
 
-    writeValueUpdate(output) {
+    writeValueUpdate(output: Array<number>) {
         
         // write id
         pushIn16ToArrayBe(this.id, output);
