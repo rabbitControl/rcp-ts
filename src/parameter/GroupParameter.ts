@@ -1,8 +1,6 @@
 import { Parameter } from './Parameter';
 import { GroupDefinition } from '../typedefinition/GroupDefinition';
 import KaitaiStream from '../KaitaiStream';
-import { pushIn16ToArrayBe } from '../Utils';
-import { RcpTypes } from '../RcpTypes';
 
 export class GroupParameter extends Parameter {
 
@@ -24,20 +22,4 @@ export class GroupParameter extends Parameter {
 
         this.children.push(parameter);
     }
-
-    //------------------------------------
-    //
-    write(output: Array<number>, all: boolean): void {
-
-        // write id
-        pushIn16ToArrayBe(this.id, output);
-  
-        // typedefinition
-        this.typeDefinition.write(output, all);
-
-        // write options
-        super.write(output, all);
-  
-        output.push(RcpTypes.TERMINATOR);
-      }
 }

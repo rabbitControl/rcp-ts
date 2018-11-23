@@ -14,4 +14,7 @@ export class InvalidParameter extends Parameter {
 
     // this parameter can not be set dirty
     setDirty() {}
+
+    // override - dont write anything
+    write(output: Array<number>, all: boolean): void {}
 }

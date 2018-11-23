@@ -216,7 +216,7 @@ export abstract class Parameter implements Writeable {
     output.push(RcpTypes.TERMINATOR);
   }
 
-  write(output: Array<number>, all: boolean): void {
+  writeOptions(output: Array<number>, all: boolean) : void {
 
     let ch = this.changed;
     if (all) {
@@ -329,6 +329,22 @@ export abstract class Parameter implements Writeable {
     if (!all) {
       this.changed.clear();
     }
+  }
+
+  // implement interface Writable
+  write(output: Array<number>, all: boolean): void {
+
+    // write id
+    pushIn16ToArrayBe(this.id, output);
+
+    // typedefinition
+    this.typeDefinition.write(output, all);
+
+    // write options
+    this.writeOptions(output, all);
+
+    // finish with terminator
+    output.push(RcpTypes.TERMINATOR);
   }
 
   handleOption(optionId: number, io: KaitaiStream): boolean {
