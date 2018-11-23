@@ -23,6 +23,17 @@ export class RangeDefinition extends DefaultDefinition<Range> {
         super(RcpTypes.Datatype.RANGE);
     }
 
+    // override to check element type as well
+    didChange() : boolean {
+
+        let etChanged = false;
+        if (this.elementType) {
+            etChanged = this.elementType.didChange();
+        }
+
+        return this.changed.size > 0 || etChanged;
+    }
+
     readMandatory(io: KaitaiStream): void {
 
         // read mandatory data after typeid!

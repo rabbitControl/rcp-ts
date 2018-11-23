@@ -37,6 +37,7 @@ export abstract class TypeDefinition implements Writeable {
     }
   }
 
+  abstract didChange() : boolean;
   abstract writeOptions(output: number[], all: boolean): void;
 
   // override to write mandatory data after datatype and before options

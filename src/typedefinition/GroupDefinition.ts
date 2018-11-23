@@ -11,6 +11,11 @@ export class GroupDefinition extends TypeDefinition {
         super(RcpTypes.Datatype.GROUP);
     }
 
+    // implement
+    didChange() : boolean {
+        return false;
+    }
+
     handleOption(optionId: number, io: KaitaiStream): boolean {
         return false;
     }

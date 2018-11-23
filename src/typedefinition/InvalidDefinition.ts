@@ -7,6 +7,11 @@ export class InvalidDefinition extends TypeDefinition {
         super(0);
     }
 
+    // implement
+    didChange() : boolean {
+        return false;
+    }
+
     handleOption(optionId: number, io: KaitaiStream): boolean {
         return false;
     }

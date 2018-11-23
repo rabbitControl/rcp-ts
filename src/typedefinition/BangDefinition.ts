@@ -10,6 +10,11 @@ export class BangDefinition extends TypeDefinition {
     constructor() {
       super(RcpTypes.Datatype.BANG);
     }
+
+    // implement
+    didChange() : boolean {
+      return false;
+    }
   
     handleOption(optionId: number, io: KaitaiStream): boolean {
       return false;

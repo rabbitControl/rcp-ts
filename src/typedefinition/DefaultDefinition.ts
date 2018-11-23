@@ -20,6 +20,11 @@ export abstract class DefaultDefinition<T> extends TypeDefinition {
         super(datatype);
     }
 
+    // implement
+    didChange() : boolean {
+        return this.changed.size > 0;
+    }
+
     protected setDirty() {
         if (this.parameter) {
             this.parameter.setDirty();
