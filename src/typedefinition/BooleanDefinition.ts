@@ -29,8 +29,8 @@ export class BooleanDefinition extends DefaultDefinition<boolean> {
     }
 
     // override
-    writeValue(value: boolean | null, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: boolean) {
+        if (value != undefined) {
             buffer.push(value ? 1 : 0);
         } else if (this._defaultValue) {
             buffer.push(this._defaultValue ? 1 : 0);
@@ -55,12 +55,7 @@ export class BooleanDefinition extends DefaultDefinition<boolean> {
         if (all || this.changed.has(RcpTypes.BooleanOptions.DEFAULT)) {
 
             output.push(RcpTypes.BooleanOptions.DEFAULT);
-
-            if (this._defaultValue) {
-                this.writeValue(this._defaultValue, output);
-            } else {
-                this.writeValue(null, output);
-            }
+            this.writeValue(output, this._defaultValue);            
         }
 
         if (!all) {

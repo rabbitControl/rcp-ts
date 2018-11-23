@@ -86,12 +86,7 @@ abstract class ColorDefinition extends DefaultDefinition<string> {
         if (all || this.changed.has(RcpTypes.ColorOptions.DEFAULT)) {
 
             output.push(RcpTypes.ColorOptions.DEFAULT);
-
-            if (this._defaultValue) {
-                this.writeValue(this._defaultValue, output);
-            } else {
-                this.writeValue(null, output);
-            }
+            this.writeValue(output, this._defaultValue);            
         }
 
         if (!all) {
@@ -111,9 +106,9 @@ export class RGBADefinition extends ColorDefinition {
         return numToRGBA(io.readU4be());
     }
 
-    writeValue(value: string, buffer: number[]): void {
+    writeValue(buffer: number[], value?: string): void {
 
-        if (value != null) {
+        if (value != undefined) {
             pushIn32ToArrayBe(RGBAToNum(value), buffer);
         } else if (this._defaultValue) {
             pushIn32ToArrayBe(RGBAToNum(this._defaultValue), buffer);
@@ -133,9 +128,9 @@ export class RGBDefinition extends ColorDefinition {
         return numToRGB(io.readU4be());
     }
 
-    writeValue(value: string, buffer: number[]): void {
+    writeValue(buffer: number[], value?: string): void {
 
-        if (value != null) {
+        if (value != undefined) {
             pushIn32ToArrayBe(RGBToNum(value), buffer);
         } else if (this._defaultValue) {
             pushIn32ToArrayBe(RGBToNum(this._defaultValue), buffer);

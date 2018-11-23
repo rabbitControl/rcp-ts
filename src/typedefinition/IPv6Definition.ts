@@ -29,7 +29,7 @@ export class IPv6Definition extends DefaultDefinition<IPv6> {
         throw new Error('Method not implemented.');
     }
 
-    writeValue(value: IPv6, buffer: number[]): void {
+    writeValue(buffer: number[], value?: IPv6): void {
         throw new Error('Method not implemented.');
     }
 

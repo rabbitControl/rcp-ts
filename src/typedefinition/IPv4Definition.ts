@@ -29,8 +29,8 @@ export class IPv4Definition extends DefaultDefinition<IPv4> {
         return new IPv4(bigInt(io.readU4be()));
     }
 
-    writeValue(value: IPv4 | null, buffer: number[]): void {
-        if (value != null) {
+    writeValue(buffer: number[], value?: IPv4): void {
+        if (value != undefined) {
             pushIn32ToArrayBe(value.value.toJSNumber(), buffer);
         } else if (this._defaultValue) {
             pushIn32ToArrayBe(this._defaultValue.value.toJSNumber(), buffer);
@@ -52,12 +52,7 @@ export class IPv4Definition extends DefaultDefinition<IPv4> {
 
         if (all || this.changed.has(RcpTypes.Ipv4Options.DEFAULT)) {
             output.push(RcpTypes.Ipv4Options.DEFAULT);
-
-            if (this._defaultValue) {
-                this.writeValue(this._defaultValue, output);
-            } else {
-                this.writeValue(null, output);
-            }
+            this.writeValue(output, this._defaultValue);
         }
 
         if (!all) {

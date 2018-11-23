@@ -36,8 +36,8 @@ export class StringDefinition extends DefaultDefinition<string> {
     }
 
     // override
-    writeValue(value: string, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: string) {
+        if (value != undefined) {
             writeLongString(value, buffer);
         } else if (this._defaultValue) {
             writeLongString(this._defaultValue, buffer);
@@ -69,12 +69,7 @@ export class StringDefinition extends DefaultDefinition<string> {
             switch (key) {
                 case RcpTypes.StringOptions.DEFAULT: {
                     output.push(RcpTypes.StringOptions.DEFAULT);
-
-                    if (this._defaultValue) {
-                        this.writeValue(this._defaultValue, output);
-                    } else {
-                        this.writeValue("", output);
-                    }
+                    this.writeValue(output, this._defaultValue);
                     break;
                 }
 

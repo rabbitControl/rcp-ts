@@ -12,7 +12,7 @@ export abstract class DefaultDefinition<T> extends TypeDefinition {
     parameter: Parameter;
 
     abstract readValue(io: KaitaiStream): T;
-    abstract writeValue(value: T | null, buffer: Array<number>): void;
+    abstract writeValue(buffer: Array<number>, value?: T): void;
     abstract getDefaultId(): number;
     abstract getTypeDefault(): T;
 

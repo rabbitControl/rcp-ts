@@ -76,14 +76,8 @@ export abstract class ValueParameter<T> extends Parameter {
         // write value
         if (all || this.changed.has(RcpTypes.ParameterOptions.VALUE)) {
             
-            output.push(RcpTypes.ParameterOptions.VALUE);
-            
-            if (this._value != undefined && this._value != null) {    
-                this.defaultTypeDefintion.writeValue(this._value, output)                
-            } else {
-                // value was erased
-                this.defaultTypeDefintion.writeValue(null, output);
-            }
+            output.push(RcpTypes.ParameterOptions.VALUE);            
+            this.defaultTypeDefintion.writeValue(output, this._value);
         }
 
         // write all other options
@@ -102,7 +96,7 @@ export abstract class ValueParameter<T> extends Parameter {
         this.typeDefinition.writeMandatory(output);
 
         // write value
-        this.defaultTypeDefintion.writeValue(this._value, output);        
+        this.defaultTypeDefintion.writeValue(output, this._value);
     }
 
     //------------------------------------

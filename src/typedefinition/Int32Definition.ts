@@ -13,8 +13,8 @@ export class Int32Definition extends NumberDefinition {
         return io.readS4be();
     }
 
-    writeValue(value: number | null, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: number) {
+        if (value != undefined) {
             pushIn32ToArrayBe(value, buffer);
         } else if (this._defaultValue) {
             pushIn32ToArrayBe(this._defaultValue, buffer);

@@ -73,11 +73,7 @@ export class NumberboxWidget extends Widget {
             if (param) {
                 const td = param.typeDefinition;
                 if (td instanceof NumberDefinition) {
-                    if (this._stepsize) {
-                        td.writeValue(this._stepsize, output);
-                    } else {
-                        td.writeValue(null, output);
-                    }
+                    td.writeValue(output, this._stepsize);                    
                 } else {
                     throw new Error('numberbox widget with non-number-parameter: can not write stepsize!');
                 } 

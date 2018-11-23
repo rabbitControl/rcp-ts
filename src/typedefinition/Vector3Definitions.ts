@@ -14,8 +14,8 @@ export class Vector3F32Definition extends VectorDefinition<Vector3> {
         return new Vector3(io.readF4be(), io.readF4be(), io.readF4be());
     }
 
-    writeValue(value: Vector3, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: Vector3) {
+        if (value != undefined) {
             pushFloat32ToArrayBe(value.x, buffer);
             pushFloat32ToArrayBe(value.y, buffer);
             pushFloat32ToArrayBe(value.z, buffer);

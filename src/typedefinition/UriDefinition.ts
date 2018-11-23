@@ -43,9 +43,9 @@ export class UriDefinition extends DefaultDefinition<string> {
     }
 
     // override
-    writeValue(value: string | null, buffer: number[]): void {
+    writeValue(buffer: number[], value?: string): void {
 
-        if (value != null) {
+        if (value != undefined) {
             writeLongString(value, buffer);
         } else if (this._defaultValue) {
             writeLongString(this._defaultValue, buffer);
@@ -76,11 +76,7 @@ export class UriDefinition extends DefaultDefinition<string> {
             switch(key) {
                 case RcpTypes.UriOptions.DEFAULT: {
                     output.push(RcpTypes.UriOptions.DEFAULT);
-                    if (this._defaultValue) {
-                        this.writeValue(this._defaultValue, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }
+                    this.writeValue(output, this._defaultValue);                    
                     break;
                 }
 

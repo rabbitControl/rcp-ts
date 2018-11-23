@@ -80,41 +80,25 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
             switch (key) {
                 case RcpTypes.NumberOptions.DEFAULT: {
                     output.push(RcpTypes.NumberOptions.DEFAULT);
-                    if (this._defaultValue) {            
-                        this.writeValue(this._defaultValue, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }
+                    this.writeValue(output, this._defaultValue);
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MINIMUM: {
                     output.push(RcpTypes.NumberOptions.MINIMUM);
-                    if (this._minimum) {
-                        this.writeValue(this._minimum, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }
+                    this.writeValue(output, this._minimum);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MAXIMUM: {
                     output.push(RcpTypes.NumberOptions.MAXIMUM);
-                    if (this._maximum) {
-                        this.writeValue(this._maximum, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }       
+                    this.writeValue(output, this._maximum);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MULTIPLEOF: {
                     output.push(RcpTypes.NumberOptions.MULTIPLEOF);
-                    if (this._multipleof) {
-                        this.writeValue(this._multipleof, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }                
+                    this.writeValue(output, this._multipleof);                    
                     break;
                 }
 
@@ -239,8 +223,8 @@ export class Int8Definition extends NumberDefinition {
         return io.readU1();
     }
 
-    writeValue(value: number, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: number) {
+        if (value != undefined) {
             buffer.push(value);
         } else if (this._defaultValue) {
             buffer.push(this._defaultValue);
@@ -260,8 +244,8 @@ export class Int16Definition extends NumberDefinition {
         return io.readU2be();
     }
 
-    writeValue(value: number, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: number) {
+        if (value != undefined) {
             pushIn16ToArrayBe(value, buffer);
         } else if (this._defaultValue) {
             pushIn16ToArrayBe(this._defaultValue, buffer);
@@ -281,8 +265,8 @@ export class Int64Definition extends NumberDefinition {
         return io.readU8be();
     }
 
-    writeValue(value: number, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: number) {
+        if (value != undefined) {
             pushIn64ToArrayBe(value, buffer);
         } else if (this._defaultValue) {
             pushIn64ToArrayBe(this._defaultValue, buffer);
@@ -302,8 +286,8 @@ export class Float32Definition extends NumberDefinition {
         return io.readF4be();
     }
 
-    writeValue(value: number, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: number) {
+        if (value != undefined) {
             pushFloat32ToArrayBe(value, buffer);
         } else if (this._defaultValue) {
             pushFloat32ToArrayBe(this._defaultValue, buffer);
@@ -323,8 +307,8 @@ export class Float64Definition extends NumberDefinition {
         return io.readF8be();
     }
 
-    writeValue(value: number, buffer: Array<number>) {
-        if (value != null) {
+    writeValue(buffer: Array<number>, value?: number) {
+        if (value != undefined) {
             pushFloat64ToArrayBe(value, buffer);
         } else if (this._defaultValue) {
             pushFloat64ToArrayBe(this._defaultValue, buffer);

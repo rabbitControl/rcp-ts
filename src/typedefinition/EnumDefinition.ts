@@ -49,9 +49,9 @@ export class EnumDefinition extends DefaultDefinition<string> {
         return new TinyString(io).data;
     }
 
-    writeValue(value: string | null, buffer: Array<number>) {
+    writeValue(buffer: Array<number>, value?: string) {
 
-        if (value != null) {
+        if (value != undefined) {
             writeTinyString(value, buffer);
         } else if (this._defaultValue) {
             writeTinyString(this._defaultValue, buffer);
@@ -80,11 +80,7 @@ export class EnumDefinition extends DefaultDefinition<string> {
             switch(key) {
                 case RcpTypes.EnumOptions.DEFAULT: {                    
                     output.push(RcpTypes.EnumOptions.DEFAULT);
-                    if (this._defaultValue) {
-                        this.writeValue(this._defaultValue, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }
+                    this.writeValue(output, this._defaultValue);
                     break;
                 }
 

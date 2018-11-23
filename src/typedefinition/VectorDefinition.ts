@@ -120,41 +120,25 @@ export default abstract class VectorDefinition<T> extends DefaultDefinition<T> {
             switch (key) {
                 case RcpTypes.NumberOptions.DEFAULT: {
                     output.push(RcpTypes.NumberOptions.DEFAULT);
-                    if (this._defaultValue) {            
-                        this.writeValue(this._defaultValue, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }
+                    this.writeValue(output, this._defaultValue);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MINIMUM: {
                     output.push(RcpTypes.NumberOptions.MINIMUM);
-                    if (this._minimum) {
-                        this.writeValue(this._minimum, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }
+                    this.writeValue(output, this._minimum);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MAXIMUM: {
                     output.push(RcpTypes.NumberOptions.MAXIMUM);
-                    if (this._maximum) {
-                        this.writeValue(this._maximum, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }       
+                    this.writeValue(output, this._maximum);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MULTIPLEOF: {
                     output.push(RcpTypes.NumberOptions.MULTIPLEOF);
-                    if (this._multipleof) {
-                        this.writeValue(this._multipleof, output);
-                    } else {
-                        this.writeValue(null, output);
-                    }                
+                    this.writeValue(output, this._multipleof);                    
                     break;
                 }
 

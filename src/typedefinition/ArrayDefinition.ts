@@ -105,9 +105,9 @@
 //     }
 
 //     // override
-//     writeValue(value: T | null, buffer: Array<number>) {
+//     writeValue(buffer: Array<number>, value?: T) {
 
-//         if (value != null) {
+//         if (value != undefined) {
 
 //             // push num of dimensions
 //             pushIn32ToArrayBe(this.dimensions, buffer);

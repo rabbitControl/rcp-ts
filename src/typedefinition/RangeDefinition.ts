@@ -71,21 +71,21 @@ export class RangeDefinition extends DefaultDefinition<Range> {
         return new Range(this.elementType.readValue(io), this.elementType.readValue(io));
     }
 
-    writeValue(value: Range | null, buffer: number[]): void {
+    writeValue(buffer: number[], value?: Range): void {
 
         if (!this.elementType) {
             throw new Error('could not write value without elementType');
         }
 
-        if (value != null) {
-            this.elementType.writeValue(value.value1, buffer);
-            this.elementType.writeValue(value.value2, buffer);
+        if (value != undefined) {
+            this.elementType.writeValue(buffer, value.value1);
+            this.elementType.writeValue(buffer, value.value2);
         } else if (this._defaultValue) {
-            this.elementType.writeValue(this._defaultValue.value1, buffer);
-            this.elementType.writeValue(this._defaultValue.value2, buffer);
+            this.elementType.writeValue(buffer, this._defaultValue.value1);
+            this.elementType.writeValue(buffer, this._defaultValue.value2);
         } else {
-            this.elementType.writeValue(null, buffer);
-            this.elementType.writeValue(null, buffer);
+            this.elementType.writeValue(buffer, undefined);
+            this.elementType.writeValue(buffer, undefined);
         }
     }    
     
@@ -120,12 +120,7 @@ export class RangeDefinition extends DefaultDefinition<Range> {
 
         if (all || this.changed.has(RcpTypes.RangeOptions.DEFAULT)) {
             output.push(RcpTypes.RangeOptions.DEFAULT);
-
-            if (this._defaultValue) {
-                this.writeValue(this._defaultValue, output);
-            } else {
-                this.writeValue(null, output);
-            }
+            this.writeValue(output, this._defaultValue);
         }
 
         if (!all) {
