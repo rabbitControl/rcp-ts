@@ -39,14 +39,14 @@ export abstract class TypeDefinition implements Writeable {
   abstract writeOptions(output: number[], all: boolean): void;
 
   // override to write mandatory data after datatype and before options
-  writeMandatory(output: number[], all: boolean) : void {}
+  writeMandatory(output: number[]) : void {}
 
   write(output: number[], all: boolean): void {
     // mandatory datatype
     output.push(this.datatype);
 
     // write mandatory beffore options
-    this.writeMandatory(output, all);
+    this.writeMandatory(output);
 
     // write all options
     this.writeOptions(output, all);

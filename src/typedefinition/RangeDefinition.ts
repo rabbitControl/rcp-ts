@@ -99,15 +99,24 @@ export class RangeDefinition extends DefaultDefinition<Range> {
     }
 
     // override
-    writeMandatory(output: number[], all: boolean) : void {
+    writeMandatory(output: number[]) : void {
 
         if (!this.elementType) {
             throw new Error('RangeDefinition without elementType!');
         }
-        this.elementType.write(output, all);
+
+        output.push(this.elementType.datatype);
+        this.elementType.writeMandatory(output);
     }
 
     writeOptions(output: number[], all: boolean): void {
+
+        // first write options for element type
+        if (!this.elementType) {
+            throw new Error('RangeDefinition without elementType!');
+        }
+        this.elementType.writeOptions(output, all);
+        output.push(RcpTypes.TERMINATOR);
 
         if (all || this.changed.has(RcpTypes.RangeOptions.DEFAULT)) {
             output.push(RcpTypes.RangeOptions.DEFAULT);
