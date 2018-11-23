@@ -17,4 +17,4 @@ export class BangParameter extends Parameter {
     doBang() {
       this.setDirty();
     }
-}
+  }

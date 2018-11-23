@@ -15,7 +15,7 @@ export abstract class TypeDefinition implements Writeable {
     this.datatype = datatype;
   }
 
-  abstract handleOption(optionId: number, io: KaitaiStream): boolean  
+  abstract handleOption(optionId: number, io: KaitaiStream): boolean;
 
   readMandatory(io: KaitaiStream): void {
     // read mandatory data after typeid!    
