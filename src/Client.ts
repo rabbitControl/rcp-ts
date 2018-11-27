@@ -11,6 +11,7 @@ import { BangParameter } from './parameter/BangParameter';
 export class Client implements ParameterManager {
 
   static VERBOSE = false;
+  static DO_VALUE_UPDATE = true;
 
   // events
   connected?: () => void;
@@ -163,14 +164,18 @@ export class Client implements ParameterManager {
           
           let packetCommand = RcpTypes.Command.UPDATE;
           
-          // check if we can write updatevalue
-          if (parameter instanceof BangParameter || 
-              (!parameter.typeDefinition.didChange() &&               
-                parameter.changed.size === 1 && 
-                parameter.changed.has(RcpTypes.ParameterOptions.VALUE)
-              )
-          ){
-            packetCommand = RcpTypes.Command.UPDATEVALUE;
+          // is feature enabled?
+          if (Client.DO_VALUE_UPDATE) {
+            
+            // check if we can write updatevalue
+            if (parameter instanceof BangParameter || 
+                (!parameter.typeDefinition.didChange() &&               
+                  parameter.changed.size === 1 && 
+                  parameter.changed.has(RcpTypes.ParameterOptions.VALUE)
+                )
+            ){
+              packetCommand = RcpTypes.Command.UPDATEVALUE;
+            }
           }
 
           const packet = new Packet(packetCommand);
