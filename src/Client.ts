@@ -11,7 +11,7 @@ import { BangParameter } from './parameter/BangParameter';
 export class Client implements ParameterManager {
 
   static VERBOSE = false;
-  static DO_VALUE_UPDATE = true;
+  static DO_VALUE_UPDATE = false;
 
   // events
   connected?: () => void;
