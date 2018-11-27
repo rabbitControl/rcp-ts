@@ -45,6 +45,10 @@ export class Client implements ParameterManager {
         this.disconnected(event);
       }
 
+      if (Client.VERBOSE) {
+        console.log("transporter disconnected, clear value-cache");        
+      }
+
       // cleanup
       this.valueCache.clear();
       this.dirtyParams = [];
