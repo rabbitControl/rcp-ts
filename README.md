@@ -1,2 +1,8 @@
 # rcp-ts
-typescript implementation of rabbitcontrol
+Typescript implementation of RabbitControl
+
+This project is incubating.
+
+use with:
+
+`npm install --save rabbitcontrol`
