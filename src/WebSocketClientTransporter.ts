@@ -19,6 +19,9 @@ export class WebSocketClientTransporter extends ClientTransporter {
 
   connect(host: string, port: number): void {
 
+    // first disconnect    
+    this.disconnect();
+
     this.host = host;
     this.port = port;
 
@@ -65,6 +68,7 @@ export class WebSocketClientTransporter extends ClientTransporter {
     
     if (this.websocket) {
       this.websocket.close();
+      this.websocket = undefined;
     }
 
     this.readyState = RcpTypes.ClientStatus.DISCONNECTED;
