@@ -26,7 +26,6 @@ export class WebSocketClientTransporter extends ClientTransporter {
     this.host = host;
     this.port = port;
 
-
     if (this.doSSL) {
       this.serverURL = 'wss://' + host + ':' + port;
     } else {
@@ -40,6 +39,7 @@ export class WebSocketClientTransporter extends ClientTransporter {
     this.websocket = new WebSocket(this.serverURL);
     this.websocket.binaryType = 'arraybuffer';
 
+    // --------------------------------
     // set websocket callbacks
     this.websocket.onopen = (event) => {
       this.readyState = RcpTypes.ClientStatus.CONNECTED;
@@ -50,18 +50,21 @@ export class WebSocketClientTransporter extends ClientTransporter {
     }
     this.websocket.onclose = (event) => {
       this.readyState = RcpTypes.ClientStatus.DISCONNECTED;
+      // callback
       if (this.disconnected) { 
         this.disconnected(event);
       }
     }
     this.websocket.onerror = (event) => {
-      if (this.onError) this.onError();
+      // callback
+      if (this.onError) {
+        this.onError();
+      }
     }
     this.websocket.onmessage = (event) => this.receive(event.data);
   }
 
   versionOk() {
-
     this.readyState = RcpTypes.ClientStatus.OK;
   }
 
