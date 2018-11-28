@@ -1,5 +1,6 @@
 import { ClientTransporter } from './Transport';
 import { RcpTypes } from './RcpTypes';
+import { Client } from './Client';
 
 export class WebSocketClientTransporter extends ClientTransporter {
 
@@ -31,8 +32,10 @@ export class WebSocketClientTransporter extends ClientTransporter {
     } else {
       this.serverURL = 'ws://' + host + ':' + port;
     }
-
-    console.log("connect to: " + this.serverURL);
+    
+    if (Client.VERBOSE) {
+      console.log("connect to: " + this.serverURL);
+    }
 
     this.websocket = new WebSocket(this.serverURL);
     this.websocket.binaryType = 'arraybuffer';
@@ -55,8 +58,6 @@ export class WebSocketClientTransporter extends ClientTransporter {
       if (this.onError) this.onError();
     }
     this.websocket.onmessage = (event) => this.receive(event.data);
-
-    console.log("this.websocket.readyState: " + this.websocket.readyState);
   }
 
   versionOk() {
