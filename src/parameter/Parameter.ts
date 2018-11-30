@@ -135,7 +135,7 @@ export abstract class Parameter implements Writeable {
 
     // todo
     if (parameter._parent) {
-      // this._description = parameter._description
+      // this._parent = parameter._parent
       changed = true;
     }
 
@@ -476,9 +476,8 @@ export abstract class Parameter implements Writeable {
           }
           break;
 
-        case RcpTypes.ParameterOptions.WIDGET: {
+        case RcpTypes.ParameterOptions.WIDGET:
           this._widget = parseWidget(io, this);
-        }
           break;
 
         case RcpTypes.ParameterOptions.READONLY:
