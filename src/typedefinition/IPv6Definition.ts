@@ -3,6 +3,7 @@ import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { IPv6 } from 'ip-num';
 import * as bigInt from 'big-integer';
+import { TypeDefinition } from './TypeDefinition';
 
 export class IPv6Definition extends DefaultDefinition<IPv6> {
 
@@ -11,6 +12,20 @@ export class IPv6Definition extends DefaultDefinition<IPv6> {
 
     constructor() {
         super(RcpTypes.Datatype.IPV6);
+    }
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+        
+        if (typedefinition instanceof IPv6Definition) {
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     handleOption(optionId: number, io: KaitaiStream): boolean {

@@ -4,6 +4,7 @@ import KaitaiStream from '../KaitaiStream';
 import { pushFloat32ToArrayBe, pushIn32ToArrayBe } from '../Utils';
 import { IPv4 } from 'ip-num';
 import * as bigInt from 'big-integer';
+import { TypeDefinition } from './TypeDefinition';
 
 export class IPv4Definition extends DefaultDefinition<IPv4> {
 
@@ -12,6 +13,20 @@ export class IPv4Definition extends DefaultDefinition<IPv4> {
 
     constructor() {
         super(RcpTypes.Datatype.IPV4);
+    }
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof IPv4Definition) {
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     handleOption(optionId: number, io: KaitaiStream): boolean {

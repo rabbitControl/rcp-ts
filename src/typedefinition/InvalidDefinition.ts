@@ -16,6 +16,6 @@ export class InvalidDefinition extends TypeDefinition {
         return false;
     }
 
-    writeOptions(output: number[], all: boolean): void { 
-    }
+    writeOptions(output: number[], all: boolean): void {}
+    update(typedefinition: TypeDefinition): boolean { return false; }
 }

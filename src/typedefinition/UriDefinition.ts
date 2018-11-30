@@ -2,6 +2,7 @@ import { DefaultDefinition } from './DefaultDefinition';
 import { RcpTypes, LongString, TinyString } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { writeLongString, writeTinyString } from '../Utils';
+import { TypeDefinition } from './TypeDefinition';
 
 export class UriDefinition extends DefaultDefinition<string> {
     
@@ -15,6 +16,31 @@ export class UriDefinition extends DefaultDefinition<string> {
 
     constructor() {
         super(RcpTypes.Datatype.URI);
+    }
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof UriDefinition) {
+            
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+
+            if (typedefinition._filter !== undefined) {
+                this._filter = typedefinition._filter;
+                changed = true;
+            }
+            
+            if (typedefinition._schema !== undefined) {
+                this._schema = typedefinition._schema;
+                changed = true;
+            }            
+        }
+
+        return changed;
     }
 
     // override

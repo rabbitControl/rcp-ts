@@ -1,6 +1,7 @@
 import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { RcpTypes } from '../RcpTypes';
+import { TypeDefinition } from './TypeDefinition';
 
 export class BooleanDefinition extends DefaultDefinition<boolean> {
 
@@ -9,6 +10,20 @@ export class BooleanDefinition extends DefaultDefinition<boolean> {
 
     constructor() {
         super(RcpTypes.Datatype.BOOLEAN);
+    }
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof BooleanDefinition) {
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     // override

@@ -21,4 +21,5 @@ export class GroupDefinition extends TypeDefinition {
     }
 
     writeOptions(output: number[], all: boolean): void {}
+    update(typedefinition: TypeDefinition): boolean { return false; }
 }

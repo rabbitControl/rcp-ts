@@ -8,6 +8,7 @@ import {
     pushIn64ToArrayBe
 } from '../Utils';
 import { RcpTypes } from '../RcpTypes';
+import { TypeDefinition } from './TypeDefinition';
 
 export abstract class NumberDefinition extends DefaultDefinition<number> {
     
@@ -24,6 +25,48 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
     private _multipleof?: number;
     private _scale?: number;
     private _unit?: string;
+
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof NumberDefinition) {
+
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+
+            if (typedefinition._minimum !== undefined) {
+                this._minimum = typedefinition._minimum;
+                changed = true;
+            }
+
+            if (typedefinition._maximum !== undefined) {
+                this._maximum = typedefinition._maximum;
+                changed = true;
+            }
+
+            if (typedefinition._multipleof !== undefined) {
+                this._multipleof = typedefinition._multipleof;
+                changed = true;
+            }
+
+            if (typedefinition._scale !== undefined) {
+                this._scale = typedefinition._scale;
+                changed = true;
+            }
+
+            if (typedefinition._unit !== undefined) {
+                this._unit = typedefinition._unit;
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
 
     handleOption(optionId: number, io: KaitaiStream): boolean {
 

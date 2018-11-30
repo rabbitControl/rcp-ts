@@ -2,6 +2,7 @@ import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { RcpTypes, TinyString } from '../RcpTypes';
 import { writeTinyString } from '../Utils';
+import { TypeDefinition } from './TypeDefinition';
 
 export class EnumDefinition extends DefaultDefinition<string> {
     
@@ -15,6 +16,32 @@ export class EnumDefinition extends DefaultDefinition<string> {
 
     constructor() {
         super(RcpTypes.Datatype.ENUM);
+    }
+
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+        
+        if (typedefinition instanceof EnumDefinition) {
+
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+
+            if (typedefinition._entries !== undefined) {
+                this._entries = typedefinition._entries;
+                changed = true;
+            }
+
+            if (typedefinition._multiselect !== undefined) {
+                this._multiselect = typedefinition._multiselect;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     handleOption(optionId: number, io: KaitaiStream): boolean {

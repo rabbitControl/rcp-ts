@@ -89,7 +89,8 @@ export abstract class Parameter implements Writeable {
       return;
     }
 
-    let changed = false;
+    // update typedefinition
+    let changed = this.typeDefinition.update(parameter.typeDefinition);
 
     if (parameter._label !== undefined) {
       this._label = parameter._label;

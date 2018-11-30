@@ -2,6 +2,7 @@ import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { writeLongString } from '../Utils';
 import { RcpTypes, LongString } from '../RcpTypes';
+import { TypeDefinition } from './TypeDefinition';
 
 export class StringDefinition extends DefaultDefinition<string> {
     
@@ -13,6 +14,26 @@ export class StringDefinition extends DefaultDefinition<string> {
 
     constructor() {
         super(RcpTypes.Datatype.STRING);
+    }
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof StringDefinition) {
+
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+
+            if (typedefinition._regex !== undefined) {
+                this._regex = typedefinition._regex;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     // override

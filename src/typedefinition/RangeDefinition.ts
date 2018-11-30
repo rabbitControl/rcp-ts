@@ -3,6 +3,7 @@ import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { NumberDefinition } from './NumberDefinition';
 import { createTypeDefinition } from '../RCPDefinitionFactory';
+import { TypeDefinition } from './TypeDefinition';
 
 export class Range {
 
@@ -21,6 +22,29 @@ export class RangeDefinition extends DefaultDefinition<Range> {
 
     constructor() {
         super(RcpTypes.Datatype.RANGE);
+    }
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof RangeDefinition) {
+
+            if (typedefinition.elementType) {
+                if (this.elementType) {
+                    changed = this.elementType.update(typedefinition.elementType);
+                } else {
+                    // ??
+                }
+            }
+
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     // override to check element type as well

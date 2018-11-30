@@ -2,6 +2,7 @@ import { DefaultDefinition } from './DefaultDefinition';
 import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { pushIn32ToArrayBe } from '../Utils';
+import { TypeDefinition } from './TypeDefinition';
 
 function byteToHex(num: number): string {
     // Turns a number (0-255) into a 2-character hex number (00-ff);
@@ -102,6 +103,21 @@ export class RGBADefinition extends ColorDefinition {
         super(RcpTypes.Datatype.RGBA);
     }
 
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof RGBADefinition) {
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
     readValue(io: KaitaiStream): string {
         return numToRGBA(io.readU4be());
     }
@@ -122,6 +138,21 @@ export class RGBDefinition extends ColorDefinition {
 
     constructor() {
         super(RcpTypes.Datatype.RGB);
+    }
+
+
+    update(typedefinition: TypeDefinition): boolean {
+
+        let changed = false;
+
+        if (typedefinition instanceof RGBDefinition) {
+            if (typedefinition._defaultValue !== undefined) {
+                this._defaultValue = typedefinition._defaultValue;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     readValue(io: KaitaiStream): string {
