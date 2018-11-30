@@ -91,7 +91,7 @@ export abstract class Parameter implements Writeable {
 
     let changed = false;
 
-    if (parameter._label) {
+    if (parameter._label !== undefined) {
       this._label = parameter._label;
       changed = true;
     }
@@ -107,7 +107,7 @@ export abstract class Parameter implements Writeable {
       changed = true;
     }
 
-    if (parameter._description) {
+    if (parameter._description !== undefined) {
       this._description = parameter._description;
       changed = true;
     }
@@ -123,33 +123,33 @@ export abstract class Parameter implements Writeable {
       changed = true;
     }
 
-    if (parameter._tags) {
+    if (parameter._tags !== undefined) {
       this._tags = parameter._tags;
       changed = true;
     }
 
-    if (parameter._order != undefined) {
+    if (parameter._order !== undefined) {
       this._order = parameter._order;
       changed = true;
     }
 
     // todo
-    if (parameter._parent) {
+    if (parameter._parent !== undefined) {
       // this._parent = parameter._parent
       changed = true;
     }
 
-    if (parameter._widget) {
+    if (parameter._widget !== undefined) {
       this._widget = parameter._widget;
       changed = true;
     }
 
-    if (parameter._userdata) {
+    if (parameter._userdata !== undefined) {
       this._userdata = parameter._userdata;
       changed = true;
     }
 
-    if (parameter._userid) {
+    if (parameter._userid !== undefined) {
       this._userid = parameter._userid;
       changed = true;
     }  
