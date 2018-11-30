@@ -154,7 +154,7 @@ export abstract class Parameter implements Writeable {
       changed = true;
     }  
 
-    if (parameter._readonly) {
+    if (parameter._readonly !== undefined) {
       this._readonly = parameter._readonly;
       changed = true;
     }
