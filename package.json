@@ -1,6 +1,6 @@
 {
     "name": "rabbitcontrol",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "RabbitControl: A binary data-format definition to describe data values and user interface elements.",
     "keywords": [],
     "main": "compiled/index.js",
