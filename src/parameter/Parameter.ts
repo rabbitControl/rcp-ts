@@ -154,6 +154,11 @@ export abstract class Parameter implements Writeable {
       changed = true;
     }  
 
+    if (parameter._readonly) {
+      this._readonly = parameter._readonly;
+      changed = true;
+    }
+
     // if something was changed, call listeners
     if (changed) {
       this.changedListeners.forEach( (listener) => {
