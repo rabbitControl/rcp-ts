@@ -147,19 +147,20 @@ export class Client implements ParameterManager {
 
   /**
    * send initialize packet to server if transporter is connected
-   * 
    */
   initialize() {
     // cleanup?
     if (this.transporter.isConnected()) {
-      console.log("client: send init")
-      const packet = new Packet(RcpTypes.Command.INITIALIZE)
-      this.transporter.send(new Int8Array(packet.serialize(false)))
+      const packet = new Packet(RcpTypes.Command.INITIALIZE);
+      this.sendPacket(packet);
     } else {
-      console.log("initialize: transporter not connected")
+      console.log("initialize: transporter not connected");
     }
   }
 
+  /**
+   * iterate over dirty parameters and send update packets
+   */
   update() {
     try {
       if (this.transporter.isConnected()) {
@@ -184,13 +185,7 @@ export class Client implements ParameterManager {
 
           const packet = new Packet(packetCommand);
           packet.data = parameter;
-          const dataOut = new Int8Array(packet.serialize(false))
-
-          if (Client.VERBOSE) {
-            console.log("client writing: ", dataOut);
-          }
-
-          this.transporter.send(dataOut);
+          this.sendPacket(packet);
         })
 
         this.dirtyParams = [];
@@ -221,7 +216,18 @@ export class Client implements ParameterManager {
   //------------------------------
   //
   //
-  _update(parameter: Parameter): void {
+  private sendPacket(packet: Packet) {
+
+    const dataOut = new Int8Array(packet.serialize(false))
+
+    if (Client.VERBOSE) {
+      console.log("client writing: ", dataOut);
+    }
+
+    this.transporter.send(dataOut);
+  } 
+
+  private _update(parameter: Parameter): void {
 
     if (!this.valueCache.has(parameter.id)) {
 
@@ -250,7 +256,7 @@ export class Client implements ParameterManager {
     }
   }
 
-  _remove(parameter: Parameter): void {
+  private _remove(parameter: Parameter): void {
 
     if (Client.VERBOSE) {
       console.log("CLIENT: remove: " + parameter.id);

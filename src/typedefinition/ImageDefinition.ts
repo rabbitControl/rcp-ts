@@ -59,7 +59,6 @@ export class ImageDefinition extends DefaultDefinition<Uint8Array> {
         } else {
             pushIn32ToArrayBe(0, buffer);
         }
-        
     }
 
     // override
