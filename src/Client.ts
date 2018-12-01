@@ -111,11 +111,11 @@ export class Client implements ParameterManager {
   private requestVersion() {
 
     // send version packet
-    // const versionPacket = new Packet(RcpTypes.Command.VERSION);
-    // this.transporter.send(new Int8Array(versionPacket.serialize(false)));
+    const versionPacket = new Packet(RcpTypes.Command.VERSION);
+    this.transporter.send(new Int8Array(versionPacket.serialize(false)));
 
     // if you know server does not support version data, handleVersion directly
-    this.handleVersion("0.0.0");
+    // this.handleVersion("0.0.0");
   }
 
   private handleVersion(version: string) {
