@@ -14,6 +14,7 @@ import { Int8Parameter, Int16Parameter, Int32Parameter, Int64Parameter, Float32P
 import { Vector3F32Parameter } from './parameter/Vector3Parameters';
 import { RcpTypes } from './RcpTypes';
 import { ValueParameter } from './parameter/ValueParameter';
+import { ImageParameter } from './parameter/ImageParameter';
 
 export function parseParameter(io: KaitaiStream, manager: ParameterManager): Parameter {
 
@@ -105,6 +106,9 @@ export function createParameter(id: number, datatype: number): Parameter {
       case RcpTypes.Datatype.IPV6:
       case RcpTypes.Datatype.RANGE:
           return new RangeParameter(id);
+
+        case RcpTypes.Datatype.IMAGE:
+            return new ImageParameter(id);
 
       default:
           throw new Error('unknown Datatype: ' + datatype);

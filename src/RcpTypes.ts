@@ -295,6 +295,7 @@ export abstract class RcpTypes {
     IPV4: 43,
     IPV6: 44,
     RANGE: 45,
+    IMAGE: 46,
 
     1: 'CUSTOMTYPE',
     16: 'BOOLEAN',
@@ -326,6 +327,7 @@ export abstract class RcpTypes {
     43: 'IPV4',
     44: 'IPV6',
     45: 'RANGE',
+    46: 'IMAGE',
   })
 
   static NumberOptions = Object.freeze({
