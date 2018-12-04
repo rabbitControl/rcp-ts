@@ -21,6 +21,7 @@ export { RangeParameter } from './parameter/RangeParameter';
 export { StringParameter } from './parameter/StringParameter';
 export { UriParameter } from './parameter/UriParameter';
 export { Vector3F32Parameter } from './parameter/Vector3Parameters';
+export { ImageParameter } from './parameter/ImageParameter';
 // typedefinition
 export { TypeDefinition } from './typedefinition/TypeDefinition';
 export { BangDefinition } from './typedefinition/BangDefinition';
