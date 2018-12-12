@@ -215,7 +215,12 @@ export class Client implements ParameterManager {
 
   //------------------------------
   //
-  //
+  
+  /**
+   * send a packet using our transporter
+   * 
+   * @param packet the packet to sed
+   */
   private sendPacket(packet: Packet) {
 
     const dataOut = new Int8Array(packet.serialize(false))
@@ -227,6 +232,12 @@ export class Client implements ParameterManager {
     this.transporter.send(dataOut);
   } 
 
+  /**
+   * add or update a parameter in our valueCache
+   * parameterAdded listener are informed if paramter gets added to the valueCache
+   * 
+   * @param parameter parsed parameter to add or update
+   */
   private _update(parameter: Parameter): void {
 
     if (!this.valueCache.has(parameter.id)) {
@@ -256,6 +267,12 @@ export class Client implements ParameterManager {
     }
   }
 
+  /**
+   * remove a parameter from valueCache
+   * informs listeners before removing parameter
+   * 
+   * @param parameter parsed parameter to remove. this is not the parameter in our calueCache
+   */
   private _remove(parameter: Parameter): void {
 
     const cached = this.valueCache.get(parameter.id);
