@@ -21,6 +21,12 @@ export abstract class ValueParameter<T> extends Parameter {
         this.defaultTypeDefintion = typedefinition;
     }
 
+    // override
+    dispose() {
+        super.dispose();
+        this.valueChangedListeners = [];
+    }
+
     abstract setStringValue(value: string): boolean;    
 
     //------------------------------------

@@ -258,12 +258,34 @@ export class Client implements ParameterManager {
 
   private _remove(parameter: Parameter): void {
 
-    if (Client.VERBOSE) {
-      console.log("CLIENT: remove: " + parameter.id);
-    }
+    const cached = this.valueCache.get(parameter.id);
 
-    if (this.parameterRemoved) {
-      this.parameterRemoved(parameter);
+    if (cached !== undefined) {
+      
+      if (Client.VERBOSE) {
+        console.log("CLIENT: remove: " + parameter.id);
+      }
+
+      // remove parameter from parent
+      // TODO: dispose??
+      cached.removeFromParent();
+
+      // remove parameter
+      this.valueCache.delete(parameter.id);
+
+      // tell listeners
+      if (this.parameterRemoved) {
+        this.parameterRemoved(cached);
+      }
+
+      cached.dispose();
+      parameter.dispose();
+
+    } else {
+      if (Client.VERBOSE) {
+        console.log("CLIENT: no parameter to remove with id: " + parameter.id);
+      }      
     }
   }
+
 }

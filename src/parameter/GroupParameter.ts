@@ -22,4 +22,13 @@ export class GroupParameter extends Parameter {
 
         this.children.push(parameter);
     }
+
+    removeChild(parameter: Parameter) {
+
+        const index = this.children.indexOf(parameter);
+
+        if (index >= 0) {
+            this.children.splice(index, 1);
+        }
+    }
 }

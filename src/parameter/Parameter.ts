@@ -56,6 +56,16 @@ export abstract class Parameter implements Writeable {
     this.typeDefinition = typeDefinition;
   }
 
+  dispose() {
+    this.removeFromParent();
+    this.manager = undefined;
+    this.changed.clear();    
+    this.clearLanguageLabels();
+    this.clearLanguageDescriptions();
+
+    this.changedListeners = [];
+  }
+
   isValid(): boolean {
     return this.typeDefinition.datatype != 0;
   }
@@ -165,6 +175,13 @@ export abstract class Parameter implements Writeable {
       this.changedListeners.forEach( (listener) => {
         listener(this);
       });
+    }
+  }
+
+  removeFromParent() {
+    if (this._parent !== undefined) {
+      this._parent.removeChild(this);
+      this._parent = undefined;
     }
   }
 
