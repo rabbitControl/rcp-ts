@@ -46,8 +46,8 @@ export abstract class Parameter implements Writeable {
   private _readonly?: boolean;
 
   // other fields
-  manager?: ParameterManager;
-  changed: Map<number, boolean> = new Map();
+  private manager?: ParameterManager;
+  protected changed: Map<number, boolean> = new Map();
 
   private changedListeners: ChangedListener[] = [];  
 
@@ -66,8 +66,16 @@ export abstract class Parameter implements Writeable {
     this.changedListeners = [];
   }
 
+  setManager(manager?: ParameterManager) {
+    this.manager = manager;
+  }
+
   isValid(): boolean {
     return this.typeDefinition.datatype != 0;
+  }
+
+  onlyValueChanged() : boolean {
+    return this.changed.size === 1 && this.changed.has(RcpTypes.ParameterOptions.VALUE);
   }
 
   //------------------------------------

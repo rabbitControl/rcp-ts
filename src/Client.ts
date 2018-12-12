@@ -175,8 +175,7 @@ export class Client implements ParameterManager {
             // check if we can write updatevalue
             if (parameter instanceof BangParameter || 
                 (!parameter.typeDefinition.didChange() &&               
-                  parameter.changed.size === 1 && 
-                  parameter.changed.has(RcpTypes.ParameterOptions.VALUE)
+                  parameter.onlyValueChanged()
                 )
             ){
               packetCommand = RcpTypes.Command.UPDATEVALUE;

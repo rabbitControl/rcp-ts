@@ -23,7 +23,7 @@ export function parseParameter(io: KaitaiStream, manager: ParameterManager): Par
     const datatype = io.readU1();
 
     const parameter = createParameter(parameter_id, datatype);    
-    parameter.manager = manager;
+    parameter.setManager(manager);
 
     parameter.parseOptions(io);
 
@@ -39,7 +39,7 @@ export function parseUpdateValue(io: KaitaiStream, manager: ParameterManager): P
     // read all mandatory typedefinition data
 
     const parameter = createParameter(parameter_id, datatype);
-    parameter.manager = manager;
+    parameter.setManager(manager);
 
     if (parameter instanceof ValueParameter) {
         // handle mandatory typedefinition data
