@@ -154,7 +154,16 @@ export abstract class Parameter implements Writeable {
 
     // todo
     if (parameter._parent !== undefined) {
-      // this._parent = parameter._parent
+
+      this.removeFromParent();
+
+      this._parent = parameter._parent;
+      if (this._parent) {
+        this._parent.addChild(this);
+      } else {
+        console.log("update: no PARENT??");
+      }  
+
       changed = true;
     }
 
