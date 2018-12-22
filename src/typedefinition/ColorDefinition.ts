@@ -11,48 +11,66 @@ function byteToHex(num: number): string {
 
 function numToRGB(color: number): string {
 
-    let r = color & 0xff;
-    let g = (color >> 8) & 0xff;
-    let b = (color >> 16) & 0xff;
-    // let a = (color >> 24) & 0xff;
+    const r = color & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = (color >> 16) & 0xff;
+    // const a = (color >> 24) & 0xff;
 
     return "#" + byteToHex(r) + byteToHex(g) + byteToHex(b);
 }
 
 function numToRGBA(color: number): string {
 
-    let r = color & 0xff;
-    let g = (color >> 8) & 0xff;
-    let b = (color >> 16) & 0xff;
-    let a = (color >> 24) & 0xff;
+    const r = color & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = (color >> 16) & 0xff;
+    const a = (color >> 24) & 0xff;
 
     return "#" + byteToHex(r) + byteToHex(g) + byteToHex(b) + byteToHex(a);
 }
 
 function RGBToNum(color: string): number {
 
-    let rpart = color.slice(1, 3);
-    let gpart = color.slice(3, 5);
-    let bpart = color.slice(5, 7);
+    if (!color.startsWith("#")) {
+        throw new Error(`not a valid color: ${color}`);
+    }
+
+    // make sure we have RGB colors
+    while (color.length < 7) {
+        color += "f";
+    }
+
+    const rpart = color.slice(1, 3);
+    const gpart = color.slice(3, 5);
+    const bpart = color.slice(5, 7);
   
-    let r = parseInt(rpart, 16);
-    let g = parseInt(gpart, 16);
-    let b = parseInt(bpart, 16);
+    const r = parseInt(rpart, 16);
+    const g = parseInt(gpart, 16);
+    const b = parseInt(bpart, 16);
   
     return (r + (g << 8) + (b << 16));
 }
 
 function RGBAToNum(color: string): number {
 
-    let rpart = color.slice(1, 3);
-    let gpart = color.slice(3, 5);
-    let bpart = color.slice(5, 7);
-    let apart = color.slice(7, 9);
+    if (!color.startsWith("#")) {
+        throw new Error(`not a valid color: ${color}`);
+    }
+
+    // make sure we have RGBA colors
+    while (color.length < 9) {
+        color += "f";
+    }
+
+    const rpart = color.slice(1, 3);
+    const gpart = color.slice(3, 5);
+    const bpart = color.slice(5, 7);
+    const apart = color.slice(7, 9);
   
-    let r = parseInt(rpart, 16);
-    let g = parseInt(gpart, 16);
-    let b = parseInt(bpart, 16);
-    let a = parseInt(apart, 16);
+    const r = parseInt(rpart, 16);
+    const g = parseInt(gpart, 16);
+    const b = parseInt(bpart, 16);
+    const a = parseInt(apart, 16);
   
     return (r + (g << 8) + (b << 16) + (a << 24));
 }
@@ -77,11 +95,6 @@ abstract class ColorDefinition extends DefaultDefinition<string> {
         return RcpTypes.ColorOptions.DEFAULT;
     }
 
-    // override
-    getTypeDefault(): string {
-        return "#00000000";
-    }
-
     writeOptions(output: number[], all: boolean): void {
         
         if (all || this.changed.has(RcpTypes.ColorOptions.DEFAULT)) {
@@ -103,6 +116,10 @@ export class RGBADefinition extends ColorDefinition {
         super(RcpTypes.Datatype.RGBA);
     }
 
+    // override
+    getTypeDefault(): string {
+        return "#00000000";
+    }
 
     update(typedefinition: TypeDefinition): boolean {
 
@@ -140,6 +157,10 @@ export class RGBDefinition extends ColorDefinition {
         super(RcpTypes.Datatype.RGB);
     }
 
+    // override
+    getTypeDefault(): string {
+        return "#000000";
+    }
 
     update(typedefinition: TypeDefinition): boolean {
 
