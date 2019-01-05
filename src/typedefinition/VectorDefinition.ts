@@ -22,14 +22,18 @@ export class Vector2 {
         return new Vector2(this.x, this.y);
     }
 
-    add(v: Vector2) {
+    add(v: Vector2): Vector2 {
         this.x += v.x;
         this.y += v.y;
+
+        return this;
     }
 
-    sub(v: Vector2) {
+    sub(v: Vector2): Vector2 {
         this.x -= v.x;
         this.y -= v.y;
+
+        return this;
     }
 }
 
@@ -52,16 +56,20 @@ export class Vector3 {
         return new Vector3(this.x, this.y, this.z);
     }
 
-    add(v: Vector3) {
+    add(v: Vector3): Vector3 {
         this.x += v.x;
         this.y += v.y;
         this.z += v.z;
+
+        return this;
     }
 
-    sub(v: Vector3) {
+    sub(v: Vector3): Vector3 {
         this.x -= v.x;
         this.y -= v.y;
         this.z -= v.z;
+
+        return this;
     }
 }
 
@@ -86,18 +94,22 @@ export class Vector4 {
         return new Vector4(this.x, this.y, this.z, this.t);
     }
 
-    add(v: Vector4) {
+    add(v: Vector4): Vector4 {
         this.x += v.x;
         this.y += v.y;
         this.z += v.z;
         this.t += v.t;
+
+        return this;
     }
 
-    sub(v: Vector4) {
+    sub(v: Vector4): Vector4 {
         this.x -= v.x;
         this.y -= v.y;
         this.z -= v.z;
         this.t -= v.t;
+
+        return this;
     }
 }
 
