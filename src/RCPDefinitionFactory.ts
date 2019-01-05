@@ -12,7 +12,9 @@ import { GroupDefinition } from './typedefinition/GroupDefinition';
 import { IPv4Definition } from './typedefinition/IPv4Definition';
 import { IPv6Definition } from './typedefinition/IPv6Definition';
 import { UriDefinition } from './typedefinition/UriDefinition';
-import { Vector3F32Definition } from './typedefinition/Vector3Definitions';
+import { Vector3F32Definition, Vector3I32Definition } from './typedefinition/Vector3Definitions';
+import { Vector2I32Definition } from './typedefinition/Vector2Definitions';
+import { Vector4I32Definition, Vector4F32Definition } from './typedefinition/Vector4Definitions';
 
 
 export function createTypeDefinition(datatype: number): TypeDefinition {
@@ -39,14 +41,17 @@ export function createTypeDefinition(datatype: number): TypeDefinition {
         case RcpTypes.Datatype.FLOAT64:
             return new Float64Definition();
         case RcpTypes.Datatype.VECTOR2I32:
+            return new Vector2I32Definition();
         case RcpTypes.Datatype.VECTOR2F32:
+            return new Vector3F32Definition();
         case RcpTypes.Datatype.VECTOR3I32:
-            break;
+            return new Vector3I32Definition();
         case RcpTypes.Datatype.VECTOR3F32:
             return new Vector3F32Definition();
         case RcpTypes.Datatype.VECTOR4I32:
+            return new Vector4I32Definition();
         case RcpTypes.Datatype.VECTOR4F32:
-            break;
+            return new Vector4F32Definition();
         case RcpTypes.Datatype.STRING:
             return new StringDefinition();
         case RcpTypes.Datatype.RGB:
