@@ -1,18 +1,18 @@
 import { ValueParameter } from "./ValueParameter";
-import { Vector3F32Definition, Vector3I32Definition } from "../typedefinition/Vector3Definitions";
-import { Vector3 } from "../typedefinition/VectorDefinition";
+import { Vector4 } from "../typedefinition/VectorDefinition";
+import { Vector4F32Definition, Vector4I32Definition } from "../typedefinition/Vector4Definitions";
 
-export class Vector3F32Parameter extends ValueParameter<Vector3> {
+export class Vector4F32Parameter extends ValueParameter<Vector4> {
 
     constructor(id: number) {
-        super(id, new Vector3F32Definition());
+        super(id, new Vector4F32Definition());
     }
 
     setStringValue(value: string): boolean {
-        // "x, y, z"
+        // "x, y, z, t"
         
         const values = value.split(",");
-        if (values.length < 3) {
+        if (values.length < 4) {
             return false;
         }
 
@@ -31,22 +31,27 @@ export class Vector3F32Parameter extends ValueParameter<Vector3> {
             return false;
         }
 
-        this.value = new Vector3(x, y, z);
+        const t = parseFloat(values[3]);
+        if (isNaN(t)) {
+            return false;
+        }
+
+        this.value = new Vector4(x, y, z, t);
         return true;
     }
 }
 
-export class Vector3I32Parameter extends ValueParameter<Vector3> {
+export class Vector4I32Parameter extends ValueParameter<Vector4> {
 
     constructor(id: number) {
-        super(id, new Vector3I32Definition());
+        super(id, new Vector4I32Definition());
     }
 
     setStringValue(value: string): boolean {
-        // "x, y, z"
+        // "x, y, z, t"
         
         const values = value.split(",");
-        if (values.length < 3) {
+        if (values.length < 4) {
             return false;
         }
 
@@ -65,7 +70,12 @@ export class Vector3I32Parameter extends ValueParameter<Vector3> {
             return false;
         }
 
-        this.value = new Vector3(x, y, z);
+        const t = parseInt(values[3]);
+        if (isNaN(t)) {
+            return false;
+        }
+
+        this.value = new Vector4(x, y, z, t);
         return true;
     }
 }

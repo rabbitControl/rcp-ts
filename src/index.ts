@@ -20,7 +20,9 @@ export { NumberParameter } from './parameter/NumberParameter';
 export { RangeParameter } from './parameter/RangeParameter';
 export { StringParameter } from './parameter/StringParameter';
 export { UriParameter } from './parameter/UriParameter';
-export { Vector3F32Parameter } from './parameter/Vector3Parameters';
+export { Vector2F32Parameter, Vector2I32Parameter } from './parameter/Vector2Parameters';
+export { Vector3F32Parameter, Vector3I32Parameter } from './parameter/Vector3Parameters';
+export { Vector4F32Parameter, Vector4I32Parameter } from './parameter/Vector4Parameters';
 export { ImageParameter } from './parameter/ImageParameter';
 // typedefinition
 export { TypeDefinition } from './typedefinition/TypeDefinition';
@@ -39,7 +41,9 @@ export { Range, RangeDefinition} from './typedefinition/RangeDefinition';
 export { StringDefinition } from './typedefinition/StringDefinition';
 export { UriDefinition } from './typedefinition/UriDefinition';
 export { Vector2, Vector3, Vector4 } from './typedefinition/VectorDefinition';
-export { Vector3F32Definition } from './typedefinition/Vector3Definitions';
+export { Vector2F32Definition, Vector2I32Definition } from './typedefinition/Vector2Definitions';
+export { Vector3F32Definition, Vector3I32Definition } from './typedefinition/Vector3Definitions';
+export { Vector4F32Definition, Vector4I32Definition } from './typedefinition/Vector4Definitions';
 // widget
 export { Widget } from './widget/Widget';
 export { BangWidget } from './widget/BangWidget';

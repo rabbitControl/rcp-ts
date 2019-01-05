@@ -1,18 +1,18 @@
 import { ValueParameter } from "./ValueParameter";
-import { Vector3F32Definition, Vector3I32Definition } from "../typedefinition/Vector3Definitions";
-import { Vector3 } from "../typedefinition/VectorDefinition";
+import { Vector3, Vector2 } from "../typedefinition/VectorDefinition";
+import { Vector2F32Definition, Vector2I32Definition } from "..";
 
-export class Vector3F32Parameter extends ValueParameter<Vector3> {
+export class Vector2F32Parameter extends ValueParameter<Vector2> {
 
     constructor(id: number) {
-        super(id, new Vector3F32Definition());
+        super(id, new Vector2F32Definition());
     }
 
     setStringValue(value: string): boolean {
-        // "x, y, z"
+        // "x, y"
         
         const values = value.split(",");
-        if (values.length < 3) {
+        if (values.length < 2) {
             return false;
         }
 
@@ -26,27 +26,22 @@ export class Vector3F32Parameter extends ValueParameter<Vector3> {
             return false;
         }
 
-        const z = parseFloat(values[2]);
-        if (isNaN(z)) {
-            return false;
-        }
-
-        this.value = new Vector3(x, y, z);
+        this.value = new Vector2(x, y);
         return true;
     }
 }
 
-export class Vector3I32Parameter extends ValueParameter<Vector3> {
+export class Vector2I32Parameter extends ValueParameter<Vector2> {
 
     constructor(id: number) {
-        super(id, new Vector3I32Definition());
+        super(id, new Vector2I32Definition());
     }
 
     setStringValue(value: string): boolean {
-        // "x, y, z"
+        // "x, y"
         
         const values = value.split(",");
-        if (values.length < 3) {
+        if (values.length < 2) {
             return false;
         }
 
@@ -60,12 +55,7 @@ export class Vector3I32Parameter extends ValueParameter<Vector3> {
             return false;
         }
 
-        const z = parseInt(values[2]);
-        if (isNaN(z)) {
-            return false;
-        }
-
-        this.value = new Vector3(x, y, z);
+        this.value = new Vector2(x, y);
         return true;
     }
 }
