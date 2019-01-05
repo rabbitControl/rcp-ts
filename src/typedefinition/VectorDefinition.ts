@@ -17,6 +17,20 @@ export class Vector2 {
     toString() : string {
         return `${this.x}, ${this.y}`;
     }
+
+    clone(): Vector2 {
+        return new Vector2(this.x, this.y);
+    }
+
+    add(v: Vector2) {
+        this.x += v.x;
+        this.y += v.y;
+    }
+
+    sub(v: Vector2) {
+        this.x -= v.x;
+        this.y -= v.y;
+    }
 }
 
 export class Vector3 {
@@ -33,23 +47,57 @@ export class Vector3 {
     toString() : string {
         return `${this.x}, ${this.y}, ${this.z}`;
     }
+
+    clone(): Vector3 {
+        return new Vector3(this.x, this.y, this.z);
+    }
+
+    add(v: Vector3) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+    }
+
+    sub(v: Vector3) {
+        this.x -= v.x;
+        this.y -= v.y;
+        this.z -= v.z;
+    }
 }
 
 export class Vector4 {
-    d1: number;
-    d2: number;
-    d3: number;
-    d4: number;
+    x: number;
+    y: number;
+    z: number;
+    t: number;
 
-    constructor(d1: number, d2: number, d3: number, d4: number) {
-        this.d1 = d1;
-        this.d2 = d2;
-        this.d3 = d3;
-        this.d4 = d4;
+    constructor(x: number, y: number, z: number, t: number) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.t = t;
     }
 
     toString() : string {
-        return `${this.d1}, ${this.d2}, ${this.d3}, ${this.d4}`;
+        return `${this.x}, ${this.y}, ${this.z}, ${this.t}`;
+    }
+
+    clone(): Vector4 {
+        return new Vector4(this.x, this.y, this.z, this.t);
+    }
+
+    add(v: Vector4) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+        this.t += v.t;
+    }
+
+    sub(v: Vector4) {
+        this.x -= v.x;
+        this.y -= v.y;
+        this.z -= v.z;
+        this.t -= v.t;
     }
 }
 
