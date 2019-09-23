@@ -248,10 +248,8 @@ export abstract class RcpTypes {
 
   static ArrayOptions = Object.freeze({
     DEFAULT: 48,
-    STRUCTURE: 49,
 
     48: 'DEFAULT',
-    49: 'STRUCTURE',
   })
 
   static NumberboxFormat = Object.freeze({
