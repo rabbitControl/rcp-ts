@@ -18,18 +18,23 @@ export class Client implements ParameterManager {
   disconnected?: (event: CloseEvent) => void;
   parameterAdded?: (parameter: Parameter) => void;
   parameterRemoved?: (parameter: Parameter) => void;
-  onError?: () => void;
+  onError?: (error: any) => void;
 
   private dirtyParams: Parameter[] = [];
   private transporter: ClientTransporter;
   private valueCache: Map<number, Parameter> = new Map();
+
 
   constructor(transporter: ClientTransporter) {
 
     this.transporter = transporter;
 
     // set transporter callbacks
-    this.transporter.onError = this.onError;
+    this.transporter.onError = (error:any) => {
+      if (this.onError) {
+        this.onError(error);
+      }
+    }
     
     this.transporter.connected = () => {
 
