@@ -7,7 +7,7 @@ export abstract class ClientTransporter {
   received?: (data: ArrayBuffer) => void;
   connected?: () => void;
   disconnected?: (event: CloseEvent) => void;
-  onError?: () => void;
+  onError?: (error: any) => void;
 
   abstract connect(host: string, port: number): void;
   abstract disconnect(): void;

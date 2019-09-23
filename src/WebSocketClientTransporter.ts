@@ -58,10 +58,20 @@ export class WebSocketClientTransporter extends ClientTransporter {
     this.websocket.onerror = (event) => {
       // callback
       if (this.onError) {
-        this.onError();
+        this.onError(event);
       }
     }
-    this.websocket.onmessage = (event) => this.receive(event.data);
+    this.websocket.onmessage = (event) => {
+      try {      
+        this.receive(event.data);
+      } catch (error) {
+        if (this.onError) {
+          this.onError(error);
+        } else {
+          throw error;
+        }
+      }
+    }
   }
 
   versionOk() {
