@@ -4,9 +4,10 @@ import KaitaiStream from './KaitaiStream';
 import { Packet } from './Packet';
 import { RcpTypes } from './RcpTypes';
 import { ParameterManager } from './ParameterManager';
-import { VersionData } from './VersionData';
+import { InfoData } from './InfoData';
 import { parsePacket } from './RCPPacketParser';
 import { BangParameter } from './parameter/BangParameter';
+import { version } from 'punycode';
 
 export class Client implements ParameterManager {
 
@@ -76,17 +77,33 @@ export class Client implements ParameterManager {
           console.error(`invalid command: ${packet.command}`);
           break;
 
-        case RcpTypes.Command.VERSION:
-          if (packet.data instanceof VersionData) {
-            const versionData = packet.data as VersionData;
-            this.handleVersion(versionData.version);            
+        case RcpTypes.Command.INFO:
+
+          if (packet.data === undefined) {
+
+            // no data, answer with infopacket
+            const versionPacket = new Packet(RcpTypes.Command.INFO);
+            versionPacket.data = new InfoData("0.0.0", "webclient");
+            this.transporter.send(new Int8Array(versionPacket.serialize(false)));
+
+          } else if (packet.data instanceof InfoData) {
+
+            const infoData = packet.data as InfoData;
+            console.log(`rcp version: ${infoData.version} from server${(infoData.applicationid !== "" ? `: ${infoData.applicationid}` : "")}`);
+            this.handleVersion(infoData.version);
+
           } else {
-            console.error("could not parse version data");
+            console.error("wrong data in info packet");
           }
+          
           break; 
 
         case RcpTypes.Command.REMOVE:
-          this._remove(packet.data as Parameter);
+          if (packet.data instanceof Parameter) {
+            this._remove(packet.data as Parameter);
+          } else {
+            console.error("no data in remove package");
+          }
           break; 
 
         case RcpTypes.Command.UPDATE:
@@ -94,7 +111,7 @@ export class Client implements ParameterManager {
           if (packet.data instanceof Parameter) {
             this._update(packet.data as Parameter);
           } else {
-            console.error("update package does not contain a parameter!!");            
+            console.error("no data in update package");
           }
           break;
         }
@@ -116,14 +133,14 @@ export class Client implements ParameterManager {
   private requestVersion() {
 
     // send version packet
-    const versionPacket = new Packet(RcpTypes.Command.VERSION);
+    const versionPacket = new Packet(RcpTypes.Command.INFO);
     this.transporter.send(new Int8Array(versionPacket.serialize(false)));
 
-    // if you know server does not support version data, handleVersion directly
+    // if you know server does not support InfoData, handleVersion directly
     // this.handleVersion("0.0.0");
   }
 
-  private handleVersion(version: string) {
+  private handleVersion(version: string) {    
     if (this.checkVersion(version)) {
       this.transporter.versionOk();     
       this.initialize();

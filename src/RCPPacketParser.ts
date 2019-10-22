@@ -2,7 +2,7 @@ import { Packet } from './Packet';
 import { RcpTypes, TinyString } from './RcpTypes';
 import KaitaiStream from './KaitaiStream';
 import { ParameterManager } from './ParameterManager';
-import { VersionData } from './VersionData';
+import { InfoData, parseInfoData } from './InfoData';
 import { parseParameter, parseUpdateValue } from './RCPParameterParser';
 
 export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet {
@@ -34,6 +34,18 @@ export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet
 
     while (true) {
   
+      if (io.isEof()) {
+        // no terminator but out of data!
+        if (packetCommandId === RcpTypes.Command.INFO) {
+          // that is probably ok... 
+          // versionData versus InfoData problem
+          break;
+        }
+
+        // else: let it fail
+        throw new Error("buffer underrun");
+      }    
+
       let optionId = io.readU1();
   
       if (optionId === RcpTypes.TERMINATOR) {
@@ -54,12 +66,12 @@ export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet
               // expect 
               break;
   
-            case RcpTypes.Command.VERSION:
+            case RcpTypes.Command.INFO:
               // version
               if (packet.data) {
                 throw new Error('packet already has data');
               }
-              packet.data = new VersionData(new TinyString(io).data);
+              packet.data = parseInfoData(io);
               break;
   
             case RcpTypes.Command.UPDATE:
@@ -84,9 +96,9 @@ export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet
       }
     }
   
-    if (!packet.data) {
-      throw new Error("packet has not data");
-    }
+    // if (!packet.data) {
+    //   throw new Error("packet has not data");
+    // }
 
     return packet;
   }
