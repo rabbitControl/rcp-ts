@@ -7,7 +7,6 @@ import { ParameterManager } from './ParameterManager';
 import { InfoData } from './InfoData';
 import { parsePacket } from './RCPPacketParser';
 import { BangParameter } from './parameter/BangParameter';
-import { version } from 'punycode';
 
 export class Client implements ParameterManager {
 
@@ -95,7 +94,7 @@ export class Client implements ParameterManager {
           } else {
             console.error("wrong data in info packet");
           }
-          
+
           break; 
 
         case RcpTypes.Command.REMOVE:
