@@ -1,3 +1,12 @@
+/**
+ * build with:
+ *  $ tsc
+ * 
+ * update version in package.json and publish with:
+ *  $ npm publish
+ * 
+ */
+
 // types
 export { RcpTypes } from './RcpTypes';
 // client
