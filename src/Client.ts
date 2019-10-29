@@ -15,8 +15,14 @@ export class Client implements ParameterManager {
   // static
   static VERBOSE: boolean = false;
   static DO_VALUE_UPDATE: boolean = false;
+
+  private static rcpVersion: string = "0.0.1";
   private static serverVersion?: SemVer;
   private static serverApplicationId?: string;
+
+  static getRcpVersion() : string {
+    return Client.rcpVersion;
+  }
 
   static getServerVersion() : string {
     return Client.serverVersion ? Client.serverVersion.raw : "";
@@ -102,7 +108,7 @@ export class Client implements ParameterManager {
 
             // no data, answer with infopacket
             const versionPacket = new Packet(RcpTypes.Command.INFO);
-            versionPacket.data = new InfoData("0.0.0", "webclient");
+            versionPacket.data = new InfoData(Client.rcpVersion, "webclient");
             this.transporter.send(new Int8Array(versionPacket.serialize(false)));
 
           } else if (packet.data instanceof InfoData) {
