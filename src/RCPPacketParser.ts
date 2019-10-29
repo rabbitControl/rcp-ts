@@ -4,6 +4,8 @@ import KaitaiStream from './KaitaiStream';
 import { ParameterManager } from './ParameterManager';
 import { InfoData, parseInfoData } from './InfoData';
 import { parseParameter, parseUpdateValue } from './RCPParameterParser';
+import { parseIdData } from './IdData';
+import { Client } from '.';
 
 export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet {
 
@@ -63,31 +65,46 @@ export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet
   
             case RcpTypes.Command.INITIALIZE:
             case RcpTypes.Command.DISCOVER:
-              // expect 
+              // expect IdData
+              if (packet.data) {
+                throw new Error('packet already has data');
+              }
+              packet.data = parseIdData(io);
+              break;
+
+            case RcpTypes.Command.REMOVE:
+              if (packet.data) {
+                throw new Error('packet already has data');
+              }
+
+              if (Client.serverVersionGt("0.0.0")) {
+                // for versions > 0.0.0 we expect IdData
+                packet.data = parseIdData(io);
+              } else {
+                // older versions expects a parameter
+                packet.data = parseParameter(io, manager);
+              }
               break;
   
             case RcpTypes.Command.INFO:
-              // version
+              // expect InfoData
               if (packet.data) {
                 throw new Error('packet already has data');
               }
               packet.data = parseInfoData(io);
               break;
-  
+
             case RcpTypes.Command.UPDATE:
-            case RcpTypes.Command.REMOVE:
               // expect Parameter
-  
               if (packet.data) {
                 throw new Error('packet already has data');
               }
-  
               packet.data = parseParameter(io, manager);
               break;
-  
+
             case RcpTypes.Command.UPDATEVALUE:
-              throw new Error('invalid command: updatevalue');
-  
+              throw new Error('UPDATEVALUE not implemented');
+
             case RcpTypes.Command.INVALID:
             default:
               break;

@@ -7,11 +7,23 @@ import { ParameterManager } from './ParameterManager';
 import { InfoData } from './InfoData';
 import { parsePacket } from './RCPPacketParser';
 import { BangParameter } from './parameter/BangParameter';
+import { IdData } from './IdData';
+import { SemVer } from 'semver';
 
 export class Client implements ParameterManager {
 
-  static VERBOSE = false;
-  static DO_VALUE_UPDATE = false;
+  // static
+  static VERBOSE: boolean = false;
+  static DO_VALUE_UPDATE: boolean = false;
+  private static serverVersion?: SemVer;
+
+  static serverVersionGt(version: string) : boolean {
+    if (!Client.serverVersion) {
+      return false;
+    }
+
+    return Client.serverVersion.compare(version) == 1;
+  }
 
   // events
   connected?: () => void;
@@ -23,7 +35,6 @@ export class Client implements ParameterManager {
   private dirtyParams: Parameter[] = [];
   private transporter: ClientTransporter;
   private valueCache: Map<number, Parameter> = new Map();
-
 
   constructor(transporter: ClientTransporter) {
 
@@ -62,8 +73,7 @@ export class Client implements ParameterManager {
     this.transporter.received = (data: ArrayBuffer) => {
     
       if (Client.VERBOSE) {
-        const view = new Int8Array(data);
-        console.log("client received: ", view);
+        console.log("client received: ", new Int8Array(data));
       }
 
       const io = new KaitaiStream(data, 0);
@@ -88,6 +98,7 @@ export class Client implements ParameterManager {
           } else if (packet.data instanceof InfoData) {
 
             const infoData = packet.data as InfoData;
+            Client.serverVersion = new SemVer(infoData.version);
             console.log(`rcp version: ${infoData.version} from server${(infoData.applicationid !== "" ? `: ${infoData.applicationid}` : "")}`);
             this.handleVersion(infoData.version);
 
@@ -98,20 +109,33 @@ export class Client implements ParameterManager {
           break; 
 
         case RcpTypes.Command.REMOVE:
-          if (packet.data instanceof Parameter) {
-            this._remove(packet.data as Parameter);
+          if (Client.serverVersionGt("0.0.0")) {
+            // for versions > 0.0.0 we expect IdData
+            if (packet.data instanceof IdData) {
+              this._remove((packet.data as IdData).id);
+            } else {
+              console.error("no data in remove package");
+            }
           } else {
-            console.error("no data in remove package");
+            // old version expects a parameter
+            if (packet.data instanceof Parameter) {
+              this._remove((packet.data as Parameter).id);
+            } else {
+              console.error("no data in remove package");
+            }
           }
           break; 
 
         case RcpTypes.Command.UPDATE:
-        case RcpTypes.Command.UPDATEVALUE:
           if (packet.data instanceof Parameter) {
             this._update(packet.data as Parameter);
           } else {
             console.error("no data in update package");
           }
+          break;
+
+        case RcpTypes.Command.UPDATEVALUE:
+            console.error("UPDATEVALUE not implemented");
           break;
         }
     }
@@ -291,16 +315,16 @@ export class Client implements ParameterManager {
    * remove a parameter from valueCache
    * informs listeners before removing parameter
    * 
-   * @param parameter parsed parameter to remove. this is not the parameter in our calueCache
+   * @param id id of parameter to remove.
    */
-  private _remove(parameter: Parameter): void {
+  private _remove(id: number): void {
 
-    const cached = this.valueCache.get(parameter.id);
+    const cached = this.valueCache.get(id);
 
     if (cached !== undefined) {
       
       if (Client.VERBOSE) {
-        console.log("CLIENT: remove: " + parameter.id);
+        console.log("CLIENT: remove: " + id);
       }
 
       // remove parameter from parent
@@ -308,7 +332,7 @@ export class Client implements ParameterManager {
       cached.removeFromParent();
 
       // remove parameter
-      this.valueCache.delete(parameter.id);
+      this.valueCache.delete(id);
 
       // tell listeners
       if (this.parameterRemoved) {
@@ -316,11 +340,10 @@ export class Client implements ParameterManager {
       }
 
       cached.dispose();
-      parameter.dispose();
 
     } else {
       if (Client.VERBOSE) {
-        console.log("CLIENT: no parameter to remove with id: " + parameter.id);
+        console.log("CLIENT: no parameter to remove with id: " + id);
       }      
     }
   }
