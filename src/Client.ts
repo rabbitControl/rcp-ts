@@ -16,6 +16,15 @@ export class Client implements ParameterManager {
   static VERBOSE: boolean = false;
   static DO_VALUE_UPDATE: boolean = false;
   private static serverVersion?: SemVer;
+  private static serverApplicationId?: string;
+
+  static getServerVersion() : string {
+    return Client.serverVersion ? Client.serverVersion.raw : "";
+  }
+
+  static getServerApplicationId() : string {
+    return Client.serverApplicationId ? Client.serverApplicationId : "";
+  }
 
   static serverVersionGt(version: string) : boolean {
     if (!Client.serverVersion) {
@@ -28,6 +37,7 @@ export class Client implements ParameterManager {
   // events
   connected?: () => void;
   disconnected?: (event: CloseEvent) => void;
+  onServerInfo?: (version: string, applicationId: string) => void;
   parameterAdded?: (parameter: Parameter) => void;
   parameterRemoved?: (parameter: Parameter) => void;
   onError?: (error: any) => void;
@@ -96,9 +106,16 @@ export class Client implements ParameterManager {
             this.transporter.send(new Int8Array(versionPacket.serialize(false)));
 
           } else if (packet.data instanceof InfoData) {
-
+          
             const infoData = packet.data as InfoData;
+
             Client.serverVersion = new SemVer(infoData.version);
+            Client.serverApplicationId = infoData.applicationid;
+
+            if (this.onServerInfo) {
+              this.onServerInfo(infoData.version, infoData.applicationid);
+            }
+            
             console.log(`rcp version: ${infoData.version} from server${(infoData.applicationid !== "" ? `: ${infoData.applicationid}` : "")}`);
             this.handleVersion(infoData.version);
 
