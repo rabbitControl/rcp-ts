@@ -150,15 +150,13 @@ export class Client implements ParameterManager {
           break; 
 
         case RcpTypes.Command.UPDATE:
+        case RcpTypes.Command.UPDATEVALUE:
+          // expect a parameter as data
           if (packet.data instanceof Parameter) {
             this._update(packet.data as Parameter);
           } else {
             console.error("no data in update package");
           }
-          break;
-
-        case RcpTypes.Command.UPDATEVALUE:
-            console.error("UPDATEVALUE not implemented");
           break;
         }
     }

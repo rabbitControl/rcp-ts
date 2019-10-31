@@ -103,8 +103,7 @@ export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet
               break;
 
             case RcpTypes.Command.UPDATEVALUE:
-              throw new Error('UPDATEVALUE not implemented');
-
+              // never happens, updatevalue is handled above              
             case RcpTypes.Command.INVALID:
             default:
               break;
