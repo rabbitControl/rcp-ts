@@ -47,7 +47,9 @@ export function createWidget(type: number): Widget {
             return new DialWidget();
         case RcpTypes.Widgettype.SLIDER:
             return new SliderWidget();
+        // unsupported widgets
         case RcpTypes.Widgettype.SLIDER2D:
+        case RcpTypes.Widgettype.RANGE:
         case RcpTypes.Widgettype.DROPDOWN:
         case RcpTypes.Widgettype.RADIOBUTTON:
         case RcpTypes.Widgettype.COLORBOX:
@@ -55,13 +57,12 @@ export function createWidget(type: number): Widget {
         case RcpTypes.Widgettype.FILECHOOSER:
         case RcpTypes.Widgettype.DIRECTORYCHOOSER:
         case RcpTypes.Widgettype.IP:
-            break;
-
         // group widgets
         case RcpTypes.Widgettype.LIST:
         case RcpTypes.Widgettype.LISTPAGE:
         case RcpTypes.Widgettype.TABS:
-            break;
+            console.log("widget not implemented: " + type + " - using default widget");
+            return new DefaultWidget();
 
         default:
             break;
