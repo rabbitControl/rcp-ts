@@ -14,9 +14,8 @@ export class Client implements ParameterManager {
 
   // static
   static VERBOSE: boolean = false;
-  static DO_VALUE_UPDATE: boolean = false;
 
-  private static rcpVersion: string = "0.0.1";
+  private static rcpVersion: string = "0.1.0";
   private static serverVersion?: SemVer;
   private static serverApplicationId?: string;
 
@@ -235,15 +234,13 @@ export class Client implements ParameterManager {
           
           let packetCommand = RcpTypes.Command.UPDATE;
           
-          // is feature enabled?
-          if (Client.DO_VALUE_UPDATE) {
+          if (Client.serverVersionGt("0.0.1")) {
+            // since rcp-version 0.1.0 updateValue needs to be implemented
             
             // check if we can write updatevalue
             if (parameter instanceof BangParameter || 
-                (!parameter.typeDefinition.didChange() &&               
-                  parameter.onlyValueChanged()
-                )
-            ){
+                parameter.onlyValueChanged())
+            {
               packetCommand = RcpTypes.Command.UPDATEVALUE;
             }
           }

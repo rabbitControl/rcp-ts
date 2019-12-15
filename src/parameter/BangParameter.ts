@@ -9,10 +9,6 @@ export class BangParameter extends Parameter {
     constructor(id: number) {
       super(id, new BangDefinition());
     }
-  
-    handleOption(): boolean {
-      return false;
-    }
 
     doBang() {
       this.setDirty();

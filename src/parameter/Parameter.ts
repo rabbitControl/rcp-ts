@@ -75,7 +75,9 @@ export abstract class Parameter implements Writeable {
   }
 
   onlyValueChanged() : boolean {
-    return this.changed.size === 1 && this.changed.has(RcpTypes.ParameterOptions.VALUE);
+    return this.changed.size === 1 && 
+      this.changed.has(RcpTypes.ParameterOptions.VALUE) &&
+      !this.typeDefinition.didChange();
   }
 
   //------------------------------------
