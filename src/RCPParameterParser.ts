@@ -10,7 +10,7 @@ import { UriParameter } from './parameter/UriParameter';
 import { IPv4Parameter } from './parameter/IPv4Parameter';
 import { RangeParameter } from './parameter/RangeParameter';
 import { StringParameter } from './parameter/StringParameter';
-import { Int8Parameter, Int16Parameter, Int32Parameter, Int64Parameter, Float32Parameter, Float64Parameter } from './parameter/NumberParameter';
+import { Int8Parameter, Int16Parameter, Int32Parameter, Int64Parameter, Float32Parameter, Float64Parameter, NumberParameter } from './parameter/NumberParameter';
 import { Vector3F32Parameter, Vector3I32Parameter } from './parameter/Vector3Parameters';
 import { RcpTypes } from './RcpTypes';
 import { ValueParameter } from './parameter/ValueParameter';
@@ -28,6 +28,14 @@ export function parseParameter(io: KaitaiStream, manager: ParameterManager): Par
     parameter.setManager(manager);
 
     parameter.parseOptions(io);
+
+    if (parameter instanceof NumberParameter &&
+        parameter.value !== undefined &&
+        parameter.value !== null)
+    {
+        // constrain value to min/max
+        parameter.value = parameter.numberDefinition.constrainValue(parameter.value);
+    }
 
     return parameter;
 }

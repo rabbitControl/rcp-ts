@@ -3,12 +3,36 @@ import {
     Float64Definition,
     Float32Definition,
     Int16Definition,
-    Int64Definition
+    Int64Definition,
+    NumberDefinition
 } from '../typedefinition/NumberDefinition';
 import { Int32Definition } from '../typedefinition/Int32Definition';
 import { ValueParameter } from './ValueParameter';
 
-export abstract class NumberParameter extends ValueParameter<number> {}
+export abstract class NumberParameter extends ValueParameter<number> {
+
+    numberDefinition: NumberDefinition;
+
+    constructor(id: number, typedefinition: NumberDefinition) {
+        super(id, typedefinition);
+
+        this.numberDefinition = typedefinition;
+    }
+
+    //------------------------------------
+    // update
+    update(parameter: ValueParameter<number>) {
+
+        super.update(parameter);
+
+        if (this.value !== undefined &&
+            this.value !== null)
+        {
+            // constrain value to min/max
+            this.value = this.numberDefinition.constrainValue(this.value);
+        }
+    }
+}
 
 export class Int8Parameter extends NumberParameter {
 
