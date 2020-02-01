@@ -47,6 +47,16 @@ export class RangeDefinition extends DefaultDefinition<Range> {
         return changed;
     }
 
+    constrainValue(value: Range): Range {
+
+        if (this.elementType) {
+            value.value1 = this.elementType.constrainValue(value.value1);
+            value.value2 = this.elementType.constrainValue(value.value2);
+        }
+        
+        return value;
+    }
+
     // override to check element type as well
     didChange() : boolean {
 

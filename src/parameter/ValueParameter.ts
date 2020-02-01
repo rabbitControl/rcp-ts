@@ -21,6 +21,10 @@ export abstract class ValueParameter<T> extends Parameter {
         this.defaultTypeDefintion = typedefinition;
     }
 
+    valueConstrained(): T {
+        return this._value;
+    }
+
     // override
     dispose() {
         super.dispose();

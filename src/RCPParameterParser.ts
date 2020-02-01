@@ -11,12 +11,13 @@ import { IPv4Parameter } from './parameter/IPv4Parameter';
 import { RangeParameter } from './parameter/RangeParameter';
 import { StringParameter } from './parameter/StringParameter';
 import { Int8Parameter, Int16Parameter, Int32Parameter, Int64Parameter, Float32Parameter, Float64Parameter, NumberParameter } from './parameter/NumberParameter';
-import { Vector3F32Parameter, Vector3I32Parameter } from './parameter/Vector3Parameters';
+import { Vector3F32Parameter, Vector3I32Parameter, Vector3ParameterBase } from './parameter/Vector3Parameters';
 import { RcpTypes } from './RcpTypes';
 import { ValueParameter } from './parameter/ValueParameter';
 import { ImageParameter } from './parameter/ImageParameter';
-import { Vector2I32Parameter, Vector2F32Parameter } from './parameter/Vector2Parameters';
-import { Vector4I32Parameter, Vector4F32Parameter } from './parameter/Vector4Parameters';
+import { Vector2I32Parameter, Vector2F32Parameter, Vector2ParameterBase } from './parameter/Vector2Parameters';
+import { Vector4I32Parameter, Vector4F32Parameter, Vector4ParameterBase } from './parameter/Vector4Parameters';
+import { RangeDefinition } from './typedefinition/RangeDefinition';
 
 export function parseParameter(io: KaitaiStream, manager: ParameterManager): Parameter {
 
@@ -28,14 +29,6 @@ export function parseParameter(io: KaitaiStream, manager: ParameterManager): Par
     parameter.setManager(manager);
 
     parameter.parseOptions(io);
-
-    if (parameter instanceof NumberParameter &&
-        parameter.value !== undefined &&
-        parameter.value !== null)
-    {
-        // constrain value to min/max
-        parameter.value = parameter.numberDefinition.constrainValue(parameter.value);
-    }
 
     return parameter;
 }

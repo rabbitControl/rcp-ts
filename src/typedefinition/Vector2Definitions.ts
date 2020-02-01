@@ -1,10 +1,30 @@
 import KaitaiStream from '../KaitaiStream'
 import { pushFloat32ToArrayBe, pushIn32ToArrayBe } from '../Utils'
 import { RcpTypes } from '../RcpTypes'
-import VectorDefinition, { Vector3, Vector2 } from './VectorDefinition';
+import VectorDefinition, { Vector2 } from './VectorDefinition';
 
 
-export class Vector2F32Definition extends VectorDefinition<Vector2> {
+export abstract class Vector2DefinitionBase extends VectorDefinition<Vector2> {
+
+    constrainValue(value: Vector2): Vector2 {
+
+        if (this.maximum !== undefined)
+        {
+            if (value.x > this.maximum.x) value.x = this.maximum.x;
+            if (value.y > this.maximum.y) value.y = this.maximum.y;
+        }
+
+        if (this.minimum !== undefined)
+        {
+            if (value.x < this.minimum.x) value.x = this.minimum.x;
+            if (value.y < this.minimum.y) value.y = this.minimum.y;
+        }
+
+        return value;
+    }
+}
+
+export class Vector2F32Definition extends Vector2DefinitionBase {
 
     constructor() {
         super(RcpTypes.Datatype.VECTOR2F32);
@@ -34,7 +54,7 @@ export class Vector2F32Definition extends VectorDefinition<Vector2> {
 }
 
 
-export class Vector2I32Definition extends VectorDefinition<Vector2> {
+export class Vector2I32Definition extends Vector2DefinitionBase {
 
     constructor() {
         super(RcpTypes.Datatype.VECTOR2I32);

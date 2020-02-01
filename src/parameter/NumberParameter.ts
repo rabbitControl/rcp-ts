@@ -19,19 +19,9 @@ export abstract class NumberParameter extends ValueParameter<number> {
         this.numberDefinition = typedefinition;
     }
 
-    //------------------------------------
-    // update
-    update(parameter: ValueParameter<number>) {
-
-        super.update(parameter);
-
-        if (this.value !== undefined &&
-            this.value !== null)
-        {
-            // constrain value to min/max
-            this.value = this.numberDefinition.constrainValue(this.value);
-        }
-    }
+    valueConstrained(): number {
+        return this.numberDefinition.constrainValue(this.value);
+    }    
 }
 
 export class Int8Parameter extends NumberParameter {

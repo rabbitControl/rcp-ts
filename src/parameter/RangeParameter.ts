@@ -8,6 +8,10 @@ export class RangeParameter extends ValueParameter<Range> {
         super(id, new RangeDefinition());
     }
 
+    valueConstrained(): Range {
+        return (this.typeDefinition as RangeDefinition).constrainValue(this.value);
+    }
+
     setStringValue(value: string): boolean {        
         // TODO
         return false;

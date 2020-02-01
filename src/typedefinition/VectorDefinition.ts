@@ -271,6 +271,8 @@ export default abstract class VectorDefinition<T> extends DefaultDefinition<T> {
         }
     }
 
+    abstract constrainValue(value: T): T;
+
     // getter / setter
 
     //--------------------------------

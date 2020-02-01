@@ -1,8 +1,23 @@
 import { ValueParameter } from "./ValueParameter";
 import { Vector4 } from "../typedefinition/VectorDefinition";
-import { Vector4F32Definition, Vector4I32Definition } from "../typedefinition/Vector4Definitions";
+import { Vector4F32Definition, Vector4I32Definition, Vector4DefinitionBase } from "../typedefinition/Vector4Definitions";
 
-export class Vector4F32Parameter extends ValueParameter<Vector4> {
+export abstract class Vector4ParameterBase extends ValueParameter<Vector4> {
+
+    vectorDefinition: Vector4DefinitionBase;
+
+    constructor(id: number, typedfinition: Vector4DefinitionBase) {
+        super(id, typedfinition);
+
+        this.vectorDefinition = typedfinition;
+    }
+
+    valueConstrained(): Vector4 {
+        return this.vectorDefinition.constrainValue(this.value);
+    }
+}
+
+export class Vector4F32Parameter extends Vector4ParameterBase {
 
     constructor(id: number) {
         super(id, new Vector4F32Definition());
@@ -41,7 +56,7 @@ export class Vector4F32Parameter extends ValueParameter<Vector4> {
     }
 }
 
-export class Vector4I32Parameter extends ValueParameter<Vector4> {
+export class Vector4I32Parameter extends Vector4ParameterBase {
 
     constructor(id: number) {
         super(id, new Vector4I32Definition());

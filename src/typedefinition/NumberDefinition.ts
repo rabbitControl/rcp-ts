@@ -174,11 +174,16 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
     }
 
     constrainValue(value: number): number {
-        if (this.maximum && value > this.maximum) {
+        
+        if (this.maximum !== undefined && 
+            value > this.maximum)
+        {
             return this.maximum;
         }
 
-        if (this.minimum && value < this.minimum) {
+        if (this.minimum !== undefined && 
+            value < this.minimum)
+        {
             return this.minimum;
         }
 

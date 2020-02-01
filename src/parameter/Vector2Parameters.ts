@@ -1,8 +1,23 @@
 import { ValueParameter } from "./ValueParameter";
-import { Vector3, Vector2 } from "../typedefinition/VectorDefinition";
-import { Vector2F32Definition, Vector2I32Definition } from "..";
+import { Vector2 } from "../typedefinition/VectorDefinition";
+import { Vector2F32Definition, Vector2I32Definition, Vector2DefinitionBase } from "../typedefinition/Vector2Definitions";
 
-export class Vector2F32Parameter extends ValueParameter<Vector2> {
+export abstract class Vector2ParameterBase extends ValueParameter<Vector2> {
+
+    vectorDefinition: Vector2DefinitionBase;
+
+    constructor(id: number, typedfinition: Vector2DefinitionBase) {
+        super(id, typedfinition);
+
+        this.vectorDefinition = typedfinition;
+    }
+
+    valueConstrained(): Vector2 {
+        return this.vectorDefinition.constrainValue(this.value);
+    }
+}
+
+export class Vector2F32Parameter extends Vector2ParameterBase {
 
     constructor(id: number) {
         super(id, new Vector2F32Definition());
@@ -31,7 +46,7 @@ export class Vector2F32Parameter extends ValueParameter<Vector2> {
     }
 }
 
-export class Vector2I32Parameter extends ValueParameter<Vector2> {
+export class Vector2I32Parameter extends Vector2ParameterBase {
 
     constructor(id: number) {
         super(id, new Vector2I32Definition());
