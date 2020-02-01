@@ -27,6 +27,10 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
     private _unit?: string;
 
 
+    abstract typeMax(): number;
+    abstract typeMin(): number;
+
+
     update(typedefinition: TypeDefinition): boolean {
 
         let changed = false;
@@ -279,6 +283,14 @@ export class Int8Definition extends NumberDefinition {
         super(RcpTypes.Datatype.INT8);
     }
 
+    typeMax(): number {
+        return 127;
+    }
+
+    typeMin(): number {
+        return -128;
+    }
+
     readValue(io: KaitaiStream): number {
         return io.readS1();
     }
@@ -298,6 +310,14 @@ export class Int16Definition extends NumberDefinition {
 
     constructor() {
         super(RcpTypes.Datatype.INT16);
+    }
+
+    typeMax(): number {
+        return 32767;
+    }
+
+    typeMin(): number {
+        return -32768;
     }
 
     readValue(io: KaitaiStream): number {
@@ -321,6 +341,16 @@ export class Int64Definition extends NumberDefinition {
         super(RcpTypes.Datatype.INT64);
     }
 
+    typeMax(): number {
+        // return 9223372036854775807;
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    typeMin(): number {
+        // return -9223372036854775808;
+        return Number.MIN_SAFE_INTEGER;
+    }    
+
     readValue(io: KaitaiStream): number {
         return io.readS8be();
     }
@@ -342,6 +372,14 @@ export class Float32Definition extends NumberDefinition {
         super(RcpTypes.Datatype.FLOAT32);
     }
 
+    typeMax(): number {
+        return Number.POSITIVE_INFINITY;
+    }
+
+    typeMin(): number {
+        return Number.NEGATIVE_INFINITY;
+    }
+
     readValue(io: KaitaiStream): number {
         return io.readF4be();
     }
@@ -361,6 +399,14 @@ export class Float64Definition extends NumberDefinition {
 
     constructor() {
         super(RcpTypes.Datatype.FLOAT64);
+    }
+
+    typeMax(): number {
+        return Number.POSITIVE_INFINITY;
+    }
+
+    typeMin(): number {
+        return Number.NEGATIVE_INFINITY;
     }
 
     readValue(io: KaitaiStream): number {

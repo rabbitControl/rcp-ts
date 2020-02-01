@@ -9,6 +9,14 @@ export class Int32Definition extends NumberDefinition {
         super(RcpTypes.Datatype.INT32);
     }
 
+    typeMax(): number {        
+        return 2147483647;
+    }
+
+    typeMin(): number {
+        return -2147483648;
+    }
+
     readValue(io: KaitaiStream): number {
         return io.readS4be();
     }
