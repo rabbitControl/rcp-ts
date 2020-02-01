@@ -275,7 +275,7 @@ export class Int8Definition extends NumberDefinition {
     }
 
     readValue(io: KaitaiStream): number {
-        return io.readU1();
+        return io.readS1();
     }
 
     writeValue(buffer: Array<number>, value?: number) {
@@ -296,7 +296,7 @@ export class Int16Definition extends NumberDefinition {
     }
 
     readValue(io: KaitaiStream): number {
-        return io.readU2be();
+        return io.readS2be();
     }
 
     writeValue(buffer: Array<number>, value?: number) {
@@ -317,7 +317,7 @@ export class Int64Definition extends NumberDefinition {
     }
 
     readValue(io: KaitaiStream): number {
-        return io.readU8be();
+        return io.readS8be();
     }
 
     writeValue(buffer: Array<number>, value?: number) {
