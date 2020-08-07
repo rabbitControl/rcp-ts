@@ -1,6 +1,3 @@
-import { TabsWidget } from './widget/TabsWidget';
-import { ListPageWidget } from './widget/ListPageWidget';
-import { ListWidget } from './widget/ListWidget';
 /**
  * build with:
  *  $ tsc
