@@ -1,3 +1,6 @@
+import { TabsWidget } from './widget/TabsWidget';
+import { ListPageWidget } from './widget/ListPageWidget';
+import { ListWidget } from './widget/ListWidget';
 /**
  * build with:
  *  $ tsc
@@ -65,3 +68,7 @@ export { PressWidget } from './widget/PressWidget';
 export { SliderWidget } from './widget/SliderWidget';
 export { TextboxWidget } from './widget/TextboxWidget';
 export { ToggleWidget } from './widget/ToggleWidget';
+//
+export { ListWidget } from './widget/ListWidget';
+export { ListPageWidget } from './widget/ListPageWidget';
+export { TabsWidget } from './widget/TabsWidget';

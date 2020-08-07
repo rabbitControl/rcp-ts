@@ -1,3 +1,6 @@
+import { TabsWidget } from './widget/TabsWidget';
+import { ListPageWidget } from './widget/ListPageWidget';
+import { ListWidget } from './widget/ListWidget';
 import KaitaiStream from './KaitaiStream';
 import { Parameter } from './parameter/Parameter';
 import { RcpTypes } from './RcpTypes';
@@ -59,10 +62,11 @@ export function createWidget(type: number): Widget {
         case RcpTypes.Widgettype.IP:
         // group widgets
         case RcpTypes.Widgettype.LIST:
+            return new ListWidget();
         case RcpTypes.Widgettype.LISTPAGE:
+            return new ListPageWidget();
         case RcpTypes.Widgettype.TABS:
-            console.log("widget not implemented: " + type + " - using default widget");
-            return new DefaultWidget();
+            return new TabsWidget();
 
         default:
             break;
