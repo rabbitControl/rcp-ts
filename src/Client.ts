@@ -300,31 +300,45 @@ export class Client implements ParameterManager {
    * 
    * @param parameter parsed parameter to add or update
    */
-  private _update(parameter: Parameter): void {
+  private _update(parameter: Parameter): void 
+  {
+    if (!this.valueCache.has(parameter.id)) 
+    {
+      // add parameter to parent
+      // NOTE:  we only want to do this for new parameters
+      if (parameter.parent !== undefined)
+      {
+        parameter.parent.addChild(parameter);
+      }
 
-    if (!this.valueCache.has(parameter.id)) {
-
-      // add it
+      // add it to the cache
       this.valueCache.set(parameter.id, parameter);
 
-      if (this.parameterAdded) {
+      if (this.parameterAdded) 
+      {
         this.parameterAdded(parameter);
       }
 
-      if (Client.VERBOSE) {
-        console.log(`CLIENT: paramter added to cache: ${parameter.label} [${parameter.id}]: userid: ${parameter.userid}`);
+      if (Client.VERBOSE) 
+      {
+        console.log(`CLIENT: paramter added to cache: ${parameter.label} [${parameter.id}]`);
       }
-
-    } else {
-
+    } 
+    else 
+    {
       const chachedParameter = this.valueCache.get(parameter.id);
 
-      if (chachedParameter) {
+      if (chachedParameter) 
+      {
         chachedParameter.update(parameter);
       }
 
-      if (Client.VERBOSE && chachedParameter) {
-        console.log(`CLIENT: updated paramter: ${chachedParameter.label} [${chachedParameter.id}]: userid: ${chachedParameter.userid}`);
+      // parameter was used to updated cached parameter - dispose
+      parameter.dispose();
+
+      if (Client.VERBOSE && chachedParameter) 
+      {
+        console.log(`CLIENT: updated paramter: ${chachedParameter.label} [${chachedParameter.id}]`);
       }
     }
   }

@@ -15,7 +15,11 @@ export class GroupParameter extends Parameter {
     }
 
     addChild(parameter: Parameter) {
-        
+
+        if (parameter === undefined) {
+            return;
+        }
+
         if (this.children.indexOf(parameter) >= 0) {
             return;
         }
@@ -24,6 +28,11 @@ export class GroupParameter extends Parameter {
     }
 
     removeChild(parameter: Parameter) {
+
+        if (parameter === undefined)
+        {
+            return;
+        }
 
         const index = this.children.indexOf(parameter);
 

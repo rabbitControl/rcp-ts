@@ -56,6 +56,10 @@ export abstract class Parameter implements Writeable {
     this.typeDefinition = typeDefinition;
   }
 
+  parentChanged() : boolean {
+    return this.changed.get(RcpTypes.ParameterOptions.PARENTID) === true;
+  }
+
   dispose() {
     this.removeFromParent();
     this.manager = undefined;
@@ -154,18 +158,25 @@ export abstract class Parameter implements Writeable {
       changed = true;
     }
 
-    // todo
+    // update paret parent
+    var war_parent_dirty = false;
+
     if (parameter._parent !== undefined) {
 
+      const parent = parameter._parent;
+      parameter.removeFromParent();
+      
+      this.parent = parent;  
+
+      changed = true;
+    } 
+    else if (parameter.changed.get(RcpTypes.ParameterOptions.PARENTID) === true) 
+    {
       this.removeFromParent();
 
-      this._parent = parameter._parent;
-      if (this._parent) {
-        this._parent.addChild(this);
-      } else {
-        console.log("update: no PARENT??");
-      }  
+      war_parent_dirty = this.changed.get(RcpTypes.ParameterOptions.PARENTID) === true;
 
+      this.changed.set(RcpTypes.ParameterOptions.PARENTID, true);
       changed = true;
     }
 
@@ -190,10 +201,18 @@ export abstract class Parameter implements Writeable {
     }
 
     // if something was changed, call listeners
-    if (changed) {
-      this.changedListeners.forEach( (listener) => {
+    if (changed) 
+    {
+      this.changedListeners.forEach( (listener) => 
+      {
         listener(this);
       });
+
+      if (!war_parent_dirty)
+      {
+        // clear parent id flag
+        this.changed.delete(RcpTypes.ParameterOptions.PARENTID);
+      }
     }
   }
 
@@ -500,17 +519,21 @@ export abstract class Parameter implements Writeable {
           break;
 
         case RcpTypes.ParameterOptions.PARENTID:
+        {
           const parentid = io.readS2be();
 
-          if (parentid != 0 && this.manager) {
-            this._parent = this.manager.getParameter(parentid) as GroupParameter;
+          // TODO: deal with missing parents
 
-            if (this._parent) {
-              this._parent.addChild(this);
-            } else {
-              console.log("no PARENT??");
-            }            
+          if (parentid !== 0 && this.manager) 
+          {
+            this._parent = this.manager.getParameter(parentid) as GroupParameter;            
+          } 
+          else if (parentid === 0) 
+          {
+            // need to mak sure we move a cached parameter out of group
+            this.changed.set(RcpTypes.ParameterOptions.PARENTID, true);
           }
+        }
           break;
 
         case RcpTypes.ParameterOptions.WIDGET:
@@ -666,11 +689,21 @@ export abstract class Parameter implements Writeable {
   //--------------------------------
   // parent
   set parent(parent: GroupParameter | undefined) {
-    if (this._parent != undefined && parent != undefined && this._parent.id === parent.id) {
+    
+    if (this._parent !== undefined && 
+        parent !== undefined && 
+        this._parent.id === parent.id)
+    {
       return;
     }
 
-    this.parent = parent;
+    this.removeFromParent();
+    this._parent = parent;
+    if (this._parent !== undefined)
+    {
+      this._parent.addChild(this);    
+    }
+
     this.changed.set(RcpTypes.ParameterOptions.PARENTID, true);
     this.setDirty();
   }
