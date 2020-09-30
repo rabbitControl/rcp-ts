@@ -65,6 +65,15 @@ export { PressWidget } from './widget/PressWidget';
 export { SliderWidget } from './widget/SliderWidget';
 export { TextboxWidget } from './widget/TextboxWidget';
 export { ToggleWidget } from './widget/ToggleWidget';
+export { ColorboxWidget } from './widget/ColorboxWidget';
+export { DirectorychooserWidget } from './widget/DirectorychooserWidget';
+export { DropdownWidget } from './widget/DropdownWidget';
+export { FilechooserWidget } from './widget/FilechooserWidget';
+export { IpWidget } from './widget/IpWidget';
+export { RadiobuttonWidget } from './widget/RadiobuttonWidget';
+export { RangeWidget } from './widget/RangeWidget';
+export { Slider2dWidget } from './widget/Slider2dWidget';
+export { TableWidget } from './widget/TableWidget';
 //
 export { ListWidget } from './widget/ListWidget';
 export { ListPageWidget } from './widget/ListPageWidget';

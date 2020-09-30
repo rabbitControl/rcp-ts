@@ -1,3 +1,12 @@
+import { IpWidget } from './widget/IpWidget';
+import { DirectorychooserWidget } from './widget/DirectorychooserWidget';
+import { FilechooserWidget } from './widget/FilechooserWidget';
+import { TableWidget } from './widget/TableWidget';
+import { ColorboxWidget } from './widget/ColorboxWidget';
+import { RadiobuttonWidget } from './widget/RadiobuttonWidget';
+import { DropdownWidget } from './widget/DropdownWidget';
+import { RangeWidget } from './widget/RangeWidget';
+import { Slider2dWidget } from './widget/Slider2dWidget';
 import { TabsWidget } from './widget/TabsWidget';
 import { ListPageWidget } from './widget/ListPageWidget';
 import { ListWidget } from './widget/ListWidget';
@@ -50,16 +59,24 @@ export function createWidget(type: number): Widget {
             return new DialWidget();
         case RcpTypes.Widgettype.SLIDER:
             return new SliderWidget();
-        // unsupported widgets
         case RcpTypes.Widgettype.SLIDER2D:
+            return new Slider2dWidget();
         case RcpTypes.Widgettype.RANGE:
+            return new RangeWidget();
         case RcpTypes.Widgettype.DROPDOWN:
+            return new DropdownWidget();
         case RcpTypes.Widgettype.RADIOBUTTON:
+            return new RadiobuttonWidget();
         case RcpTypes.Widgettype.COLORBOX:
+            return new ColorboxWidget();
         case RcpTypes.Widgettype.TABLE:
+            return new TableWidget();
         case RcpTypes.Widgettype.FILECHOOSER:
+            return new FilechooserWidget();
         case RcpTypes.Widgettype.DIRECTORYCHOOSER:
+            return new DirectorychooserWidget();
         case RcpTypes.Widgettype.IP:
+            return new IpWidget();
         // group widgets
         case RcpTypes.Widgettype.LIST:
             return new ListWidget();
