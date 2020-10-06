@@ -78,3 +78,5 @@ export { TableWidget } from './widget/TableWidget';
 export { ListWidget } from './widget/ListWidget';
 export { ListPageWidget } from './widget/ListPageWidget';
 export { TabsWidget } from './widget/TabsWidget';
+// other stuff
+export {UUID} from './UUID';
