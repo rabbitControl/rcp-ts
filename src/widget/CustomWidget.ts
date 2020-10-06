@@ -2,10 +2,11 @@ import { Widget } from './Widget';
 import { RcpTypes, Userdata } from '../RcpTypes'
 import KaitaiStream from '../KaitaiStream';
 import { pushFloat32ToArrayBe, pushIn64ToArrayBe } from '../Utils';
+import { UUID } from '../UUID';
 
 export class CustomWidget extends Widget {
 
-    private _uuid?: Uint8Array;
+    private _uuid?: UUID;
     private _config?: Uint8Array; //??
 
     constructor() {
@@ -17,7 +18,7 @@ export class CustomWidget extends Widget {
         switch(optionId) {
             case RcpTypes.CustomwidgetOptions.UUID: {
                 // TODO!! -- UUID
-                this._uuid = io.readBytes(16);
+                this._uuid = new UUID(io.readBytes(16));
                 console.log("custom widget: uuid: " + this._uuid);
                 return true;
             }
@@ -40,7 +41,7 @@ export class CustomWidget extends Widget {
             if (this._uuid) {
                 // 
                 // 16 bytes
-                this._uuid.forEach( (e) => {
+                this._uuid.data.forEach( (e) => {
                     output.push(e);
                 });
             } else {
@@ -67,22 +68,23 @@ export class CustomWidget extends Widget {
 
     //--------------------------------
     // uuid
-    set uuid(uuid: Uint8Array | undefined) {
-
-        if (this._uuid === uuid) {
+    set uuid(uuid: UUID | undefined)
+    {
+        if (!uuid || uuid.data.length !== 16) {
             return;
         }
 
-        if (!uuid || uuid.length !== 16) {
+        if (this._uuid.compareRaw(uuid.data)) {
             return;
         }
+
 
         this._uuid = uuid;
         this.changed.set(RcpTypes.CustomwidgetOptions.UUID, true);
         this.setDirty();
     }
 
-    get uuid(): Uint8Array | undefined {
+    get uuid(): UUID | undefined {
         return this._uuid;
     }
 
