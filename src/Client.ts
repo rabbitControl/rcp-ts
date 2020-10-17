@@ -9,6 +9,8 @@ import { parsePacket } from './RCPPacketParser';
 import { BangParameter } from './parameter/BangParameter';
 import { IdData } from './IdData';
 import { SemVer } from 'semver';
+import { GroupParameter } from '.';
+import { Widget } from './widget/Widget';
 
 export class Client implements ParameterManager {
 
@@ -50,10 +52,12 @@ export class Client implements ParameterManager {
   private dirtyParams: Parameter[] = [];
   private transporter: ClientTransporter;
   private valueCache: Map<number, Parameter> = new Map();
+  private _rootGroup = new GroupParameter(0);
 
   constructor(transporter: ClientTransporter) {
 
     this.transporter = transporter;
+    this._rootGroup.label = "root";
 
     // set transporter callbacks
     this.transporter.onError = (error:any) => {
@@ -163,6 +167,10 @@ export class Client implements ParameterManager {
 
   dispose() {
     this.disconnect();
+  }
+
+  setRootWidget(widget: Widget) {
+    this._rootGroup.widget = widget;
   }
 
   connect(host: string, port: number): void {
@@ -275,6 +283,10 @@ export class Client implements ParameterManager {
     this.dirtyParams.push(parameter);
   }
 
+  getRootGroup() : GroupParameter {
+    return this._rootGroup;
+  }
+
   //------------------------------
   //
   
@@ -304,15 +316,24 @@ export class Client implements ParameterManager {
   {
     if (!this.valueCache.has(parameter.id)) 
     {
-      // add parameter to parent
-      // NOTE:  we only want to do this for new parameters
-      if (parameter.parent !== undefined)
+      if (parameter.parent)
       {
+        // add parameter to parent
+        // NOTE: we only want to do this for new parameters 
         parameter.parent.addChild(parameter);
+      }
+      else
+      {
+        // this adds the parameter as child to the parent
+        parameter.parent = this._rootGroup;
       }
 
       // add it to the cache
       this.valueCache.set(parameter.id, parameter);
+
+      // initially this parameter is unchanged
+      // clear changed flags
+      parameter.clearChanged();
 
       if (this.parameterAdded) 
       {

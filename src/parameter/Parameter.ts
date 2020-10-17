@@ -56,6 +56,10 @@ export abstract class Parameter implements Writeable {
     this.typeDefinition = typeDefinition;
   }
 
+  clearChanged() {
+    this.changed.clear();
+  }
+
   parentChanged() : boolean {
     return this.changed.get(RcpTypes.ParameterOptions.PARENTID) === true;
   }
@@ -158,43 +162,33 @@ export abstract class Parameter implements Writeable {
       changed = true;
     }
 
-    // update paret parent
-    var war_parent_dirty = false;
-
-    if (parameter._parent !== undefined) {
-
-      const parent = parameter._parent;
-      parameter.removeFromParent();
-      
-      this.parent = parent;  
-
-      changed = true;
-    } 
-    else if (parameter.changed.get(RcpTypes.ParameterOptions.PARENTID) === true) 
+    //--------------
+    // update parent
+    if (parameter._parent !== undefined)
     {
-      this.removeFromParent();
-
-      war_parent_dirty = this.changed.get(RcpTypes.ParameterOptions.PARENTID) === true;
-
-      this.changed.set(RcpTypes.ParameterOptions.PARENTID, true);
+      this.parent = parameter._parent;
       changed = true;
     }
 
+    // widget
     if (parameter._widget !== undefined) {
       this._widget = parameter._widget;
       changed = true;
     }
 
+    // userdata
     if (parameter._userdata !== undefined) {
       this._userdata = parameter._userdata;
       changed = true;
     }
 
+    // userid
     if (parameter._userid !== undefined) {
       this._userid = parameter._userid;
       changed = true;
     }  
 
+    // readonly
     if (parameter._readonly !== undefined) {
       this._readonly = parameter._readonly;
       changed = true;
@@ -207,17 +201,13 @@ export abstract class Parameter implements Writeable {
       {
         listener(this);
       });
-
-      if (!war_parent_dirty)
-      {
-        // clear parent id flag
-        this.changed.delete(RcpTypes.ParameterOptions.PARENTID);
-      }
     }
   }
 
-  removeFromParent() {
-    if (this._parent !== undefined) {
+  removeFromParent()
+  {
+    if (this._parent !== undefined) 
+    {
       this._parent.removeChild(this);
       this._parent = undefined;
     }
@@ -522,16 +512,23 @@ export abstract class Parameter implements Writeable {
         {
           const parentid = io.readS2be();
 
-          // TODO: deal with missing parents
-
-          if (parentid !== 0 && this.manager) 
+          if (this.manager)
           {
-            this._parent = this.manager.getParameter(parentid) as GroupParameter;            
-          } 
-          else if (parentid === 0) 
-          {
-            // need to mak sure we move a cached parameter out of group
-            this.changed.set(RcpTypes.ParameterOptions.PARENTID, true);
+            if (parentid === 0) 
+            {
+              this._parent = this.manager.getRootGroup();
+            } 
+            else
+            {
+              // try to get parent from cache
+              const parent = this.manager.getParameter(parentid) as GroupParameter;
+              
+              // TODO: deal with missing parents
+              if (parent)
+              {
+                this._parent = parent;
+              }
+            }
           }
         }
           break;
@@ -688,7 +685,8 @@ export abstract class Parameter implements Writeable {
 
   //--------------------------------
   // parent
-  set parent(parent: GroupParameter | undefined) {
+  set parent(parent: GroupParameter | undefined)
+  {
     
     if (this._parent !== undefined && 
         parent !== undefined && 
