@@ -68,13 +68,15 @@ export abstract class ValueParameter<T> extends Parameter {
             throw new Error("can not update with parameter of wrong type");
         }
 
-        // should update the value?
-        if (parameter._value != undefined) {
-            this.value = parameter._value
-        }
-
-        // update other properties
+        // update typedefinition and other properties first
+        // e.g.: min/max for number parameter
         super.update(parameter);
+
+        if (parameter._value != undefined)
+        {
+            this._value = parameter._value;        
+            this.valueChangedListeners.forEach( (listener) => listener(this) );
+        }
     }
 
     
