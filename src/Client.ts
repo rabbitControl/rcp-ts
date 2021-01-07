@@ -325,7 +325,7 @@ export class Client implements ParameterManager {
       else
       {
         // this adds the parameter as child to the parent
-        parameter.parent = this._rootGroup;
+        parameter.setParentDirect(this._rootGroup);
       }
 
       // add it to the cache

@@ -686,8 +686,7 @@ export abstract class Parameter implements Writeable {
   //--------------------------------
   // parent
   set parent(parent: GroupParameter | undefined)
-  {
-    
+  {    
     if (this._parent !== undefined && 
         parent !== undefined && 
         this._parent.id === parent.id)
@@ -695,12 +694,7 @@ export abstract class Parameter implements Writeable {
       return;
     }
 
-    this.removeFromParent();
-    this._parent = parent;
-    if (this._parent !== undefined)
-    {
-      this._parent.addChild(this);    
-    }
+    this.setParentDirect(parent);
 
     this.changed.set(RcpTypes.ParameterOptions.PARENTID, true);
     this.setDirty();
@@ -708,6 +702,16 @@ export abstract class Parameter implements Writeable {
 
   get parent(): GroupParameter | undefined {
     return this._parent;
+  }
+
+  setParentDirect(parent: GroupParameter | undefined)
+  {
+    this.removeFromParent();
+    this._parent = parent;
+    if (this._parent !== undefined)
+    {
+      this._parent.addChild(this);    
+    }
   }
 
   //--------------------------------
