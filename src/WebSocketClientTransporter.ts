@@ -9,34 +9,45 @@ export class WebSocketClientTransporter extends ClientTransporter {
   }
 
   doSSL = false;
-  host?: string;
-  port?: number;
   private serverURL?: string;
   private websocket?: WebSocket;
   private readyState = RcpTypes.ClientStatus.DISCONNECTED;
+  private protocol?: string[];
 
   // callbacks from ClientTransporter class:
   // connected, disconnected, received, onError
 
-  connect(host: string, port: number): void {
+  constructor(protocol?: string[])
+  {
+    super();
+    this.protocol = protocol;
+  }
 
+  connect(host: string, port: number = 0): void
+  {
     // first disconnect    
     this.disconnect();
 
-    this.host = host;
-    this.port = port;
-
-    if (this.doSSL) {
-      this.serverURL = 'wss://' + host + ':' + port;
-    } else {
-      this.serverURL = 'ws://' + host + ':' + port;
+    if (!host.startsWith("http"))
+    {
+      host = "http://" + host;
     }
+
+    const url = new URL(host);
+
+    if (port > 0)
+    {
+      url.port = ""+port;
+    }
+
+    url.protocol = this.doSSL === true ? "wss" : "ws";
+    this.serverURL = url.toString();
     
     if (Client.VERBOSE) {
       console.log("connect to: " + this.serverURL);
     }
 
-    this.websocket = new WebSocket(this.serverURL);
+    this.websocket = new WebSocket(this.serverURL, this.protocol);
     this.websocket.binaryType = 'arraybuffer';
 
     // --------------------------------
