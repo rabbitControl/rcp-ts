@@ -53,6 +53,7 @@ export class Client implements ParameterManager {
   private transporter: ClientTransporter;
   private valueCache: Map<number, Parameter> = new Map();
   private _rootGroup = new GroupParameter(0);
+  private initSent = false;
 
   constructor(transporter: ClientTransporter) {
 
@@ -87,6 +88,7 @@ export class Client implements ParameterManager {
       // cleanup
       this.valueCache.clear();
       this.dirtyParams = [];
+      this.initSent = false;
     }
 
     this.transporter.received = (data: ArrayBuffer) => {
@@ -102,7 +104,7 @@ export class Client implements ParameterManager {
         case RcpTypes.Command.INVALID:
         case RcpTypes.Command.INITIALIZE:
         case RcpTypes.Command.DISCOVER:
-          console.error(`invalid command: ${packet.command}`);
+          // invalid command - ignore
           break;
 
         case RcpTypes.Command.INFO:
@@ -173,7 +175,7 @@ export class Client implements ParameterManager {
     this._rootGroup.widget = widget;
   }
 
-  connect(host: string, port: number): void {
+  connect(host: string, port: number=0): void {
     this.transporter.connect(host, port);
   }
 
@@ -193,14 +195,24 @@ export class Client implements ParameterManager {
 
   private handleVersion(version: string) {    
     if (this.checkVersion(version)) {
-      this.transporter.versionOk();     
-      this.initialize();
+      this.transporter.versionOk();
+      if (this.initSent !== true)
+      {
+        // only send initialize once
+        this.initialize();
+        this.initSent = true;
+      }
+    } else {
+      if (Client.VERBOSE) console.log("version check failed: " + version);
     }
   }
 
   private checkVersion(version: string) : boolean {
 
-    if (!version) return false;
+    if (!version) {
+      if (Client.VERBOSE) console.log("version check - no version");
+      return false;
+    }
 
     const parts = version.split(".");
     if (parts.length === 3) {
@@ -213,7 +225,7 @@ export class Client implements ParameterManager {
       }
     }   
 
-    console.error("version missmatch!");
+    if (Client.VERBOSE) console.error("version missmatch!");
 
     return false;
   }
