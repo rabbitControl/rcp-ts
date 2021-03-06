@@ -1,3 +1,4 @@
+import { GroupParameter } from './parameter/GroupParameter';
 import { ClientTransporter } from './Transport';
 import { Parameter } from './parameter/Parameter';
 import KaitaiStream from './KaitaiStream';
@@ -9,7 +10,6 @@ import { parsePacket } from './RCPPacketParser';
 import { BangParameter } from './parameter/BangParameter';
 import { IdData } from './IdData';
 import { SemVer } from 'semver';
-import { GroupParameter } from '.';
 import { Widget } from './widget/Widget';
 
 export class Client implements ParameterManager {
@@ -52,6 +52,7 @@ export class Client implements ParameterManager {
   private dirtyParams: Parameter[] = [];
   private transporter: ClientTransporter;
   private valueCache: Map<number, Parameter> = new Map();
+  private parentIdCache: Map<Parameter, number> = new Map();
   private _rootGroup = new GroupParameter(0);
   private initSent = false;
 
@@ -299,6 +300,28 @@ export class Client implements ParameterManager {
     return this._rootGroup;
   }
 
+  waitForParent(parameter: Parameter, parentid: number): void {
+    this.parentIdCache.set(parameter, parentid);
+  }
+
+  resolveParent(parentid: number, parameter: GroupParameter): void {
+    if (this.parentIdCache.size > 0)
+    {    
+      var toRemove:Parameter[] = [];
+      this.parentIdCache.forEach((v, k) => {
+        if (v === parentid)
+        {       
+          k.parent = parameter;
+          toRemove.push(k);
+        }
+      });
+  
+      toRemove.forEach((e) => {
+        this.parentIdCache.delete(e);
+      });    
+    }
+  }
+
   //------------------------------
   //
   
@@ -350,6 +373,11 @@ export class Client implements ParameterManager {
       if (this.parameterAdded) 
       {
         this.parameterAdded(parameter);
+      }
+
+      if (parameter instanceof GroupParameter)
+      {
+          this.resolveParent(parameter.id, parameter)
       }
 
       if (Client.VERBOSE) 

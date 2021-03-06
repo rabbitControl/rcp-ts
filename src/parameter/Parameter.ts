@@ -524,9 +524,14 @@ export abstract class Parameter implements Writeable {
               const parent = this.manager.getParameter(parentid) as GroupParameter;
               
               // TODO: deal with missing parents
-              if (parent)
+              if (parent !== undefined)
               {
                 this._parent = parent;
+              }
+              else
+              {
+                // parent could not be found
+                this.manager.waitForParent(this, parentid);
               }
             }
           }
