@@ -6,5 +6,5 @@ export interface ParameterManager {
     getParameter(id: number): Parameter | undefined;
     setParameterDirty(parameter: Parameter): void;
     getRootGroup(): GroupParameter;
-    waitForParent(parameter: Parameter, parentid: number): void;
+    waitForParent(parameterid: number, parentid: number): void;
 }

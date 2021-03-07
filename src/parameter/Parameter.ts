@@ -531,7 +531,7 @@ export abstract class Parameter implements Writeable {
               else
               {
                 // parent could not be found
-                this.manager.waitForParent(this, parentid);
+                this.manager.waitForParent(this.id, parentid);
               }
             }
           }

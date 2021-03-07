@@ -52,7 +52,7 @@ export class Client implements ParameterManager {
   private dirtyParams: Parameter[] = [];
   private transporter: ClientTransporter;
   private valueCache: Map<number, Parameter> = new Map();
-  private parentIdCache: Map<Parameter, number> = new Map();
+  private parentIdCache: Map<number, number> = new Map();
   private _rootGroup = new GroupParameter(0);
   private initSent = false;
 
@@ -300,19 +300,23 @@ export class Client implements ParameterManager {
     return this._rootGroup;
   }
 
-  waitForParent(parameter: Parameter, parentid: number): void {
-    this.parentIdCache.set(parameter, parentid);
+  waitForParent(parameterid: number, parentid: number): void {
+    this.parentIdCache.set(parameterid, parentid);
   }
 
-  resolveParent(parentid: number, parameter: GroupParameter): void {
+  resolveParent(parentid: number, group: GroupParameter): void {
     if (this.parentIdCache.size > 0)
     {    
-      var toRemove:Parameter[] = [];
+      var toRemove:number[] = [];
       this.parentIdCache.forEach((v, k) => {
         if (v === parentid)
-        {       
-          k.parent = parameter;
-          toRemove.push(k);
+        {
+          const parameter = this.valueCache.get(k);
+          if (parameter)
+          {            
+            parameter.parent = group;
+            toRemove.push(k);
+          }
         }
       });
   
