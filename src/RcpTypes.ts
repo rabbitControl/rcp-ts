@@ -418,7 +418,7 @@ export class TinyString extends RcpTypes {
   }
   _read() {
     this.myLen = this.io.readU1()
-    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'UTF-8')
+    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'utf8')
   }
 }
 
@@ -434,7 +434,7 @@ export class ShortString extends RcpTypes  {
 
   _read() {
     this.myLen = this.io.readU2be()
-    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'UTF-8')
+    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'utf8')
   }
 }
 
@@ -449,7 +449,7 @@ export class LongString extends RcpTypes {
 
   _read() {
     this.myLen = this.io.readU4be()
-    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'UTF-8')
+    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'utf8')
   }
 }
 

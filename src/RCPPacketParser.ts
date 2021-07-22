@@ -1,8 +1,8 @@
 import { Packet } from './Packet';
-import { RcpTypes, TinyString } from './RcpTypes';
+import { RcpTypes } from './RcpTypes';
 import KaitaiStream from './KaitaiStream';
 import { ParameterManager } from './ParameterManager';
-import { InfoData, parseInfoData } from './InfoData';
+import { parseInfoData } from './InfoData';
 import { parseParameter, parseUpdateValue } from './RCPParameterParser';
 import { parseIdData } from './IdData';
 import { Client } from '.';

@@ -443,7 +443,7 @@ export abstract class Parameter implements Writeable {
                 // rewind one
                 io.seek(current);
   
-                const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf-8");
+                const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf8");
                 const label     = new TinyString(io).data;
   
                 if (label) {
@@ -476,7 +476,7 @@ export abstract class Parameter implements Writeable {
               // rewind one
               io.seek(current);
   
-              const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf-8");
+              const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf8");
               const description = new ShortString(io).data;
   
               if (description) {

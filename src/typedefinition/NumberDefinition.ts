@@ -98,7 +98,7 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
             case RcpTypes.NumberOptions.UNIT:
                 // read tiny string
                 let len = io.readU1();
-                this._unit = KaitaiStream.bytesToStr(io.readBytes(len), 'UTF-8');
+                this._unit = KaitaiStream.bytesToStr(io.readBytes(len), 'utf8');
                 return true;
         }
 
