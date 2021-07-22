@@ -1,4 +1,4 @@
-import { TextDecoder } from 'text-encoding';
+import { TextDecoder } from '@zxing/text-encoding';
 
 class EOFError extends Error {
 
@@ -549,7 +549,7 @@ export default class KaitaiStream {
     return data.slice(0, newLen);
   }
 
-  static bytesToStr(arr: Uint8Array, encoding: string): string {
+  static bytesToStr(arr: Uint8Array, encoding: BufferEncoding): string {
     if (encoding == null || encoding.toLowerCase() == "ascii") {
       return this.createStringFromArray(arr);
     } else {
@@ -562,14 +562,14 @@ export default class KaitaiStream {
 
         // check if it's supported natively by node.js Buffer
         // see https://github.com/nodejs/node/blob/master/lib/buffer.js#L187 for details
-        switch (encoding.toLowerCase()) {
+        switch (encoding) {
           case 'utf8':
-          case 'utf-8':
+          case 'utf8':
           case 'ucs2':
           case 'ucs-2':
           case 'utf16le':
-          case 'utf-16le':
-            return new Buffer(arr.buffer).toString(encoding);
+          case 'utf16le':
+            return Buffer.from(arr.buffer).toString(encoding);
           default:
             // unsupported encoding, we'll have to resort to iconv-lite
             // iconvlite.decode(arr, encoding);
