@@ -74,7 +74,7 @@ export class CustomWidget extends Widget {
             return;
         }
 
-        if (this._uuid.compareRaw(uuid.data)) {
+        if (this._uuid && this._uuid.compareRaw(uuid.data)) {
             return;
         }
 
