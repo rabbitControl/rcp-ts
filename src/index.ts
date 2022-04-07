@@ -7,6 +7,9 @@
  * 
  */
 
+// version and utils
+export { RCP_LIBRARY_VERSION } from './version';
+export { rcpLogVersion } from './Utils';
 // types
 export { RcpTypes } from './RcpTypes';
 // client
@@ -79,4 +82,4 @@ export { ListWidget } from './widget/ListWidget';
 export { ListPageWidget } from './widget/ListPageWidget';
 export { TabsWidget } from './widget/TabsWidget';
 // other stuff
-export {UUID} from './UUID';
+export { UUID } from './UUID';

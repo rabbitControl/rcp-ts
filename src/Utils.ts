@@ -1,3 +1,6 @@
+import { RCP_LIBRARY_VERSION } from './version';
+import { Client } from "./Client";
+
 export function pushIn16ToArrayBe(num: number, array: Array<number>) {
 
   const dataview = new DataView(new Uint32Array([num]).buffer);
@@ -108,4 +111,9 @@ export function writeLongString(str: string, array: Array<number>) {
   stringarray.forEach((element) => {
     array.push(element);
   });
+}
+
+export function rcpLogVersion()
+{
+  console.log(`rcp ts library version: ${RCP_LIBRARY_VERSION} implementing rcp version: ${Client.getRcpVersion()}`);  
 }

@@ -1,3 +1,4 @@
+import { RCP_LIBRARY_VERSION } from './version';
 import { GroupParameter } from './parameter/GroupParameter';
 import { ClientTransporter } from './Transport';
 import { Parameter } from './parameter/Parameter';
