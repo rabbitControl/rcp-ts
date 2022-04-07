@@ -2,12 +2,10 @@ import { ClientTransporter } from './Transport';
 import { RcpTypes } from './RcpTypes';
 import { Client } from './Client';
 
-export class WebSocketClientTransporter extends ClientTransporter {
+const kNotConnectedStr: string = 'Connection is not open.';
 
-  static errorMessage = {
-    notConnected: 'Connection is not open.',
-  }
-
+export class WebSocketClientTransporter extends ClientTransporter
+{
   doSSL = false;
   private serverURL?: string;
   private websocket?: WebSocket;
@@ -106,27 +104,24 @@ export class WebSocketClientTransporter extends ClientTransporter {
       return false;
     }
 
-    const websocket = this.websocket;
-    return websocket && (this.readyState === RcpTypes.ClientStatus.CONNECTED || 
+    return this.websocket && (this.readyState === RcpTypes.ClientStatus.CONNECTED || 
                         this.readyState === RcpTypes.ClientStatus.OK);
   }
 
   send(data: Int8Array) {
 
     if (!this.websocket) {
-      throw new Error(WebSocketClientTransporter.errorMessage.notConnected);
+      throw new Error(kNotConnectedStr);
     }
-
-    const websocket = this.websocket;
 
     switch (this.readyState) {
       case RcpTypes.ClientStatus.DISCONNECTED:
       case RcpTypes.ClientStatus.VERSION_MISSMATCH:
-        throw new Error(WebSocketClientTransporter.errorMessage.notConnected);
+        throw new Error(kNotConnectedStr);
 
       case RcpTypes.ClientStatus.CONNECTED:
-      case RcpTypes.ClientStatus.OK:
-        websocket.send(data);
+      case RcpTypes.ClientStatus.OK:        
+        this.websocket.send(data);
         break;
     }
   }
@@ -142,7 +137,7 @@ export class WebSocketClientTransporter extends ClientTransporter {
         this.received(<ArrayBuffer>data);
       }
     } else {
-      console.log("received: " + data);
+      console.log("received non ArrayBuffer data: " + data);
     }
   }
 }

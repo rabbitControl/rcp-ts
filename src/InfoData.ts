@@ -6,8 +6,8 @@ import { TinyString } from "./RcpTypes";
 
 export class InfoData implements Writeable {
 
-    version: string = "0.0.0";
-    applicationid: string = "";
+    public version: string;
+    public applicationid: string;
 
     constructor(version: string, applicationid: string) {
         this.version = version;

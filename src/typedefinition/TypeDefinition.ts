@@ -4,10 +4,6 @@ import { RcpTypes } from '../RcpTypes';
 
 export abstract class TypeDefinition implements Writeable {
 
-  static errorMessage = {
-    invalidDefaultValue: 'Invalid defaultValue provided.',
-  }
-
   //
   readonly datatype: number;
 
