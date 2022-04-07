@@ -77,13 +77,25 @@ export function parsePacket(io: KaitaiStream, manager: ParameterManager): Packet
                 throw new Error('packet already has data');
               }
 
-              if (Client.serverVersionGt("0.0.0")) {
-                // for versions > 0.0.0 we expect IdData
-                packet.data = parseIdData(io);
-              } else {
-                // older versions expects a parameter
-                packet.data = parseParameter(io, manager);
+              if (manager instanceof Client)
+              {
+                if (manager.serverVersionGt("0.0.0"))
+                {
+                  // for versions > 0.0.0 we expect IdData
+                  packet.data = parseIdData(io);
+                }
+                else
+                {
+                  // older versions expects a parameter
+                  packet.data = parseParameter(io, manager);
+                }
               }
+              else
+              {
+                // TODO:
+                // not a client
+              }
+
               break;
   
             case RcpTypes.Command.INFO:
