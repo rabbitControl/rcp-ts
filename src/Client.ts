@@ -320,25 +320,23 @@ export class Client implements ParameterManager {
     this.parentIdCache.set(parameterid, parentid);
   }
 
-  resolveParent(parentid: number, group: GroupParameter): void {
+  resolveParent(group: GroupParameter): void {
     if (this.parentIdCache.size > 0)
     {    
-      var toRemove:number[] = [];
+      var toRemove: number[] = [];
       this.parentIdCache.forEach((v, k) => {
-        if (v === parentid)
+        if (v === group.id)
         {
           const parameter = this.valueCache.get(k);
           if (parameter)
           {            
-            parameter.parent = group;
+            parameter.setParentDirect(group);
             toRemove.push(k);
           }
         }
       });
   
-      toRemove.forEach((e) => {
-        this.parentIdCache.delete(e);
-      });    
+      toRemove.forEach(e => this.parentIdCache.delete(e));    
     }
   }
 
@@ -397,7 +395,7 @@ export class Client implements ParameterManager {
 
       if (parameter instanceof GroupParameter)
       {
-          this.resolveParent(parameter.id, parameter)
+        this.resolveParent(parameter);
       }
 
       if (Client.VERBOSE) 
