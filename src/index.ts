@@ -28,7 +28,7 @@ export { EnumParameter } from './parameter/EnumParameter';
 export { GroupParameter } from './parameter/GroupParameter';
 export { InvalidParameter } from './parameter/InvalidParameter';
 export { IPv4Parameter } from './parameter/IPv4Parameter';
-export { NumberParameter } from './parameter/NumberParameter';
+export { NumberParameter, Int8Parameter, Int16Parameter, Int32Parameter, Int64Parameter, Float32Parameter, Float64Parameter } from './parameter/NumberParameter';
 export { RangeParameter } from './parameter/RangeParameter';
 export { StringParameter } from './parameter/StringParameter';
 export { UriParameter } from './parameter/UriParameter';
