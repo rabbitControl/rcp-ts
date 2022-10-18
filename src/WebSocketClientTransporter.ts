@@ -6,7 +6,6 @@ const kNotConnectedStr: string = 'Connection is not open.';
 
 export class WebSocketClientTransporter extends ClientTransporter
 {
-  doSSL = false;
   private serverURL?: string;
   private websocket?: WebSocket;
   private readyState = RcpTypes.ClientStatus.DISCONNECTED;
@@ -26,7 +25,8 @@ export class WebSocketClientTransporter extends ClientTransporter
     // first disconnect    
     this.disconnect();
 
-    if (!host.startsWith("http"))
+    if (!host.startsWith("http") &&
+        !host.startsWith("ws"))
     {
       host = "http://" + host;
     }
@@ -38,7 +38,7 @@ export class WebSocketClientTransporter extends ClientTransporter
       url.port = ""+port;
     }
 
-    url.protocol = this.doSSL === true ? "wss" : "ws";
+    url.protocol = (url.protocol.startsWith("https") || url.protocol.startsWith("wss")) ? "wss" : "ws";
     this.serverURL = url.toString();
     
     if (Client.VERBOSE) {
