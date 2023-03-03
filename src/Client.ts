@@ -17,6 +17,8 @@ export class Client implements ParameterManager {
 
   // static
   static VERBOSE: boolean = false;
+  static VERBOSE_RECV: boolean = false;
+  static VERBOSE_SEND: boolean = false;
 
   private static rcpVersion: string = "0.1.0";  
 
@@ -92,7 +94,9 @@ export class Client implements ParameterManager {
 
   transporterReceived = (data: ArrayBuffer) =>
   {
-    if (Client.VERBOSE) {
+    if (Client.VERBOSE ||
+      Client.VERBOSE_RECV)
+    {
       console.log("client received: ", new Int8Array(data));
     }
 
@@ -264,13 +268,15 @@ export class Client implements ParameterManager {
   /**
    * iterate over dirty parameters and send update packets
    */
-  update() {
-    try {
-      if (this.transporter.isConnected()) {
-
-        this.dirtyParams.forEach((parameter) => {
-          
-          let packetCommand = RcpTypes.Command.UPDATE;
+  update()
+  {
+    try
+    {      
+      if (this.transporter.isConnected())
+      {
+        this.dirtyParams.forEach((parameter) =>
+        {        
+          let packetCommand: number = RcpTypes.Command.UPDATE;
           
           if (this.serverVersionGt("0.0.1")) {
             // since rcp-version 0.1.0 updateValue needs to be implemented
@@ -285,6 +291,7 @@ export class Client implements ParameterManager {
 
           const packet = new Packet(packetCommand);
           packet.data = parameter;
+
           this.sendPacket(packet);
         })
 
@@ -353,7 +360,9 @@ export class Client implements ParameterManager {
 
     const dataOut = new Int8Array(packet.serialize(false))
 
-    if (Client.VERBOSE) {
+    if (Client.VERBOSE ||
+      Client.VERBOSE_SEND)
+    {
       console.log("client writing: ", dataOut);
     }
 
