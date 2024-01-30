@@ -8,7 +8,7 @@ export class WebSocketClientTransporter extends ClientTransporter
 {
   private serverURL?: string;
   private websocket?: WebSocket;
-  private readyState = RcpTypes.ClientStatus.DISCONNECTED;
+  private readyState: number = RcpTypes.ClientStatus.DISCONNECTED;
   private protocol?: string[];
 
   // callbacks from ClientTransporter class:
