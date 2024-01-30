@@ -1,5 +1,6 @@
 import { ValueParameter } from './ValueParameter';
 import { EnumDefinition } from '../typedefinition/EnumDefinition';
+import { Parameter } from '..';
 
 export class EnumParameter extends ValueParameter<string> {
 
@@ -18,5 +19,27 @@ export class EnumParameter extends ValueParameter<string> {
         }
 
         return false;
+    }
+
+    //------------------------------------
+    // update
+    update(parameter: EnumParameter) {
+
+        // check
+        if (this.id !== parameter.id) {
+            throw new Error("can not update with parameter with wrong id");
+        }
+
+        // update typedefinition and other properties first
+        Parameter.prototype.update.call(parameter);
+
+        if (parameter._value != undefined)
+        {
+            if (this.setStringValue(parameter._value))
+            {
+                // value changed - call change listener
+                this.valueChangedListeners.forEach( (listener) => listener(this) );
+            }
+        }
     }
 }

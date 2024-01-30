@@ -13,7 +13,7 @@ export abstract class ValueParameter<T> extends Parameter {
     protected _value?: T;
 
     //
-    private valueChangedListeners: ChangedListener[] = [];
+    protected valueChangedListeners: ChangedListener[] = [];
 
     constructor(id: number, typedefinition: DefaultDefinition<T>) {
         super(id, typedefinition);
@@ -74,7 +74,7 @@ export abstract class ValueParameter<T> extends Parameter {
 
         if (parameter._value != undefined)
         {
-            this._value = parameter._value;        
+            this._value = parameter._value;
             this.valueChangedListeners.forEach( (listener) => listener(this) );
         }
     }

@@ -139,12 +139,8 @@ export class EnumDefinition extends DefaultDefinition<string> {
         }        
     }
 
-    contains(value: string): boolean {
-        if (this._entries && this._entries.indexOf(value) > -1) {
-            return true;
-        }
-
-        return false;
+    contains(value: string): boolean {        
+        return this._entries && this._entries.indexOf(value) > -1;
     }
 
     // setter getter
