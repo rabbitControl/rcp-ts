@@ -31,7 +31,7 @@ export class EnumParameter extends ValueParameter<string> {
         }
 
         // update typedefinition and other properties first
-        Parameter.prototype.update.call(parameter);
+        Parameter.prototype.update.call(this, parameter);
 
         if (parameter._value != undefined)
         {
