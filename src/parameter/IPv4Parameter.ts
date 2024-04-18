@@ -8,8 +8,22 @@ export class IPv4Parameter extends ValueParameter<IPv4> {
         super(id, new IPv4Definition());
     }
 
-    setStringValue(value: string): boolean {        
-        // TODO
-        return false;
+    setStringValue(value: string): boolean {
+        try {
+            const new_value = new IPv4(value);
+    
+            if (new_value.toString() === value)
+            {
+                this._value = new_value;
+                return true;
+            }
+            
+            return false;
+        }
+        catch (error)
+        {
+            console.error(error);
+            return false;
+        }
     }
 }
