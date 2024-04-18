@@ -1,1 +1,1 @@
-export const RCP_LIBRARY_VERSION = "0.0.47";
+export const RCP_LIBRARY_VERSION = "0.0.48";
