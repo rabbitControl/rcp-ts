@@ -329,7 +329,7 @@ export abstract class Parameter implements Writeable {
             this.writeLabel(output);
           } else {
             // label was erased
-            output.push(RcpInt.TERMINATOR);
+            output.push(0);
           }
           break;
         }
@@ -339,7 +339,7 @@ export abstract class Parameter implements Writeable {
             this.writeDescription(output)            
           } else {
             // description was erased
-            output.push(RcpInt.TERMINATOR);
+            output.push(0);
           }
           break;
         }
