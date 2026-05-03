@@ -15,18 +15,18 @@ import { Widget } from '../widget/Widget';
 export abstract class Parameter implements Writeable {
 
   static readonly LANGUAGE_ANY = "any";
-  // static readonly allOptions: Map<number, boolean> = new Map().
-  //                   set(RcpTypes.ParameterOptions.VALUE, true).
-  //                   set(RcpTypes.ParameterOptions.LABEL, true).
-  //                   set(RcpTypes.ParameterOptions.DESCRIPTION, true).
-  //                   set(RcpTypes.ParameterOptions.TAGS, true).
-  //                   set(RcpTypes.ParameterOptions.ORDER, true).
-  //                   set(RcpTypes.ParameterOptions.PARENTID, true).
-  //                   // set(RcpTypes.ParameterOptions.WIDGET, true).
-  //                   set(RcpTypes.ParameterOptions.USERDATA, true).
-  //                   set(RcpTypes.ParameterOptions.USERID, true).
-  //                   set(RcpTypes.ParameterOptions.READONLY, true).
-  //                   set(RcpTypes.ParameterOptions.ENABLED, true);
+  static readonly allOptions: Set<number> = new Set<number>().
+                    add(RcpTypes.ParameterOptions.VALUE).
+                    add(RcpTypes.ParameterOptions.LABEL).
+                    add(RcpTypes.ParameterOptions.DESCRIPTION).
+                    add(RcpTypes.ParameterOptions.TAGS).
+                    add(RcpTypes.ParameterOptions.ORDER).
+                    add(RcpTypes.ParameterOptions.PARENTID).
+                    // add(RcpTypes.ParameterOptions.WIDGET).
+                    add(RcpTypes.ParameterOptions.USERDATA).
+                    add(RcpTypes.ParameterOptions.USERID).
+                    add(RcpTypes.ParameterOptions.READONLY).
+                    add(RcpTypes.ParameterOptions.ENABLED);
 
   readonly id: number;
   readonly typeDefinition: TypeDefinition;
@@ -301,17 +301,7 @@ export abstract class Parameter implements Writeable {
     let ch = this.changed;
     if (all)
     {
-      // ch = Parameter.allOptions;
-    
-      if (this.label) ch.add(RcpTypes.ParameterOptions.LABEL);
-      if (this.description) ch.add(RcpTypes.ParameterOptions.DESCRIPTION);
-      if (this.tags) ch.add(RcpTypes.ParameterOptions.TAGS);
-      if (this.order) ch.add(RcpTypes.ParameterOptions.ORDER);
-      if (this.parent) ch.add(RcpTypes.ParameterOptions.PARENTID);
-      if (this.userdata) ch.add(RcpTypes.ParameterOptions.USERDATA);
-      if (this.userid) ch.add(RcpTypes.ParameterOptions.USERID);
-      if (this.readonly) ch.add(RcpTypes.ParameterOptions.READONLY);
-      if (this.enabled) ch.add(RcpTypes.ParameterOptions.ENABLED);
+      ch = Parameter.allOptions;
     }
 
     // TODO: get hold of last option... to mask option id
