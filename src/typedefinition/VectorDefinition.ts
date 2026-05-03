@@ -1,8 +1,9 @@
 import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
-import { writeTinyString } from '../Utils';
 import { RcpTypes } from '../RcpTypes';
 import { TypeDefinition } from './TypeDefinition';
+import { RcpInt } from '../RcpInt';
+import { RcpString } from '../RcpString';
 
 
 export class Vector2 {
@@ -128,7 +129,7 @@ export default abstract class VectorDefinition<T> extends DefaultDefinition<T> {
 
     private _minimum?: T;
     private _maximum?: T;
-    private _multipleof?: T;
+    private _stepsize?: T;
     private _scale?: number;
     private _unit?: string;
 
@@ -153,8 +154,8 @@ export default abstract class VectorDefinition<T> extends DefaultDefinition<T> {
                 changed = true;
             }
 
-            if (typedefinition._multipleof !== undefined) {
-                this._multipleof = typedefinition._multipleof;
+            if (typedefinition._stepsize !== undefined) {
+                this._stepsize = typedefinition._stepsize;
                 changed = true;
             }
 
@@ -184,17 +185,9 @@ export default abstract class VectorDefinition<T> extends DefaultDefinition<T> {
             case RcpTypes.NumberOptions.MAXIMUM:
                 this._maximum = this.readValue(io);
                 return true;
-            case RcpTypes.NumberOptions.MULTIPLEOF:
-                this._multipleof = this.readValue(io);
-                return true;
-            case RcpTypes.NumberOptions.SCALE:
-                let scale_num = io.readU1();
-                if (scale_num < RcpTypes.NumberScale.LINEAR || scale_num > RcpTypes.NumberScale.EXP2) {
-                    this._scale = RcpTypes.NumberScale.LINEAR
-                } else {
-                    this._scale = scale_num;
-                }
-                return true;
+            case RcpTypes.NumberOptions.STEPSIZE:
+                this._stepsize = this.readValue(io);
+                return true;            
             case RcpTypes.NumberOptions.UNIT:
                 // read tiny string
                 let len = io.readU1();
@@ -216,55 +209,41 @@ export default abstract class VectorDefinition<T> extends DefaultDefinition<T> {
             ch = VectorDefinition.allOptions;
         }
 
-        ch.forEach((v, key) => {
+        const keys = Array.from(ch.keys());
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+
+            // write options id
+            output.push(key | ((i === keys.length - 1) ? RcpInt.TERMINATOR : 0));
 
             switch (key) {
                 case RcpTypes.NumberOptions.DEFAULT: {
-                    output.push(RcpTypes.NumberOptions.DEFAULT);
                     this.writeValue(output, this._defaultValue);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MINIMUM: {
-                    output.push(RcpTypes.NumberOptions.MINIMUM);
-                    this.writeValue(output, this._minimum);                    
+                    this.writeValue(output, this._minimum);
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MAXIMUM: {
-                    output.push(RcpTypes.NumberOptions.MAXIMUM);
-                    this.writeValue(output, this._maximum);                    
+                    this.writeValue(output, this._maximum);
                     break;
                 }
 
-                case RcpTypes.NumberOptions.MULTIPLEOF: {
-                    output.push(RcpTypes.NumberOptions.MULTIPLEOF);
-                    this.writeValue(output, this._multipleof);                    
-                    break;
-                }
-
-                case RcpTypes.NumberOptions.SCALE: {
-                    output.push(RcpTypes.NumberOptions.SCALE);
-                    if (this._scale) {
-                        output.push(this._scale);
-                    } else {
-                        output.push(RcpTypes.NumberScale.LINEAR);
-                    }
+                case RcpTypes.NumberOptions.STEPSIZE: {
+                    this.writeValue(output, this._stepsize);
                     break;
                 }
 
                 case RcpTypes.NumberOptions.UNIT: {
-                    output.push(RcpTypes.NumberOptions.UNIT);
-                    if (this._unit) {
-                        writeTinyString(this._unit, output);
-                    } else {
-                        writeTinyString("", output);
-                    } 
+                    new RcpString(this._unit || "").write(output);                     
                     break;
                 }
             }
 
-        });
+        };
 
         if (!all) {
             this.changed.clear();
@@ -310,17 +289,17 @@ export default abstract class VectorDefinition<T> extends DefaultDefinition<T> {
     //--------------------------------
     // minimum
     set multipleof(multipleof: T | undefined) {
-        if (this._multipleof === multipleof) {
+        if (this._stepsize === multipleof) {
             return;
         }
 
-        this._multipleof = multipleof;
+        this._stepsize = multipleof;
         this.changed.set(RcpTypes.VectorOptions.MULTIPLEOF, true);
         this.setDirty();
     }
 
     get multipleof(): T | undefined {
-        return this._multipleof;
+        return this._stepsize;
     }
 
     //--------------------------------

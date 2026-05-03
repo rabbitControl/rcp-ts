@@ -6,11 +6,26 @@ import { BangDefinition } from '../typedefinition/BangDefinition';
  */
 export class BangParameter extends Parameter {
 
-    constructor(id: number) {
-      super(id, new BangDefinition());
-    }
+  onBang?: () => void;
 
-    doBang() {
-      this.setDirty();
+  constructor(id: number) {
+    super(id, new BangDefinition());
+  }
+
+  doBang() {
+    this.setDirty();
+  }
+
+  bang() {
+    if (this.onBang)
+    {
+      this.onBang();
     }
   }
+
+  public setOnBang(cb: () => void)
+  {
+    this.onBang = cb;
+  }
+
+}

@@ -1,16 +1,16 @@
-import { Widget } from './Widget';
-import { RcpTypes } from '../RcpTypes';
-import KaitaiStream from '../KaitaiStream';
+// import { Widget } from './Widget';
+// import { RcpTypes } from '../RcpTypes';
+// import KaitaiStream from '../KaitaiStream';
 
-export class ColorboxWidget extends Widget {
+// export class ColorboxWidget extends Widget {
 
-    constructor() {
-        super(RcpTypes.Widgettype.COLORBOX);
-    }
+//     constructor() {
+//         super(RcpTypes.Widgettype.COLORBOX);
+//     }
 
-    handleOption(optionId: number, io: KaitaiStream): boolean {
-        return false;
-    }
+//     handleOption(optionId: number, io: KaitaiStream): boolean {
+//         return false;
+//     }
 
-    writeOptions(output: number[], all: boolean): void {}
-}
+//     writeOptions(output: number[], all: boolean): void {}
+// }

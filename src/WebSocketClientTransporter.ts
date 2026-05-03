@@ -1,4 +1,4 @@
-import { ClientTransporter } from './Transport';
+import { ClientTransporter } from './ClientTransporter';
 import { RcpTypes } from './RcpTypes';
 import { Client } from './Client';
 
@@ -8,6 +8,7 @@ export class WebSocketClientTransporter extends ClientTransporter
 {
   private serverURL?: string;
   private websocket?: WebSocket;
+
   private readyState: number = RcpTypes.ClientStatus.DISCONNECTED;
   private protocol?: string[];
 
@@ -42,7 +43,7 @@ export class WebSocketClientTransporter extends ClientTransporter
     this.serverURL = url.toString();
     
     if (Client.VERBOSE) {
-      console.log("connect to: " + this.serverURL);
+      console.log("connect to: ", this.serverURL);
     }
 
     this.websocket = new WebSocket(this.serverURL, this.protocol);
@@ -83,15 +84,16 @@ export class WebSocketClientTransporter extends ClientTransporter
     }
   }
 
-  versionOk() {
-    this.readyState = RcpTypes.ClientStatus.OK;
-  }
-
   disconnect() {
     
     if (this.websocket) {
+      console.log("websocket close!");
+      
       this.websocket.close();
       this.websocket = undefined;
+    }
+    else{
+      console.log("no websocket");      
     }
 
     this.readyState = RcpTypes.ClientStatus.DISCONNECTED;
@@ -108,6 +110,10 @@ export class WebSocketClientTransporter extends ClientTransporter
                         this.readyState === RcpTypes.ClientStatus.OK);
   }
 
+//   typedArrayToBuffer(array: Uint8Array): ArrayBuffer {
+//     return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset)
+// }
+
   send(data: Int8Array) {
 
     if (!this.websocket) {
@@ -120,7 +126,10 @@ export class WebSocketClientTransporter extends ClientTransporter
         throw new Error(kNotConnectedStr);
 
       case RcpTypes.ClientStatus.CONNECTED:
-      case RcpTypes.ClientStatus.OK:        
+      case RcpTypes.ClientStatus.OK:
+        
+        console.log("SEND", data);
+
         this.websocket.send(data);
         break;
     }

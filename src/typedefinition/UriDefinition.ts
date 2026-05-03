@@ -1,8 +1,9 @@
 import { DefaultDefinition } from './DefaultDefinition';
-import { RcpTypes, LongString, TinyString } from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
-import { writeLongString, writeTinyString } from '../Utils';
 import { TypeDefinition } from './TypeDefinition';
+import { RcpString } from '../RcpString';
+import { RcpInt } from '../RcpInt';
 
 export class UriDefinition extends DefaultDefinition<string> {
     
@@ -48,15 +49,15 @@ export class UriDefinition extends DefaultDefinition<string> {
 
         switch (optionId) {
             case RcpTypes.UriOptions.DEFAULT:
-                this._defaultValue = new LongString(io).data;
+                this._defaultValue = RcpString.parse(io).value;
                 return true;
 
             case RcpTypes.UriOptions.FILTER:
-                this._filter = new TinyString(io).data;
+                this._filter = RcpString.parse(io).value;
                 return true;
 
             case RcpTypes.UriOptions.SCHEMA:
-                this._schema = new TinyString(io).data;
+                this._schema = RcpString.parse(io).value;
                 return true;
         }
 
@@ -65,19 +66,12 @@ export class UriDefinition extends DefaultDefinition<string> {
 
     // override
     readValue(io: KaitaiStream): string {
-        return new LongString(io).data;
+        return RcpString.parse(io).value;
     }
 
     // override
     writeValue(buffer: number[], value?: string): void {
-
-        if (value != undefined) {
-            writeLongString(value, buffer);
-        } else if (this._defaultValue) {
-            writeLongString(this._defaultValue, buffer);
-        } else {
-            writeLongString("", buffer);
-        }
+        new RcpString(value || (this._defaultValue || "")).write(buffer);
     }
     
     // override
@@ -97,37 +91,31 @@ export class UriDefinition extends DefaultDefinition<string> {
         if (all) {
             ch = UriDefinition.allOptions;
         }
+        
+        const keys = Array.from(ch.keys());
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
 
-        ch.forEach((v, key) => {
+            // write options id
+            output.push(key | ((i === keys.length - 1) ? RcpInt.TERMINATOR : 0));
+
             switch(key) {
                 case RcpTypes.UriOptions.DEFAULT: {
-                    output.push(RcpTypes.UriOptions.DEFAULT);
                     this.writeValue(output, this._defaultValue);                    
                     break;
                 }
 
                 case RcpTypes.UriOptions.FILTER: {
-                    output.push(RcpTypes.UriOptions.FILTER);
-                    if (this._filter) {
-                        writeTinyString(this._filter, output);
-                    } else {
-                        writeTinyString("", output);
-                    }
+                    new RcpString(this._filter || "").write(output);                    
                     break;
                 }
 
                 case RcpTypes.UriOptions.SCHEMA: {
-                    output.push(RcpTypes.UriOptions.SCHEMA);
-                    if (this._schema) {
-                        writeTinyString(this._schema, output);
-                    } else {
-                        writeTinyString("", output);
-                    }
+                    new RcpString(this._schema || "").write(output);                    
                     break;
                 }
-
             }
-        });
+        };
 
         if (!all) {
             this.changed.clear();

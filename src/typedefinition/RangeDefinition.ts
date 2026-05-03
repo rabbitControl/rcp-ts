@@ -4,6 +4,7 @@ import KaitaiStream from '../KaitaiStream';
 import { NumberDefinition } from './NumberDefinition';
 import { createTypeDefinition } from '../RCPDefinitionFactory';
 import { TypeDefinition } from './TypeDefinition';
+import { RcpInt } from '../RcpInt';
 
 export class Range {
 
@@ -161,10 +162,10 @@ export class RangeDefinition extends DefaultDefinition<Range> {
             throw new Error('RangeDefinition without elementType!');
         }
         this.elementType.writeOptions(output, all);
-        output.push(RcpTypes.TERMINATOR);
 
         if (all || this.changed.has(RcpTypes.RangeOptions.DEFAULT)) {
-            output.push(RcpTypes.RangeOptions.DEFAULT);
+            // only and last option
+            output.push(RcpTypes.RangeOptions.DEFAULT | RcpInt.TERMINATOR);
             this.writeValue(output, this._defaultValue);
         }
 

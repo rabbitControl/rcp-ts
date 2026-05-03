@@ -2,7 +2,7 @@ import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { RcpTypes } from '../RcpTypes';
 import { TypeDefinition } from './TypeDefinition';
-import { pushIn32ToArrayBe } from '../Utils';
+import { RcpInt } from '../RcpInt';
 
 export class ImageDefinition extends DefaultDefinition<Uint8Array> {
 
@@ -49,15 +49,17 @@ export class ImageDefinition extends DefaultDefinition<Uint8Array> {
     }
 
     // override
-    writeValue(buffer: Array<number>, value?: Uint8Array) {
-        if (value != undefined) {
-            pushIn32ToArrayBe(value.length, buffer);
-            buffer.push([].slice.call(value));
+    writeValue(buffer: Array<number>, value?: Uint8Array)
+    {
+        if (value != undefined)
+        {
+            new RcpInt(value.length).write(buffer);
+            buffer.push.apply(buffer, Array.from(value));
         } else if (this._defaultValue) {
-            pushIn32ToArrayBe(this._defaultValue.length, buffer);
-            buffer.push([].slice.call(this._defaultValue));
+            new RcpInt(this._defaultValue.length).write(buffer);
+            buffer.push.apply(buffer, Array.from(this._defaultValue));
         } else {
-            pushIn32ToArrayBe(0, buffer);
+            new RcpInt(0).write(buffer);
         }
     }
 

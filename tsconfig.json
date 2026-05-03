@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
+    "strict": true,
+    "esModuleInterop": true,
     "declaration": true,
+    "rootDir": "./src",
     "declarationDir": "dist/types",
     "outDir": "./compiled",
     "lib": ["es2015", "dom"]
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "compiled",

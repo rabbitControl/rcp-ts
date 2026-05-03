@@ -1,55 +1,94 @@
-import { Writeable } from "./Writeable";
-import { writeTinyString } from './Utils';
-import { RcpTypes } from ".";
 import KaitaiStream from "./KaitaiStream";
-import { TinyString } from "./RcpTypes";
+import { RcpString } from "./RcpString";
+import { RcpTypes } from "./RcpTypes";
+import { RcpVersion } from "./RcpVersion";
+import { Writeable } from "./Writeable";
 
-export class InfoData implements Writeable {
+export class InfoData implements Writeable
+{
+    // mandatory
+    version: RcpVersion
+    handshakeVersion: RcpVersion
 
-    public version: string;
-    public applicationid: string;
+    // optional
+    applicationid?: string
+    applicationversion?: string
 
-    constructor(version: string, applicationid: string) {
+    constructor(version: RcpVersion, handshakeVersion: RcpVersion, applicationid?: string, applicationversion?: string)
+    {
         this.version = version;
+        this.handshakeVersion = handshakeVersion;
         this.applicationid = applicationid;
+        this.applicationversion = applicationversion;
     }
 
+    // Writeable
     write(output: number[], all: boolean): void {
         
-        // write mandatory
-        writeTinyString(this.version, output);
+        this.version.write(output, all);
+        this.handshakeVersion.write(output, all);
 
-        // write options
-        if (this.applicationid && this.applicationid !== "") {
-            output.push(RcpTypes.InfodataOptions.APPLICATIONID);
-            writeTinyString(this.applicationid, output);
+        // TODO: write optionals
+        if (this.applicationid &&
+            this.applicationid?.length > 0)
+        {
+            output.push(RcpTypes.InfodataOptions.APPLICATIONID | (this.applicationversion === undefined ? 0x80 : 0x00));
+            new RcpString(this.applicationid).write(output);
+        }
+
+        if (this.applicationversion &&
+            this.applicationversion?.length > 0)
+        {
+            output.push(RcpTypes.InfodataOptions.APPLICATIONVERSION | 0x80);
+            new RcpString(this.applicationversion).write(output);
+        }
+
+        // In case no optional option is present, Info Data needs to be terminated with 0x80.x
+        if (this.applicationid === undefined &&
+            this.applicationversion === undefined)
+        {
+            output.push(0x80);
         }
     }
-}
 
+    static parse(io: KaitaiStream): InfoData
+    {
+        // read mandatory fields
+        const version = RcpVersion.parse(io);
+        const handshakeVersion = RcpVersion.parse(io);
 
-export function parseInfoData(io: KaitaiStream): InfoData {
-    
-    // get mandatory
-    const version = new TinyString(io).data;
-    let appid = "";
+        var applicationId;
+        var applicationVersion;
 
-    // read options
+        // TODO: parse options
+        while (true) {
+            const optionId = io.readU1();
 
-    while (true) {
-  
-        let optionId = io.readU1();
-    
-        if (optionId === RcpTypes.TERMINATOR) {
-          break;
-        }
-    
-        switch (optionId) {
-            case RcpTypes.InfodataOptions.APPLICATIONID:
-                appid = new TinyString(io).data;
+            if (optionId === 0x80)
+            {
                 break;
-        }
-    }
+            }
 
-    return new InfoData(version, appid);
+            switch(optionId & ~0x80)
+            {
+                case RcpTypes.InfodataOptions.APPLICATIONID:
+                    applicationId = RcpString.parse(io).value;
+                    break;
+
+                case RcpTypes.InfodataOptions.APPLICATIONVERSION:
+                    applicationVersion = RcpString.parse(io).value;
+                    break;
+
+                default:
+                    throw new Error("Unknown option");
+            }
+
+            if (optionId & 0x80)
+            {
+                break;
+            }
+        }
+
+        return new InfoData(version, handshakeVersion, applicationId, applicationVersion);
+    }
 }

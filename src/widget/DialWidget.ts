@@ -12,7 +12,7 @@ export class DialWidget extends Widget {
 
     handleOption(optionId: number, io: KaitaiStream): boolean {
 
-        if (optionId === RcpTypes.DialOptions.CYCLIC) {
+        if (optionId === RcpTypes.DialWidgetOptions.CYCLIC) {
             this._cyclic = io.readU1() > 0;
             return true;
         }
@@ -22,8 +22,8 @@ export class DialWidget extends Widget {
 
     writeOptions(output: number[], all: boolean): void {
 
-        if (all || this.changed.has(RcpTypes.DialOptions.CYCLIC)) {
-            output.push(RcpTypes.DialOptions.CYCLIC);
+        if (all || this.changed.has(RcpTypes.DialWidgetOptions.CYCLIC)) {
+            output.push(RcpTypes.DialWidgetOptions.CYCLIC);
             if (this._cyclic) {
                 output.push(this._cyclic ? 1 : 0);
             } else {
@@ -43,7 +43,7 @@ export class DialWidget extends Widget {
         }
 
         this._cyclic = cyclic;
-        this.changed.set(RcpTypes.DialOptions.CYCLIC, true);
+        this.changed.set(RcpTypes.DialWidgetOptions.CYCLIC, true);
         this.setDirty();
     }
 

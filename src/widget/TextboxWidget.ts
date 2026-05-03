@@ -14,17 +14,17 @@ export class TextboxWidget extends Widget {
 
     handleOption(optionId: number, io: KaitaiStream): boolean {
 
-        if (optionId === RcpTypes.TextboxOptions.MULTILINE) {
+        if (optionId === RcpTypes.TextboxWidgetOptions.MULTILINE) {
             this._multiline = io.readU1() > 0;
             return true;
         }
 
-        if (optionId === RcpTypes.TextboxOptions.WORDWRAP) {
-            this._wordwrap = io.readU1() > 0;
-            return true;
-        }
+        // if (optionId === RcpTypes.TextboxWidgetOptions.WORDWRAP) {
+        //     this._wordwrap = io.readU1() > 0;
+        //     return true;
+        // }
 
-        if (optionId === RcpTypes.TextboxOptions.PASSWORD) {
+        if (optionId === RcpTypes.TextboxWidgetOptions.PASSWORD) {
             this._password = io.readU1() > 0;
             return true;
         }
@@ -34,8 +34,8 @@ export class TextboxWidget extends Widget {
 
     writeOptions(output: number[], all: boolean): void {
 
-        if (all || this.changed.has(RcpTypes.TextboxOptions.MULTILINE)) {
-            output.push(RcpTypes.TextboxOptions.MULTILINE);
+        if (all || this.changed.has(RcpTypes.TextboxWidgetOptions.MULTILINE)) {
+            output.push(RcpTypes.TextboxWidgetOptions.MULTILINE);
             if (this._multiline) {
                 output.push(this._multiline ? 1 : 0);
             } else {
@@ -43,17 +43,17 @@ export class TextboxWidget extends Widget {
             }
         }
 
-        if (all || this.changed.has(RcpTypes.TextboxOptions.WORDWRAP)) {
-            output.push(RcpTypes.TextboxOptions.WORDWRAP);
-            if (this._wordwrap) {
-                output.push(this._wordwrap ? 1 : 0);
-            } else {
-                output.push(0);
-            }
-        }
+        // if (all || this.changed.has(RcpTypes.TextboxWidgetOptions.WORDWRAP)) {
+        //     output.push(RcpTypes.TextboxWidgetOptions.WORDWRAP);
+        //     if (this._wordwrap) {
+        //         output.push(this._wordwrap ? 1 : 0);
+        //     } else {
+        //         output.push(0);
+        //     }
+        // }
 
-        if (all || this.changed.has(RcpTypes.TextboxOptions.PASSWORD)) {
-            output.push(RcpTypes.TextboxOptions.PASSWORD);
+        if (all || this.changed.has(RcpTypes.TextboxWidgetOptions.PASSWORD)) {
+            output.push(RcpTypes.TextboxWidgetOptions.PASSWORD);
             if (this._password) {
                 output.push(this._password ? 1 : 0);
             } else {
@@ -73,7 +73,7 @@ export class TextboxWidget extends Widget {
         }
 
         this._multiline = multiline;
-        this.changed.set(RcpTypes.TextboxOptions.MULTILINE, true);
+        this.changed.set(RcpTypes.TextboxWidgetOptions.MULTILINE, true);
         this.setDirty();
     }
 
@@ -81,22 +81,22 @@ export class TextboxWidget extends Widget {
         return this._multiline;
     }
 
-    //--------------------------------
-    // wordwrap
-    set wordwrap(wordwrap: boolean | undefined) {
+    // //--------------------------------
+    // // wordwrap
+    // set wordwrap(wordwrap: boolean | undefined) {
 
-        if (this._wordwrap === wordwrap) {
-            return;
-        }
+    //     if (this._wordwrap === wordwrap) {
+    //         return;
+    //     }
 
-        this._wordwrap = wordwrap;
-        this.changed.set(RcpTypes.TextboxOptions.WORDWRAP, true);
-        this.setDirty();
-    }
+    //     this._wordwrap = wordwrap;
+    //     this.changed.set(RcpTypes.TextboxWidgetOptions.WORDWRAP, true);
+    //     this.setDirty();
+    // }
 
-    get wordwrap(): boolean | undefined {
-        return this._wordwrap;
-    }
+    // get wordwrap(): boolean | undefined {
+    //     return this._wordwrap;
+    // }
 
     //--------------------------------
     // password
@@ -107,7 +107,7 @@ export class TextboxWidget extends Widget {
         }
 
         this._password = password;
-        this.changed.set(RcpTypes.TextboxOptions.PASSWORD, true);
+        this.changed.set(RcpTypes.TextboxWidgetOptions.PASSWORD, true);
         this.setDirty();
     }
 

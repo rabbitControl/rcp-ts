@@ -2,6 +2,8 @@ import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import { RcpTypes } from '../RcpTypes';
 import { TypeDefinition } from './TypeDefinition';
+import { RcpInt } from '../RcpInt';
+import { Parameter } from '../parameter/Parameter';
 
 export class BooleanDefinition extends DefaultDefinition<boolean> {
 
@@ -67,9 +69,10 @@ export class BooleanDefinition extends DefaultDefinition<boolean> {
     // override
     writeOptions(output: number[], all: boolean): void {
 
-        if (all || this.changed.has(RcpTypes.BooleanOptions.DEFAULT)) {
-
-            output.push(RcpTypes.BooleanOptions.DEFAULT);
+        if (all || this.changed.has(RcpTypes.BooleanOptions.DEFAULT))
+        {
+            // only and last option
+            output.push(RcpTypes.BooleanOptions.DEFAULT | RcpInt.TERMINATOR);
             this.writeValue(output, this._defaultValue);            
         }
 

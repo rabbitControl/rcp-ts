@@ -3,14 +3,20 @@ import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { pushIn16ToArrayBe } from '../Utils';
 import { Parameter } from '../parameter/Parameter';
+import { RcpInt } from '../RcpInt';
 
 export abstract class Widget implements Writeable {
 
-    static readonly allOptions: Map<number, boolean> = new Map().
-        set(RcpTypes.WidgetOptions.ENABLED, true).
+    static readonly allOptions: Map<number, boolean> = new Map().        
         set(RcpTypes.WidgetOptions.LABEL_VISIBLE, true).
         set(RcpTypes.WidgetOptions.VALUE_VISIBLE, true).
-        set(RcpTypes.WidgetOptions.NEEDS_CONFIRMATION, true);
+        set(RcpTypes.WidgetOptions.NEEDS_CONFIRMATION, true).
+        set(RcpTypes.WidgetOptions.USERDATA, true);
+
+    static parse(io: KaitaiStream): Widget | undefined {
+        // TODO
+        return undefined;
+    }
 
     //
     // mandatory    
@@ -35,17 +41,10 @@ export abstract class Widget implements Writeable {
     parseOptions(io: KaitaiStream) {
         while (true) {
             // read option
-            let optionId = io.readU1();
-
-            if (optionId === RcpTypes.TERMINATOR) {
-                break;
-            }
+            const v = io.readU1();
+            const optionId = v & ~RcpInt.TERMINATOR;
 
             switch (optionId) {
-                case RcpTypes.WidgetOptions.ENABLED: {
-                    this._enabled = io.readU1() > 0;
-                    break;
-                }
 
                 case RcpTypes.WidgetOptions.LABEL_VISIBLE: {
                     this._labelVisible = io.readU1() > 0;
@@ -62,10 +61,19 @@ export abstract class Widget implements Writeable {
                     break;
                 }
 
+                // case RcpTypes.WidgetOptions.USERDATA: {
+                //     break;
+                // }
+
                 default:
                     if (!this.handleOption(optionId, io)) {
                         throw new Error('widget option not handled: ' + optionId);
                     }
+            }
+
+            if (v & RcpInt.TERMINATOR)
+            {
+                break;
             }
         }
     }
@@ -82,22 +90,17 @@ export abstract class Widget implements Writeable {
             ch = Widget.allOptions;
         }
 
-        ch.forEach((value, key) => {
-            switch (key) {
-                case RcpTypes.WidgetOptions.ENABLED: {
+        const keys = Array.from(ch.keys());
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
 
-                    output.push(RcpTypes.WidgetOptions.ENABLED);
-                    if (this._enabled != undefined) {
-                        output.push(this._enabled ? 1 : 0);
-                    } else {
-                        output.push(1);
-                    }
-                    break;
-                }
+            // write options id
+            output.push(key | ((i === keys.length - 1) ? RcpInt.TERMINATOR : 0));
+        
+            switch (key) {                
 
                 case RcpTypes.WidgetOptions.LABEL_VISIBLE: {
 
-                    output.push(RcpTypes.WidgetOptions.LABEL_VISIBLE);
                     if (this._labelVisible != undefined) {
                         output.push(this._labelVisible ? 1 : 0);
                     } else {
@@ -108,7 +111,6 @@ export abstract class Widget implements Writeable {
 
                 case RcpTypes.WidgetOptions.VALUE_VISIBLE: {
 
-                    output.push(RcpTypes.WidgetOptions.VALUE_VISIBLE);
                     if (this._valueVisible != undefined) {
                         output.push(this._valueVisible ? 1 : 0);
                     } else {
@@ -119,7 +121,6 @@ export abstract class Widget implements Writeable {
 
                 case RcpTypes.WidgetOptions.NEEDS_CONFIRMATION: {
 
-                    output.push(RcpTypes.WidgetOptions.NEEDS_CONFIRMATION);
                     if (this._needsConfirmation != undefined) {
                         output.push(this._needsConfirmation ? 1 : 0);
                     } else {
@@ -127,8 +128,19 @@ export abstract class Widget implements Writeable {
                     }
                     break;
                 }
+
+                case RcpTypes.WidgetOptions.USERDATA: {
+
+                    // TODO:
+                    // if (this._needsConfirmation != undefined) {
+                    //     output.push(this._needsConfirmation ? 1 : 0);
+                    // } else {
+                    //     output.push(0);
+                    // }
+                    break;
+                }
             }
-        });
+        };
 
         // write other options
         this.writeOptions(output, all);
@@ -137,9 +149,6 @@ export abstract class Widget implements Writeable {
         if (!all) {
             this.changed.clear();
         }
-
-        // mandatory terminator
-        output.push(RcpTypes.TERMINATOR);
     }
 
     setDirty() {
@@ -149,23 +158,6 @@ export abstract class Widget implements Writeable {
     }
 
     // setter / getter
-
-    //--------------------------------
-    // enabled
-    set enabled(enabled: boolean | undefined) {
-
-        if (this._enabled === enabled) {
-            return;
-        }
-
-        this._enabled = enabled;
-        this.changed.set(RcpTypes.WidgetOptions.ENABLED, true);
-        this.setDirty();
-    }
-
-    get enabled(): boolean | undefined {
-        return this._enabled;
-    }
 
     //--------------------------------
     // label-visible
@@ -218,4 +210,7 @@ export abstract class Widget implements Writeable {
     get needsConfirmation(): boolean | undefined {
         return this._needsConfirmation;
     }
+
+    //--------------------------------
+    // TODO: userdata
 }

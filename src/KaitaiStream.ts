@@ -1,4 +1,4 @@
-import { TextDecoder } from '@zxing/text-encoding';
+// import { TextDecoder } from '@zxing/text-encoding';
 
 class EOFError extends Error {
 
@@ -44,7 +44,7 @@ export default class KaitaiStream {
 
   _byteOffset: number;
   pos: number = 0;
-  _buffer: ArrayBuffer;
+  _buffer: ArrayBufferLike;
   _dataView: DataView;
   bits: number = 0;
   bitsLeft: number = 0;
@@ -750,7 +750,7 @@ export default class KaitaiStream {
     let chunk_size = 0x8000;
     let chunks = [];
     for (let i=0; i < array.length; i += chunk_size) {
-      chunks.push(String.fromCharCode.apply(null, array.subarray(i, i + chunk_size)));
+      chunks.push(String.fromCharCode.apply(null, Array.from(array.subarray(i, i + chunk_size))));
     }
     return chunks.join("");
   }

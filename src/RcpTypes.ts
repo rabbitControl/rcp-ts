@@ -1,59 +1,93 @@
-import KaitaiStream from './KaitaiStream'
-
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
-export abstract class RcpTypes {
+export class RcpTypes {
   
-  static readonly TERMINATOR = 0;
-
   static EnumOptions = Object.freeze({
     DEFAULT: 48,
     ENTRIES: 49,
-    MULTISELECT: 50,
+    MINIMUM_SELECTION_COUNT: 50,
+    MAXIMUM_SELECTION_COUNT: 51,
 
     48: "DEFAULT",
     49: "ENTRIES",
-    50: "MULTISELECT",
+    50: "MINIMUM_SELECTION_COUNT",
+    51: "MAXIMUM_SELECTION_COUNT",
   });
 
-  static NumberboxOptions = Object.freeze({
-    PRECISION: 86,
-    FORMAT: 87,
-    STEPSIZE: 88,
-    CYCLIC: 89,
+  static TextboxWidgetOptions = Object.freeze({
+    MULTILINE: 86,
+    PASSWORD: 87,
+    PLACEHOLDER: 88,
 
-    86: "PRECISION",
-    87: "FORMAT",
-    88: "STEPSIZE",
-    89: "CYCLIC",
+    86: "MULTILINE",
+    87: "PASSWORD",
+    88: "PLACEHOLDER",
+  });
+
+  static RgbOptions = Object.freeze({
+    DEFAULT: 48,
+
+    48: "DEFAULT",
   });
 
   static CustomtypeOptions = Object.freeze({
     DEFAULT: 48,
-    UUID: 49,
+    TYPEID: 49,
     CONFIG: 50,
 
     48: "DEFAULT",
-    49: "UUID",
+    49: "TYPEID",
     50: "CONFIG",
   });
 
   static WidgetOptions = Object.freeze({
-    ENABLED: 80,
     LABEL_VISIBLE: 81,
     VALUE_VISIBLE: 82,
     NEEDS_CONFIRMATION: 83,
+    USERDATA: 84,
 
-    80: "ENABLED",
     81: "LABEL_VISIBLE",
     82: "VALUE_VISIBLE",
     83: "NEEDS_CONFIRMATION",
+    84: "USERDATA",
   });
 
-  static ColorOptions = Object.freeze({
-    DEFAULT: 48,
+  static ClientStatus = Object.freeze({
+    DISCONNECTED: 0,
+    CONNECTED: 1,
+    VERSION_MISSMATCH: 2,
+    OK: 3,
 
-    48: "DEFAULT",
+    0: "DISCONNECTED",
+    1: "CONNECTED",
+    2: "VERSION_MISSMATCH",
+    3: "OK",
+  });
+
+  static PacketType = Object.freeze({
+    INFO: 1,
+    INITIALIZE: 2,
+    UPDATE: 3,
+    UPDATEVALUE: 4,
+    REMOVE: 5,
+
+    1: "INFO",
+    2: "INITIALIZE",
+    3: "UPDATE",
+    4: "UPDATEVALUE",
+    5: "REMOVE",
+  });
+
+  static DialWidgetOptions = Object.freeze({
+    PRECISION: 86,
+    STEPSIZE_MULTIPLIER: 87,
+    CYCLIC: 88,
+    NAN_MEANING: 89,
+
+    86: "PRECISION",
+    87: "STEPSIZE_MULTIPLIER",
+    88: "CYCLIC",
+    89: "NAN_MEANING",
   });
 
   static ParameterOptions = Object.freeze({
@@ -67,6 +101,7 @@ export abstract class RcpTypes {
     USERDATA: 39,
     USERID: 40,
     READONLY: 41,
+    ENABLED: 48,
 
     32: "VALUE",
     33: "LABEL",
@@ -78,6 +113,7 @@ export abstract class RcpTypes {
     39: "USERDATA",
     40: "USERID",
     41: "READONLY",
+    48: "ENABLED",
   });
 
   static Ipv4Options = Object.freeze({
@@ -102,6 +138,22 @@ export abstract class RcpTypes {
     53: "UNIT",
   });
 
+  static ImageOptions = Object.freeze({
+    DEFAULT: 48,
+
+    48: "DEFAULT",
+  });
+
+  static RangeWidgetOptions = Object.freeze({
+    PRECISION: 86,
+    STEPSIZE_MULTIPLIER: 87,
+    NAN_MEANING: 88,
+
+    86: "PRECISION",
+    87: "STEPSIZE_MULTIPLIER",
+    88: "NAN_MEANING",
+  });
+
   static BooleanOptions = Object.freeze({
     DEFAULT: 48,
 
@@ -113,101 +165,91 @@ export abstract class RcpTypes {
     CUSTOM: 2,
     INFO: 16,
     TEXTBOX: 17,
-    BANG: 18,
-    PRESS: 19,
-    TOGGLE: 20,
-    NUMBERBOX: 21,
-    DIAL: 22,
-    SLIDER: 23,
-    SLIDER2D: 24,
-    RANGE: 25,
-    DROPDOWN: 26,
-    RADIOBUTTON: 27,
-    COLORBOX: 28,
-    TABLE: 29,
-    FILECHOOSER: 30,
-    DIRECTORYCHOOSER: 31,
+    BUTTON: 18,
+    SWITCH: 19,
+    CHECKBOX: 20,
+    PRESS: 21,
+    NUMBERBOX: 22,
+    DIAL: 23,
+    SLIDER: 24,
+    SLIDER2D: 25,
+    RANGE: 26,
+    DROPDOWN: 27,
+    RADIOBUTTON: 28,
+    COLORCHOOSER: 29,
+    TABLE: 30,
+    URI: 31,
     IP: 32,
-    LIST: 32768,
-    LISTPAGE: 32769,
-    TABS: 32770,
+    IMAGE: 33,
+    LIST: 16384,
+    TABS: 16385,
 
     1: "DEFAULT",
     2: "CUSTOM",
     16: "INFO",
     17: "TEXTBOX",
-    18: "BANG",
-    19: "PRESS",
-    20: "TOGGLE",
-    21: "NUMBERBOX",
-    22: "DIAL",
-    23: "SLIDER",
-    24: "SLIDER2D",
-    25: "RANGE",
-    26: "DROPDOWN",
-    27: "RADIOBUTTON",
-    28: "COLORBOX",
-    29: "TABLE",
-    30: "FILECHOOSER",
-    31: "DIRECTORYCHOOSER",
+    18: "BUTTON",
+    19: "SWITCH",
+    20: "CHECKBOX",
+    21: "PRESS",
+    22: "NUMBERBOX",
+    23: "DIAL",
+    24: "SLIDER",
+    25: "SLIDER2D",
+    26: "RANGE",
+    27: "DROPDOWN",
+    28: "RADIOBUTTON",
+    29: "COLORCHOOSER",
+    30: "TABLE",
+    31: "URI",
     32: "IP",
-    32768: "LIST",
-    32769: "LISTPAGE",
-    32770: "TABS",
+    33: "IMAGE",
+    16384: "LIST",
+    16385: "TABS",
   });
 
-  static Command = Object.freeze({
-    INVALID: 0,
-    INFO: 1,
-    INITIALIZE: 2,
-    DISCOVER: 3,
-    UPDATE: 4,
-    REMOVE: 5,
-    UPDATEVALUE: 6,
+  static UriWidgetOptions = Object.freeze({
+    PLACEHOLDER: 86,
+    BUTTON_LABEL: 87,
 
-    0: "INVALID",
-    1: "INFO",
-    2: "INITIALIZE",
-    3: "DISCOVER",
-    4: "UPDATE",
-    5: "REMOVE",
-    6: "UPDATEVALUE",
+    86: "PLACEHOLDER",
+    87: "BUTTON_LABEL",
   });
 
-  static NumberScale = Object.freeze({
-    LINEAR: 0,
-    LOGARITHMIC: 1,
-    EXP2: 2,
+  static TrackfillMode = Object.freeze({
+    NONE: 0,
+    LEFT: 1,
+    CENTER: 2,
+    RIGHT: 3,
 
-    0: "LINEAR",
-    1: "LOGARITHMIC",
-    2: "EXP2",
+    0: "NONE",
+    1: "LEFT",
+    2: "CENTER",
+    3: "RIGHT",
   });
 
-  static DialOptions = Object.freeze({
-    CYCLIC: 86,
+  static RgbaFloatOptions = Object.freeze({
+    DEFAULT: 48,
 
-    86: "CYCLIC",
+    48: "DEFAULT",
+  });
+
+  static CheckboxWidgetOptions = Object.freeze({
+    INDETERMINATE: 86,
+
+    86: "INDETERMINATE",
+  });
+
+  static RgbaOptions = Object.freeze({
+    DEFAULT: 48,
+
+    48: "DEFAULT",
   });
 
   static RangeOptions = Object.freeze({
     DEFAULT: 48,
 
     48: "DEFAULT",
-  });
-
-  static LabelPosition = Object.freeze({
-    LEFT: 1,
-    RIGHT: 2,
-    TOP: 3,
-    BOTTOM: 4,
-    CENTER: 5,
-
-    1: "LEFT",
-    2: "RIGHT",
-    3: "TOP",
-    4: "BOTTOM",
-    5: "CENTER",
   });
 
   static UriOptions = Object.freeze({
@@ -220,22 +262,16 @@ export abstract class RcpTypes {
     50: "SCHEMA",
   });
 
-  static SliderOptions = Object.freeze({
-    HORIZONTAL: 86,
+  static RgbFloatOptions = Object.freeze({
+    DEFAULT: 48,
 
-    86: "HORIZONTAL",
+    48: "DEFAULT",
   });
 
-  static ClientStatus = Object.freeze({
-    DISCONNECTED: 0,
-    CONNECTED: 1,
-    VERSION_MISSMATCH: 2,
-    OK: 3,
+  static ImageWidgetOptions = Object.freeze({
+    OVERLAY_TEXT: 86,
 
-    0: "DISCONNECTED",
-    1: "CONNECTED",
-    2: "VERSION_MISSMATCH",
-    3: "OK",
+    86: "OVERLAY_TEXT",
   });
 
   static StringOptions = Object.freeze({
@@ -248,24 +284,16 @@ export abstract class RcpTypes {
 
   static InfodataOptions = Object.freeze({
     APPLICATIONID: 26,
+    APPLICATIONVERSION: 27,
 
     26: "APPLICATIONID",
+    27: "APPLICATIONVERSION",
   });
 
   static ArrayOptions = Object.freeze({
     DEFAULT: 48,
 
     48: "DEFAULT",
-  });
-
-  static NumberboxFormat = Object.freeze({
-    DEC: 1,
-    HEX: 2,
-    BIN: 3,
-
-    1: "DEC",
-    2: "HEX",
-    3: "BIN",
   });
 
   static Datatype = Object.freeze({
@@ -290,11 +318,12 @@ export abstract class RcpTypes {
     STRING: 33,
     RGB: 34,
     RGBA: 35,
-    ENUM: 36,
-    ARRAY: 37,
-    LIST: 38,
-    BANG: 39,
-    GROUP: 40,
+    RGB_FLOAT: 36,
+    RGBA_FLOAT: 37,
+    ENUM: 38,
+    ARRAY: 39,
+    BANG: 40,
+    GROUP: 41,
     URI: 42,
     IPV4: 43,
     IPV6: 44,
@@ -322,11 +351,12 @@ export abstract class RcpTypes {
     33: "STRING",
     34: "RGB",
     35: "RGBA",
-    36: "ENUM",
-    37: "ARRAY",
-    38: "LIST",
-    39: "BANG",
-    40: "GROUP",
+    36: "RGB_FLOAT",
+    37: "RGBA_FLOAT",
+    38: "ENUM",
+    39: "ARRAY",
+    40: "BANG",
+    41: "GROUP",
     42: "URI",
     43: "IPV4",
     44: "IPV6",
@@ -338,16 +368,14 @@ export abstract class RcpTypes {
     DEFAULT: 48,
     MINIMUM: 49,
     MAXIMUM: 50,
-    MULTIPLEOF: 51,
-    SCALE: 52,
-    UNIT: 53,
+    STEPSIZE: 51,
+    UNIT: 52,
 
     48: "DEFAULT",
     49: "MINIMUM",
     50: "MAXIMUM",
-    51: "MULTIPLEOF",
-    52: "SCALE",
-    53: "UNIT",
+    51: "STEPSIZE",
+    52: "UNIT",
   });
 
   static Ipv6Options = Object.freeze({
@@ -356,114 +384,62 @@ export abstract class RcpTypes {
     48: "DEFAULT",
   });
 
-  static PacketOptions = Object.freeze({
-    TIMESTAMP: 17,
-    DATA: 18,
+  static ButtonWidgetOptions = Object.freeze({
+    BUTTON_LABEL: 86,
+    TRIGGER_ON_UP: 87,
 
-    17: "TIMESTAMP",
-    18: "DATA",
+    86: "BUTTON_LABEL",
+    87: "TRIGGER_ON_UP",
   });
 
-  static TextboxOptions = Object.freeze({
-    MULTILINE: 86,
-    WORDWRAP: 87,
-    PASSWORD: 88,
+  static SwitchWidgetOptions = Object.freeze({
+    SWITCH_LABEL_ON: 86,
+    SWITCH_LABEL_OFF: 87,
 
-    86: "MULTILINE",
-    87: "WORDWRAP",
-    88: "PASSWORD",
+    86: "SWITCH_LABEL_ON",
+    87: "SWITCH_LABEL_OFF",
   });
 
-  static ListOptions = Object.freeze({
-    DEFAULT: 48,
-    MINIMUM: 49,
-    MAXIMUM: 50,
+  static SliderWidgetOptions = Object.freeze({
+    PRECISION: 86,
+    STEPSIZE_MULTIPLIER: 87,
+    HORIZONTAL: 88,
+    NAN_MEANING: 89,
+    TRACKFILL_MODE: 90,
 
-    48: "DEFAULT",
-    49: "MINIMUM",
-    50: "MAXIMUM",
+    86: "PRECISION",
+    87: "STEPSIZE_MULTIPLIER",
+    88: "HORIZONTAL",
+    89: "NAN_MEANING",
+    90: "TRACKFILL_MODE",
+  });
+
+  static NumberboxWidgetOptions = Object.freeze({
+    PRECISION: 86,
+    STEPSIZE_MULTIPLIER: 87,
+    CYCLIC: 88,
+    NAN_MEANING: 89,
+
+    86: "PRECISION",
+    87: "STEPSIZE_MULTIPLIER",
+    88: "CYCLIC",
+    89: "NAN_MEANING",
   });
 
   static CustomwidgetOptions = Object.freeze({
-    UUID: 86,
+    WIDGETID: 86,
     CONFIG: 87,
 
-    86: "UUID",
+    86: "WIDGETID",
     87: "CONFIG",
   });
 
+  static PressWidgetOptions = Object.freeze({
+    PRESS_LABEL_ON: 86,
+    PRESS_LABEL_OF: 87,
 
-  io: KaitaiStream
-  parent?: object
-  root?: object
-
-  constructor(io: KaitaiStream) {
-    this.io = io
-    // this.parent = parent
-    // this.root = root || this
-
-    this._read()
-  }
-  
-  abstract _read(): void
-}
-
-export class TinyString extends RcpTypes {
-
-  myLen: number
-  data: string
-
-  constructor(io: KaitaiStream) {
-    super(io)
-  }
-  _read() {
-    this.myLen = this.io.readU1()
-    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'utf8')
-  }
-}
-
-
-export class ShortString extends RcpTypes  {
-
-  myLen: number
-  data: string
-
-  constructor(io: KaitaiStream) {
-    super(io)
-  }
-
-  _read() {
-    this.myLen = this.io.readU2be()
-    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'utf8')
-  }
-}
-
-export class LongString extends RcpTypes {
-  
-  myLen: number
-  data: string
-
-  constructor(io: KaitaiStream) {
-    super(io)
-  }
-
-  _read() {
-    this.myLen = this.io.readU4be()
-    this.data = KaitaiStream.bytesToStr(this.io.readBytes(this.myLen), 'utf8')
-  }
-}
-
-export class Userdata extends RcpTypes {
-  
-  myLen: number
-  data: Uint8Array
-
-  constructor(io: KaitaiStream) {
-    super(io)
-  }
-
-  _read() {
-    this.myLen = this.io.readU4be()
-    this.data = this.io.readBytes(this.myLen)
-  }
+    86: "PRESS_LABEL_ON",
+    87: "PRESS_LABEL_OF",
+  });
+    static Command: any;
 }

@@ -61,7 +61,7 @@ export function createTypeDefinition(datatype: number): TypeDefinition {
         case RcpTypes.Datatype.ENUM:
             return new EnumDefinition();
         case RcpTypes.Datatype.ARRAY:
-        case RcpTypes.Datatype.LIST:
+        // case RcpTypes.Datatype.LIST:
             break;
         case RcpTypes.Datatype.BANG:
             return new BangDefinition();

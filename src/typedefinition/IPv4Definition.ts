@@ -3,7 +3,6 @@ import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { pushFloat32ToArrayBe, pushIn32ToArrayBe } from '../Utils';
 import { IPv4 } from 'ip-num';
-import * as bigInt from 'big-integer';
 import { TypeDefinition } from './TypeDefinition';
 
 export class IPv4Definition extends DefaultDefinition<IPv4> {
@@ -41,14 +40,14 @@ export class IPv4Definition extends DefaultDefinition<IPv4> {
     }
 
     readValue(io: KaitaiStream): IPv4 {
-        return new IPv4(bigInt(io.readU4be()));
+        return new IPv4(io.readU4be());
     }
 
     writeValue(buffer: number[], value?: IPv4): void {
         if (value != undefined) {
-            pushIn32ToArrayBe(value.value.toJSNumber(), buffer);
+            pushIn32ToArrayBe(Number(value.value), buffer);
         } else if (this._defaultValue) {
-            pushIn32ToArrayBe(this._defaultValue.value.toJSNumber(), buffer);
+            pushIn32ToArrayBe(Number(this._defaultValue.value), buffer);
         } else {
             pushFloat32ToArrayBe(0, buffer);
         }
@@ -60,7 +59,7 @@ export class IPv4Definition extends DefaultDefinition<IPv4> {
 
     // override
     getTypeDefault(): IPv4 {
-        return new IPv4(bigInt(0));
+        return new IPv4(BigInt(0));
     }
 
     writeOptions(output: number[], all: boolean): void {

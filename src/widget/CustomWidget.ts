@@ -1,12 +1,13 @@
 import { Widget } from './Widget';
-import { RcpTypes, Userdata } from '../RcpTypes'
+import { RcpTypes } from '../RcpTypes'
 import KaitaiStream from '../KaitaiStream';
 import { pushFloat32ToArrayBe, pushIn64ToArrayBe } from '../Utils';
-import { UUID } from '../UUID';
+import { RcpInt } from '../RcpInt';
+import { UserData } from '../Userdata';
 
 export class CustomWidget extends Widget {
 
-    private _uuid?: UUID;
+    private _widgetid?: number;
     private _config?: Uint8Array; //??
 
     constructor() {
@@ -16,15 +17,14 @@ export class CustomWidget extends Widget {
     handleOption(optionId: number, io: KaitaiStream): boolean {
 
         switch(optionId) {
-            case RcpTypes.CustomwidgetOptions.UUID: {
-                // TODO!! -- UUID
-                this._uuid = new UUID(io.readBytes(16));
-                console.log("custom widget: uuid: " + this._uuid);
+            case RcpTypes.CustomwidgetOptions.WIDGETID: {
+                this._widgetid = RcpInt.parse(io).value;
+                console.log("custom widget: widgetid: " + this._widgetid);
                 return true;
             }
 
             case RcpTypes.CustomwidgetOptions.CONFIG: {
-                this._config = new Userdata(io).data
+                this._config = UserData.parse(io).data
                 console.log("custom widget: config: " + KaitaiStream.createStringFromArray(this._config));
                 
                 return true;
@@ -36,29 +36,17 @@ export class CustomWidget extends Widget {
 
     writeOptions(output: number[], all: boolean): void {
 
-        if (all || this.changed.has(RcpTypes.CustomwidgetOptions.UUID)) {
-            output.push(RcpTypes.CustomwidgetOptions.UUID);
-            if (this._uuid) {
-                // 
-                // 16 bytes
-                this._uuid.data.forEach( (e) => {
-                    output.push(e);
-                });
-            } else {
-                pushIn64ToArrayBe(0, output);
-                pushIn64ToArrayBe(0, output);
-            }
+        if (all || this.changed.has(RcpTypes.CustomwidgetOptions.WIDGETID)) {
+            output.push(RcpTypes.CustomwidgetOptions.WIDGETID);
+            new RcpInt(this._widgetid || 0).write(output)            
         }
         
         if (all || this.changed.has(RcpTypes.CustomwidgetOptions.CONFIG)) {
             output.push(RcpTypes.CustomwidgetOptions.CONFIG);
             if (this._config) {
-                pushFloat32ToArrayBe(this._config.length, output);
-                this._config.forEach((e) => {
-                    output.push(e);
-                });
+                new UserData(this._config).write(output, all);                
             } else {
-                pushFloat32ToArrayBe(0, output);
+                new RcpInt(0).write(output);
             }
         }
 
@@ -68,24 +56,19 @@ export class CustomWidget extends Widget {
 
     //--------------------------------
     // uuid
-    set uuid(uuid: UUID | undefined)
+    set widgetid(widgetid: number | undefined)
     {
-        if (!uuid || uuid.data.length !== 16) {
+        if (this._widgetid === widgetid) {
             return;
         }
 
-        if (this._uuid && this._uuid.compareRaw(uuid.data)) {
-            return;
-        }
-
-
-        this._uuid = uuid;
-        this.changed.set(RcpTypes.CustomwidgetOptions.UUID, true);
+        this._widgetid = widgetid;
+        this.changed.set(RcpTypes.CustomwidgetOptions.WIDGETID, true);
         this.setDirty();
     }
 
-    get uuid(): UUID | undefined {
-        return this._uuid;
+    get widgetid(): number | undefined {
+        return this._widgetid;
     }
 
     //--------------------------------

@@ -78,12 +78,12 @@ function RGBAToNum(color: string): number {
 abstract class ColorDefinition extends DefaultDefinition<string> {
 
     static readonly allOptions: Map<number, boolean> = new Map().
-                            set(RcpTypes.ColorOptions.DEFAULT, true);
+                            set(RcpTypes.RgbaOptions.DEFAULT, true);
 
     handleOption(optionId: number, io: KaitaiStream): boolean {
 
         switch (optionId) {
-            case RcpTypes.ColorOptions.DEFAULT:
+            case RcpTypes.RgbaOptions.DEFAULT:
                 this._defaultValue = this.readValue(io);
                 return true;
         }
@@ -92,14 +92,14 @@ abstract class ColorDefinition extends DefaultDefinition<string> {
     }
 
     getDefaultId(): number {
-        return RcpTypes.ColorOptions.DEFAULT;
+        return RcpTypes.RgbaOptions.DEFAULT;
     }
 
     writeOptions(output: number[], all: boolean): void {
         
-        if (all || this.changed.has(RcpTypes.ColorOptions.DEFAULT)) {
+        if (all || this.changed.has(RcpTypes.RgbaOptions.DEFAULT)) {
 
-            output.push(RcpTypes.ColorOptions.DEFAULT);
+            output.push(RcpTypes.RgbaOptions.DEFAULT);
             this.writeValue(output, this._defaultValue);            
         }
 

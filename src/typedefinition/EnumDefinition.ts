@@ -1,18 +1,21 @@
 import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
-import { RcpTypes, TinyString } from '../RcpTypes';
-import { writeTinyString } from '../Utils';
+import { RcpTypes } from '../RcpTypes';
 import { TypeDefinition } from './TypeDefinition';
+import { RcpString } from '../RcpString';
+import { RcpInt } from '../RcpInt';
 
 export class EnumDefinition extends DefaultDefinition<string> {
     
     static readonly allOptions: Map<number, boolean> = new Map().
                             set(RcpTypes.EnumOptions.DEFAULT, true).
                             set(RcpTypes.EnumOptions.ENTRIES, true).
-                            set(RcpTypes.EnumOptions.MULTISELECT, true);
+                            set(RcpTypes.EnumOptions.MAXIMUM_SELECTION_COUNT, true).
+                            set(RcpTypes.EnumOptions.MINIMUM_SELECTION_COUNT, true);
 
     private _entries?: string[];
-    private _multiselect?: boolean;
+    private _maxSelectionCount?: number;
+    private _minSelectionCount?: number;
 
     constructor() {
         super(RcpTypes.Datatype.ENUM);
@@ -35,8 +38,8 @@ export class EnumDefinition extends DefaultDefinition<string> {
                 changed = true;
             }
 
-            if (typedefinition._multiselect !== undefined) {
-                this._multiselect = typedefinition._multiselect;
+            if (typedefinition._maxSelectionCount !== undefined) {
+                this._maxSelectionCount = typedefinition._maxSelectionCount;
                 changed = true;
             }
         }
@@ -55,7 +58,7 @@ export class EnumDefinition extends DefaultDefinition<string> {
                 this._entries = [];
 
                 while (true) {
-                    const entry = new TinyString(io).data;
+                    const entry = RcpString.parse(io).value;
                     if (entry.length == 0 || entry === "") {
                         break;
                     }
@@ -64,8 +67,12 @@ export class EnumDefinition extends DefaultDefinition<string> {
                 }
                 return true;
                 
-            case RcpTypes.EnumOptions.MULTISELECT:
-                this._multiselect = io.readU1() > 0
+            case RcpTypes.EnumOptions.MAXIMUM_SELECTION_COUNT:
+                this._maxSelectionCount = RcpInt.parse(io).value
+                return true;
+
+            case RcpTypes.EnumOptions.MINIMUM_SELECTION_COUNT:
+                this._minSelectionCount = RcpInt.parse(io).value
                 return true;
         }
 
@@ -73,18 +80,11 @@ export class EnumDefinition extends DefaultDefinition<string> {
     }
 
     readValue(io: KaitaiStream): string {
-        return new TinyString(io).data;
+        return RcpString.parse(io).value;
     }
 
     writeValue(buffer: Array<number>, value?: string) {
-
-        if (value != undefined) {
-            writeTinyString(value, buffer);
-        } else if (this._defaultValue) {
-            writeTinyString(this._defaultValue, buffer);
-        } else {
-            writeTinyString("", buffer);
-        }
+        new RcpString(value || (this._defaultValue || "")).write(buffer);
     }
 
     getDefaultId(): number {
@@ -103,36 +103,36 @@ export class EnumDefinition extends DefaultDefinition<string> {
             ch = EnumDefinition.allOptions;
         }
 
-        ch.forEach((v, key) => {
+        const keys = Array.from(ch.keys());
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+
+            // write options id
+            output.push(key | ((i === keys.length - 1) ? RcpInt.TERMINATOR : 0));
+        
             switch(key) {
-                case RcpTypes.EnumOptions.DEFAULT: {                    
-                    output.push(RcpTypes.EnumOptions.DEFAULT);
+                case RcpTypes.EnumOptions.DEFAULT: {
                     this.writeValue(output, this._defaultValue);
                     break;
                 }
 
                 case RcpTypes.EnumOptions.ENTRIES: {
-                    output.push(RcpTypes.EnumOptions.ENTRIES);
-                    if (this._entries) {
-                        for (let i=0; i<this._entries.length; i++) {
-                            writeTinyString(this._entries[i], output);
-                        }                        
-                    }
+                    this.entries?.forEach((entry => new RcpString(entry).write(output)));                    
                     output.push(0);
                     break;
                 }
 
-                case RcpTypes.EnumOptions.MULTISELECT: {
-                    output.push(RcpTypes.EnumOptions.MULTISELECT);
-                    if (this._multiselect) {
-                        output.push(this._multiselect ? 1 : 0);
-                    } else {
-                        output.push(0);
-                    }
+                case RcpTypes.EnumOptions.MAXIMUM_SELECTION_COUNT: {
+                    new RcpInt(this._maxSelectionCount || 0).write(output);                    
+                    break;
+                }
+
+                case RcpTypes.EnumOptions.MINIMUM_SELECTION_COUNT: {
+                    new RcpInt(this._minSelectionCount || 0).write(output);                    
                     break;
                 }
             }
-        });
+        };
     
         if (!all) {
             this.changed.clear();
@@ -140,7 +140,7 @@ export class EnumDefinition extends DefaultDefinition<string> {
     }
 
     contains(value: string): boolean {        
-        return this._entries && this._entries.indexOf(value) > -1;
+        return this._entries != undefined && this._entries.indexOf(value) > -1;
     }
 
     // setter getter
@@ -158,20 +158,37 @@ export class EnumDefinition extends DefaultDefinition<string> {
     }
 
     //--------------------------------
-    // multiselect
-    set multiselect(multiselect: boolean | undefined) {
+    // max selection count
+    set maxSelectionCount(count: number | undefined) {
 
-        if (this._multiselect === multiselect) {
+        if (this._maxSelectionCount === count) {
             return;
         }
 
-        this._multiselect = multiselect;
-        this.changed.set(RcpTypes.EnumOptions.MULTISELECT, true);
+        this._maxSelectionCount = count;
+        this.changed.set(RcpTypes.EnumOptions.MAXIMUM_SELECTION_COUNT, true);
         this.setDirty();
     }
 
-    get multiselect(): boolean | undefined {
-        return this._multiselect;
+    get maxSelectionCount(): number | undefined {
+        return this._maxSelectionCount;
+    }
+
+    //--------------------------------
+    // min selection count
+    set minSelectionCount(count: number | undefined) {
+
+        if (this._minSelectionCount === count) {
+            return;
+        }
+
+        this._minSelectionCount = count;
+        this.changed.set(RcpTypes.EnumOptions.MINIMUM_SELECTION_COUNT, true);
+        this.setDirty();
+    }
+
+    get minSelectionCount(): number | undefined {
+        return this._minSelectionCount;
     }
 }
 

@@ -1,7 +1,6 @@
 import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
 import {
-    writeTinyString,
     pushFloat64ToArrayBe,
     pushFloat32ToArrayBe,
     pushIn16ToArrayBe,
@@ -9,6 +8,8 @@ import {
 } from '../Utils';
 import { RcpTypes } from '../RcpTypes';
 import { TypeDefinition } from './TypeDefinition';
+import { RcpString } from '../RcpString';
+import { RcpInt } from '../RcpInt';
 
 export abstract class NumberDefinition extends DefaultDefinition<number> {
     
@@ -16,13 +17,12 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
                     set(RcpTypes.NumberOptions.DEFAULT, true).
                     set(RcpTypes.NumberOptions.MINIMUM, true).
                     set(RcpTypes.NumberOptions.MAXIMUM, true).
-                    set(RcpTypes.NumberOptions.MULTIPLEOF, true).
-                    set(RcpTypes.NumberOptions.SCALE, true).
+                    set(RcpTypes.NumberOptions.STEPSIZE, true).
                     set(RcpTypes.NumberOptions.UNIT, true);
 
     private _minimum?: number;
     private _maximum?: number;
-    private _multipleof?: number;
+    private _stepsize?: number;
     private _scale?: number;
     private _unit?: string;
 
@@ -52,8 +52,8 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
                 changed = true;
             }
 
-            if (typedefinition._multipleof !== undefined) {
-                this._multipleof = typedefinition._multipleof;
+            if (typedefinition._stepsize !== undefined) {
+                this._stepsize = typedefinition._stepsize;
                 changed = true;
             }
 
@@ -84,21 +84,11 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
             case RcpTypes.NumberOptions.MAXIMUM:
                 this._maximum = this.readValue(io);
                 return true;
-            case RcpTypes.NumberOptions.MULTIPLEOF:
-                this._multipleof = this.readValue(io);
-                return true;
-            case RcpTypes.NumberOptions.SCALE:
-                let scale_num = io.readU1();
-                if (scale_num < RcpTypes.NumberScale.LINEAR || scale_num > RcpTypes.NumberScale.EXP2) {
-                    this._scale = RcpTypes.NumberScale.LINEAR;
-                } else {
-                    this._scale = scale_num;
-                }
-                return true;
+            case RcpTypes.NumberOptions.STEPSIZE:
+                this._stepsize = this.readValue(io);
+                return true;            
             case RcpTypes.NumberOptions.UNIT:
-                // read tiny string
-                let len = io.readU1();
-                this._unit = KaitaiStream.bytesToStr(io.readBytes(len), 'utf8');
+                this._unit = RcpString.parse(io).value;                
                 return true;
         }
 
@@ -122,55 +112,40 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
             ch = NumberDefinition.allOptions;
         }
 
-        ch.forEach((v, key) => {
+        const keys = Array.from(ch.keys());
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+
+            // write options id
+            output.push(key | ((i === keys.length - 1) ? RcpInt.TERMINATOR : 0));        
 
             switch (key) {
                 case RcpTypes.NumberOptions.DEFAULT: {
-                    output.push(RcpTypes.NumberOptions.DEFAULT);
                     this.writeValue(output, this._defaultValue);
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MINIMUM: {
-                    output.push(RcpTypes.NumberOptions.MINIMUM);
                     this.writeValue(output, this._minimum);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.MAXIMUM: {
-                    output.push(RcpTypes.NumberOptions.MAXIMUM);
                     this.writeValue(output, this._maximum);                    
                     break;
                 }
 
-                case RcpTypes.NumberOptions.MULTIPLEOF: {
-                    output.push(RcpTypes.NumberOptions.MULTIPLEOF);
-                    this.writeValue(output, this._multipleof);                    
-                    break;
-                }
-
-                case RcpTypes.NumberOptions.SCALE: {
-                    output.push(RcpTypes.NumberOptions.SCALE);
-                    if (this._scale) {
-                        output.push(this._scale);
-                    } else {
-                        output.push(RcpTypes.NumberScale.LINEAR);
-                    }
+                case RcpTypes.NumberOptions.STEPSIZE: {
+                    this.writeValue(output, this._stepsize);                    
                     break;
                 }
 
                 case RcpTypes.NumberOptions.UNIT: {
-                    output.push(RcpTypes.NumberOptions.UNIT);
-                    if (this._unit) {
-                        writeTinyString(this._unit, output);
-                    } else {
-                        writeTinyString("", output);
-                    } 
+                    new RcpString(this._unit || "").write(output);                     
                     break;
                 }
             }
-
-        });
+        };
 
         if (!all) {
             this.changed.clear();
@@ -229,35 +204,19 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
     }
 
     //--------------------------------
-    // minimum
-    set multipleof(multipleof: number | undefined) {
-        if (this._multipleof === multipleof) {
+    // stepsize
+    set stepsize(stepsize: number | undefined) {
+        if (this._stepsize === stepsize) {
             return;
         }
 
-        this._multipleof = multipleof;
-        this.changed.set(RcpTypes.NumberOptions.MULTIPLEOF, true);
+        this._stepsize = stepsize;
+        this.changed.set(RcpTypes.NumberOptions.STEPSIZE, true);
         this.setDirty();
     }
 
-    get multipleof(): number | undefined {
-        return this._multipleof;
-    }
-
-    //--------------------------------
-    // scale
-    set scale(scale: number | undefined) {
-        if (this._scale === scale) {
-            return;
-        }
-
-        this._scale = scale;
-        this.changed.set(RcpTypes.NumberOptions.SCALE, true);
-        this.setDirty();
-    }
-
-    get scale(): number | undefined {
-        return this._scale;
+    get stepsize(): number | undefined {
+        return this._stepsize;
     }
 
     //--------------------------------

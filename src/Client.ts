@@ -1,53 +1,58 @@
 import { RCP_LIBRARY_VERSION } from './version';
-import { GroupParameter } from './parameter/GroupParameter';
-import { ClientTransporter } from './Transport';
-import { Parameter } from './parameter/Parameter';
+import { ClientTransporter } from './ClientTransporter';
 import KaitaiStream from './KaitaiStream';
-import { Packet } from './Packet';
 import { RcpTypes } from './RcpTypes';
-import { ParameterManager } from './ParameterManager';
 import { InfoData } from './InfoData';
-import { parsePacket } from './RCPPacketParser';
-import { BangParameter } from './parameter/BangParameter';
-import { IdData } from './IdData';
-import { SemVer } from 'semver';
-import { Widget } from './widget/Widget';
+import { RcpVersion } from './RcpVersion';
+import { Packet } from './Packet';
+import { RcpInt } from './RcpInt';
+import { ParameterManager } from './ParameterManager';
+import { Parameter } from './parameter/Parameter';
 
-export class Client implements ParameterManager {
+enum ClientState {
+  Unknown = "Unknown",
+  Disconnected = "Disconnected",
+  Connected = "Connected",
+  Error = "Error",
+  Handshake = "Handshake",
+  Initialize = "Initialize",
+  FullyInitialized = "FullyInitialized"
+}
+
+export class Client extends ParameterManager
+{
 
   // static
-  static VERBOSE: boolean = false;
-  static VERBOSE_RECV: boolean = false;
-  static VERBOSE_SEND: boolean = false;
+  static VERBOSE: boolean = true;
+  static VERBOSE_RECV: boolean = true;
+  static VERBOSE_SEND: boolean = true;
 
-  private static rcpVersion: string = "0.1.0";  
+  public static rcpVersion: RcpVersion = new RcpVersion(2, 2);
+  public static clientHandshakeVersion: RcpVersion = new RcpVersion(1, 0); // aka: backward compatibility version
 
   static getRcpVersion() : string {
-    return Client.rcpVersion;
+    return Client.rcpVersion.toString();
   }
 
   // events
   connected?: () => void;
   disconnected?: (event: CloseEvent) => void;
   onServerInfo?: (version: string, applicationId: string) => void;
-  parameterAdded?: (parameter: Parameter) => void;
-  parameterRemoved?: (parameter: Parameter) => void;
   onError?: (error: any) => void;
 
-  private dirtyParams: Parameter[] = [];
   private transporter: ClientTransporter;
-  private valueCache: Map<number, Parameter> = new Map();
-  private parentIdCache: Map<number, number> = new Map();
-  private _rootGroup = new GroupParameter(0);
-  private initSent = false;
 
-  private serverVersion?: SemVer;
   private serverApplicationId?: string;
+  private serverApplicationVersion?: string;
 
-  constructor(transporter: ClientTransporter) {
+  private expectedParameterCount: number = 0;
+  private state: ClientState = ClientState.Unknown;
+
+  constructor(transporter: ClientTransporter)
+  {
+    super(false);
 
     this.transporter = transporter;
-    this._rootGroup.label = "root";
 
     // set transporter callbacks
     this.transporter.onError = this.transporterError;  
@@ -56,27 +61,69 @@ export class Client implements ParameterManager {
     this.transporter.received = this.transporterReceived;
   }
 
+  private setState(newState: ClientState) {
+    if (newState != this.state)
+    {
+      console.log(`client state from: ${this.state} -> ${newState}`);
+      this.state = newState;
+    }
+  }
+
   /*
   * transporter callbacks
   */
   transporterConnected = () =>
   {
-    this.requestVersion();
-    
+    this.setState(ClientState.Connected);
+
     if (this.connected) {
       this.connected();
     }
+
+    /*
+
+    Client sends a info-packet
+    Server receives info-packet
+    Server sends info-packet to client
+    Server checks if its runtime-version is between client rcp-version and base-version (inclusive)
+        Version ok -> wait for Initialization
+        Version mismatch:
+            Server is strict -> close connection
+            Server not strict -> wait for Initialization
+    */
+
+    /*
+    Client receives info:
+        Version ok: Initialization
+        Version missmatch:
+            Decide to close connection
+            Or client sends initialize and skip packages if a parsing error occurs due to unknown options. See: Initialization
+    */
+
+    const versionPacket = new Packet(RcpTypes.PacketType.INFO);
+    versionPacket.data = new InfoData(
+      Client.rcpVersion,
+      Client.clientHandshakeVersion, `rcp-ts webclient (${RCP_LIBRARY_VERSION})`, "Version XXX");
+
+    this.sendPacket(versionPacket);    
+    this.setState(ClientState.Handshake);
   }
 
   transporterError = (error: any) =>
   {
+    console.error(error);
+
+    this.setState(ClientState.Error);
+
     if (this.onError) {
       this.onError(error);
     }
   }
 
-  transporterDisconnected = (event) =>
+  transporterDisconnected = (event: any) =>
   {
+    this.setState(ClientState.Disconnected);
+
     if (Client.VERBOSE) {
       console.log("transporter disconnected, clear value-cache");        
     }
@@ -86,115 +133,188 @@ export class Client implements ParameterManager {
       this.disconnected(event);
     }
 
-    // cleanup
-    this.valueCache.clear();
-    this.dirtyParams = [];
-    this.initSent = false;
+  }
+
+  update()
+  {
+    super.update();
+  }
+
+  private errorAndClose(info: string)
+  {
+    console.error(info);
+    this.disconnect();
   }
 
   transporterReceived = (data: ArrayBuffer) =>
   {
     if (Client.VERBOSE ||
-      Client.VERBOSE_RECV)
+        Client.VERBOSE_RECV)
     {
-      console.log("client received: ", new Int8Array(data));
+      console.log("client received: ", new Uint8Array(data));
     }
 
     const io = new KaitaiStream(data, 0);
-    const packet = parsePacket(io, this);
+    const packet = Packet.parse(io, this);
 
-    switch (packet.command) {
-      case RcpTypes.Command.INVALID:
-      case RcpTypes.Command.INITIALIZE:
-      case RcpTypes.Command.DISCOVER:
-        // invalid command - ignore
-        break;
+    switch (packet.type)
+    {    
+      // NOTE: maybe added later
+      // case RcpTypes.PacketType.DISCOVER:
+      
+      //---------------------------------------
+      case RcpTypes.PacketType.INFO:
+      //---------------------------------------
 
-      case RcpTypes.Command.INFO:
-
-        if (packet.data === undefined) {
-
-          // no data, answer with infopacket
-          const versionPacket = new Packet(RcpTypes.Command.INFO);
-          versionPacket.data = new InfoData(Client.rcpVersion, `rcp-ts webclient (${RCP_LIBRARY_VERSION})`);
-          this.transporter.send(new Int8Array(versionPacket.serialize(false)));
-
-        } else if (packet.data instanceof InfoData) {
-
-          const infoData = packet.data as InfoData;
-
-          this.serverVersion = new SemVer(infoData.version);
-          this.serverApplicationId = infoData.applicationid;
-
-          if (this.onServerInfo) {
-            this.onServerInfo(infoData.version, infoData.applicationid);
+        if (this.state == ClientState.Handshake)
+        {
+          if (packet.data instanceof InfoData)
+          {
+            const infoData = packet.data as InfoData;
+            
+            this.serverApplicationId = infoData.applicationid;
+            this.serverApplicationVersion = infoData.applicationversion;
+  
+            const server_version_str = infoData.version.toString() + " - " + infoData.handshakeVersion.toString();
+  
+            if (this.onServerInfo)
+            {
+              this.onServerInfo(server_version_str, infoData.applicationid || "<no application id>");
+            }
+  
+            console.log(`rcp version: ${server_version_str} from server: ${infoData.applicationid} - ${infoData.applicationversion}`);
+  
+            /*
+            Compatibility between the server and a client is ensured
+            if the server handshake-version is between the clients rcp-version
+            and clients handshake-version (inclusive). See Protocol Flow for the
+            version handshake and more details.
+            */
+            if (infoData.handshakeVersion.compare(Client.clientHandshakeVersion) >= 0 &&
+                infoData.handshakeVersion.compare(Client.rcpVersion) <= 0)
+            {
+              // send init
+              this.initialize();
+              this.setState(ClientState.Initialize);
+            }
+            else
+            {
+              this.errorAndClose("version mismatch!")
+            }
           }
-
-          console.log(`rcp version: ${infoData.version} from server${(infoData.applicationid !== "" ? `: ${infoData.applicationid}` : "")}`);
-          this.handleVersion(infoData.version);
-
-        } else {
-          console.error("wrong data in info packet");
+          else
+          {
+            this.errorAndClose("wrong data in info packet");
+          }
+        }
+        else
+        {
+          this.errorAndClose(`received info in state: ${this.state}`);
         }
 
         break;
 
-      case RcpTypes.Command.REMOVE:
-        if (this.serverVersionGt("0.0.0")) {
-          // for versions > 0.0.0 we expect IdData
-          if (packet.data instanceof IdData) {
-            this._remove((packet.data as IdData).id);
-          } else {
-            console.error("no data in remove package");
-          }
-        } else {
-          // old version expects a parameter
-          if (packet.data instanceof Parameter) {
-            this._remove((packet.data as Parameter).id);
-          } else {
-            console.error("no data in remove package");
+
+      //---------------------------------------
+      case RcpTypes.PacketType.INITIALIZE:
+      //---------------------------------------
+
+        if (this.state == ClientState.Initialize)
+        {
+          this.expectedParameterCount = (packet.data as RcpInt).value;
+          console.log(`expecting ${this.expectedParameterCount} parameters`);
+
+          // NOTE: handle special case
+          if (this.expectedParameterCount == 0)
+          {
+            this.setState(ClientState.FullyInitialized);
           }
         }
+        else
+        {
+          this.errorAndClose(`received initialize in state: ${this.state}`);
+          return;
+        }
+      
         break;
 
-      case RcpTypes.Command.UPDATE:
-      case RcpTypes.Command.UPDATEVALUE:
-        // expect a parameter as data
-        if (packet.data instanceof Parameter) {
-          this._update(packet.data as Parameter);
-        } else {
-          console.error("no data in update package");
+      //---------------------------------------
+      case RcpTypes.PacketType.REMOVE:
+      //---------------------------------------
+
+        if (this.state == ClientState.FullyInitialized)
+        {
+          // TODO: remove parameter ids
         }
+        else
+        {
+          console.error(`received remove in state: ${this.state}`);
+          return;
+        }
+
+        break;
+
+      //---------------------------------------
+      case RcpTypes.PacketType.UPDATE:
+      //---------------------------------------
+
+        if (this.state == ClientState.Initialize ||
+            this.state == ClientState.FullyInitialized)
+        {
+          if (packet.data instanceof Parameter)
+          {
+            this._update(packet.data);
+
+            if (this.state != ClientState.FullyInitialized
+                && this.valueCache.size == this.expectedParameterCount)
+            {
+              this.setState(ClientState.FullyInitialized);
+            }
+          }
+          else
+          {
+            this.errorAndClose("invalid data in packet for update");
+          }
+        }
+        else
+        {
+          // NOTE: don't close
+          console.error(`received update in state: ${this.state}`);
+          return;
+        }
+
+        break;
+
+      //---------------------------------------
+      case RcpTypes.PacketType.UPDATEVALUE:   
+      //---------------------------------------
+        
+        if (this.state == ClientState.FullyInitialized)
+        {
+          if (packet.data instanceof Parameter)
+          {
+            this._update(packet.data);
+          }
+          else
+          {
+            this.errorAndClose("invalid data in packet for update-value");
+          }            
+        }
+        else
+        {
+          console.error(`received update-value in state: ${this.state}`);
+        }
+      
         break;
     }
-  }
-
-
-  /*
-  * version
-  */
-  getServerVersion = () : string => {
-    return this.serverVersion ? this.serverVersion.raw : "";
   }
 
   getServerApplicationId = () : string => {
     return this.serverApplicationId ? this.serverApplicationId : "";
   }
 
-  serverVersionGt = (version: string) : boolean => {
-    if (!this.serverVersion) {
-      return false;
-    }
-
-    return this.serverVersion.compare(version) == 1;
-  }
-
   dispose() {
     this.disconnect();
-  }
-
-  setRootWidget(widget: Widget) {
-    this._rootGroup.widget = widget;
   }
 
   connect(host: string, port: number=0): void {
@@ -202,150 +322,18 @@ export class Client implements ParameterManager {
   }
 
   disconnect() {
+    console.log("disconnect transporter");
     this.transporter.disconnect();
-  }
-
-  private requestVersion() {
-
-    // send version packet
-    const versionPacket = new Packet(RcpTypes.Command.INFO);
-    this.transporter.send(new Int8Array(versionPacket.serialize(false)));
-
-    // if you know server does not support InfoData, handleVersion directly
-    // this.handleVersion("0.0.0");
-  }
-
-  private handleVersion(version: string) {    
-    if (this.checkVersion(version)) {
-      this.transporter.versionOk();
-      if (this.initSent !== true)
-      {
-        // only send initialize once
-        this.initialize();
-        this.initSent = true;
-      }
-    } else {
-      if (Client.VERBOSE) console.log("version check failed: " + version);
-    }
-  }
-
-  private checkVersion(version: string) : boolean {
-
-    if (!version) {
-      if (Client.VERBOSE) console.log("version check - no version");
-      return false;
-    }
-
-    const parts = version.split(".");
-    if (parts.length === 3) {
-      const major = parseInt(parts[0]);
-      const minor = parseInt(parts[1]);
-      const patch = parseInt(parts[2]);
-
-      if (major >= 0 && minor >= 0 && patch >= 0) {
-        return true;
-      }
-    }   
-
-    if (Client.VERBOSE) console.error("version missmatch!");
-
-    return false;
   }
 
   /**
    * send initialize packet to server if transporter is connected
    */
   initialize() {
-    // cleanup?
-    if (this.transporter.isConnected()) {
-      const packet = new Packet(RcpTypes.Command.INITIALIZE);
-      this.sendPacket(packet);
-    } else {
-      console.log("initialize: transporter not connected");
-    }
-  }
+    const versionPacket = new Packet(RcpTypes.PacketType.INITIALIZE);
+    versionPacket.data = new RcpInt(0);
 
-  /**
-   * iterate over dirty parameters and send update packets
-   */
-  update()
-  {
-    try
-    {      
-      if (this.transporter.isConnected())
-      {
-        this.dirtyParams.forEach((parameter) =>
-        {        
-          let packetCommand: number = RcpTypes.Command.UPDATE;
-          
-          if (this.serverVersionGt("0.0.1")) {
-            // since rcp-version 0.1.0 updateValue needs to be implemented
-            
-            // check if we can write updatevalue
-            if (parameter instanceof BangParameter || 
-                parameter.onlyValueChanged())
-            {
-              packetCommand = RcpTypes.Command.UPDATEVALUE;
-            }
-          }
-
-          const packet = new Packet(packetCommand);
-          packet.data = parameter;
-
-          this.sendPacket(packet);
-        })
-
-        this.dirtyParams = [];
-
-      } else {
-        console.log("transporter not connected");        
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  //------------------------------
-  // ParameterManager
-  getParameter(id: number): Parameter | undefined {
-    return this.valueCache.get(id);
-  }
-
-  setParameterDirty(parameter: Parameter) {
-    if (this.dirtyParams.indexOf(parameter) > -1) {
-      // already contained
-      return;
-    }
-
-    this.dirtyParams.push(parameter);
-  }
-
-  getRootGroup() : GroupParameter {
-    return this._rootGroup;
-  }
-
-  waitForParent(parameterid: number, parentid: number): void {
-    this.parentIdCache.set(parameterid, parentid);
-  }
-
-  resolveParent(group: GroupParameter): void {
-    if (this.parentIdCache.size > 0)
-    {    
-      var toRemove: number[] = [];
-      this.parentIdCache.forEach((v, k) => {
-        if (v === group.id)
-        {
-          const parameter = this.valueCache.get(k);
-          if (parameter)
-          {            
-            parameter.setParentDirect(group);
-            toRemove.push(k);
-          }
-        }
-      });
-  
-      toRemove.forEach(e => this.parentIdCache.delete(e));    
-    }
+    this.sendPacket(versionPacket)
   }
 
   //------------------------------
@@ -356,117 +344,17 @@ export class Client implements ParameterManager {
    * 
    * @param packet the packet to sed
    */
-  private sendPacket(packet: Packet) {
-
+  protected sendPacket(packet: Packet)
+  {
     const dataOut = new Int8Array(packet.serialize(false))
 
     if (Client.VERBOSE ||
-      Client.VERBOSE_SEND)
+        Client.VERBOSE_SEND)
     {
       console.log("client writing: ", dataOut);
     }
 
     this.transporter.send(dataOut);
   } 
-
-  /**
-   * add or update a parameter in our valueCache
-   * parameterAdded listener are informed if paramter gets added to the valueCache
-   * 
-   * @param parameter parsed parameter to add or update
-   */
-  private _update(parameter: Parameter): void 
-  {
-    if (!this.valueCache.has(parameter.id)) 
-    {
-      if (parameter.parent)
-      {
-        // add parameter to parent
-        // NOTE: we only want to do this for new parameters 
-        parameter.parent.addChild(parameter);
-      }
-      else
-      {
-        // this adds the parameter as child to the parent
-        parameter.setParentDirect(this._rootGroup);
-      }
-
-      // add it to the cache
-      this.valueCache.set(parameter.id, parameter);
-
-      // initially this parameter is unchanged
-      // clear changed flags
-      parameter.clearChanged();
-
-      if (this.parameterAdded) 
-      {
-        this.parameterAdded(parameter);
-      }
-
-      if (parameter instanceof GroupParameter)
-      {
-        this.resolveParent(parameter);
-      }
-
-      if (Client.VERBOSE) 
-      {
-        console.log(`CLIENT: paramter added to cache: ${parameter.label} [${parameter.id}]`);
-      }
-    } 
-    else 
-    {
-      const chachedParameter = this.valueCache.get(parameter.id);
-
-      if (chachedParameter) 
-      {
-        chachedParameter.update(parameter);
-      }
-
-      // parameter was used to updated cached parameter - dispose
-      parameter.dispose();
-
-      if (Client.VERBOSE && chachedParameter) 
-      {
-        console.log(`CLIENT: updated paramter: ${chachedParameter.label} [${chachedParameter.id}]`);
-      }
-    }
-  }
-
-  /**
-   * remove a parameter from valueCache
-   * informs listeners before removing parameter
-   * 
-   * @param id id of parameter to remove.
-   */
-  private _remove(id: number): void {
-
-    const cached = this.valueCache.get(id);
-
-    if (cached !== undefined) {
-      
-      if (Client.VERBOSE) {
-        console.log("CLIENT: remove: " + id);
-      }
-
-      // remove parameter from parent
-      // TODO: dispose??
-      cached.removeFromParent();
-
-      // remove parameter
-      this.valueCache.delete(id);
-
-      // tell listeners
-      if (this.parameterRemoved) {
-        this.parameterRemoved(cached);
-      }
-
-      cached.dispose();
-
-    } else {
-      if (Client.VERBOSE) {
-        console.log("CLIENT: no parameter to remove with id: " + id);
-      }      
-    }
-  }
 
 }

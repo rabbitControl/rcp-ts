@@ -9,7 +9,7 @@ export abstract class DefaultDefinition<T> extends TypeDefinition {
 
     //
     protected changed: Map<number, boolean> = new Map();
-    parameter: Parameter;
+    public parameter?: Parameter;
 
     abstract readValue(io: KaitaiStream): T;
     abstract writeValue(buffer: Array<number>, value?: T): void;
@@ -32,7 +32,7 @@ export abstract class DefaultDefinition<T> extends TypeDefinition {
     }
 
     // setter / getter
-    set defaultValue(defaultValue: T) {
+    set defaultValue(defaultValue: T | undefined) {
 
         if (this._defaultValue === defaultValue) {
             return;

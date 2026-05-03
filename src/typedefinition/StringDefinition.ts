@@ -1,8 +1,9 @@
 import { DefaultDefinition } from './DefaultDefinition';
 import KaitaiStream from '../KaitaiStream';
-import { writeLongString } from '../Utils';
-import { RcpTypes, LongString } from '../RcpTypes';
+import { RcpTypes } from '../RcpTypes';
 import { TypeDefinition } from './TypeDefinition';
+import { RcpString } from '../RcpString';
+import { RcpInt } from '../RcpInt';
 
 export class StringDefinition extends DefaultDefinition<string> {
     
@@ -41,10 +42,10 @@ export class StringDefinition extends DefaultDefinition<string> {
         
         switch (optionId) {
             case RcpTypes.StringOptions.DEFAULT:
-                this._defaultValue = this.readValue(io);
+                this._defaultValue = RcpString.parse(io).value;
                 return true;
             case RcpTypes.StringOptions.REGULAR_EXPRESSION:
-                this._regex = this.readValue(io);
+                this._regex = RcpString.parse(io).value;
                 return true;
         }
 
@@ -53,19 +54,12 @@ export class StringDefinition extends DefaultDefinition<string> {
 
     // override
     readValue(io: KaitaiStream): string {
-        return new LongString(io).data;
+        return RcpString.parse(io).value;
     }
 
     // override
     writeValue(buffer: Array<number>, value?: string) {
-        if (value != undefined) {
-            writeLongString(value, buffer);
-        } else if (this._defaultValue) {
-            writeLongString(this._defaultValue, buffer);
-        } else {
-            writeLongString("", buffer);
-        }
-            
+        new RcpString(value || (this._defaultValue || "")).write(buffer);
     }
 
     // override
@@ -86,25 +80,30 @@ export class StringDefinition extends DefaultDefinition<string> {
             ch = StringDefinition.allOptions;
         }
 
-        ch.forEach((v, key) => {
+        const keys = Array.from(ch.keys());
+        for (let i = 0; i < keys.length; i++)
+        {
+            const key = keys[i];
+
+            if (key >= RcpTypes.StringOptions.DEFAULT &&
+                    key <= RcpTypes.StringOptions.REGULAR_EXPRESSION)
+            {
+                // write options id
+                output.push(key | ((i === keys.length-1) ? RcpInt.TERMINATOR : 0));
+            }
+
             switch (key) {
-                case RcpTypes.StringOptions.DEFAULT: {
-                    output.push(RcpTypes.StringOptions.DEFAULT);
-                    this.writeValue(output, this._defaultValue);
+                case RcpTypes.StringOptions.DEFAULT: {                    
+                    new RcpString(this._defaultValue || "").write(output);
                     break;
                 }
 
                 case RcpTypes.StringOptions.REGULAR_EXPRESSION: {
-                    output.push(RcpTypes.StringOptions.REGULAR_EXPRESSION);
-                    if (this._regex) {
-                        writeLongString(this._regex, output);
-                    } else {
-                        writeLongString("", output);
-                    }
+                    new RcpString(this._regex || "").write(output);                    
                     break;
                 }
             }
-        });
+        };
 
         if (!all) {
             this.changed.clear();

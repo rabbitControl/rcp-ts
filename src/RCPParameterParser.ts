@@ -17,17 +17,23 @@ import { ValueParameter } from './parameter/ValueParameter';
 import { ImageParameter } from './parameter/ImageParameter';
 import { Vector2I32Parameter, Vector2F32Parameter } from './parameter/Vector2Parameters';
 import { Vector4I32Parameter, Vector4F32Parameter } from './parameter/Vector4Parameters';
+import { RcpInt } from './RcpInt';
 
 export function parseParameter(io: KaitaiStream, manager: ParameterManager): Parameter {
 
     // read parameter id
-    const parameter_id = io.readS2be();
-    const datatype = io.readU1();
+    const parameter_id = RcpInt.parse(io).value;
+    const has_type_options = io.readBitsInt(1) === 0;
+    const datatype = io.readBitsInt(7);
+
+    console.log("parameter id:", parameter_id);
+    console.log("type options:", has_type_options, "type:", datatype);
+    
 
     const parameter = createParameter(parameter_id, datatype);
     parameter.setManager(manager);
 
-    parameter.parseOptions(io);
+    parameter.parseOptions(io, has_type_options);
 
     return parameter;
 }
@@ -35,9 +41,12 @@ export function parseParameter(io: KaitaiStream, manager: ParameterManager): Par
 
 export function parseUpdateValue(io: KaitaiStream, manager: ParameterManager): Parameter {
     // read parameter id
-    const parameter_id = io.readS2be();
+    const parameter_id = RcpInt.parse(io).value;
+    
+    // 
+    const datatype = io.readU1() & ~0x80;
+    
 
-    const datatype = io.readU1();
     // read all mandatory typedefinition data
 
     const parameter = createParameter(parameter_id, datatype);
@@ -100,7 +109,7 @@ export function createParameter(id: number, datatype: number): Parameter {
         case RcpTypes.Datatype.ENUM:
             return new EnumParameter(id);
         case RcpTypes.Datatype.ARRAY:
-        case RcpTypes.Datatype.LIST:
+        // case RcpTypes.Datatype.LIST:
             break;
         case RcpTypes.Datatype.BANG:
             return new BangParameter(id);

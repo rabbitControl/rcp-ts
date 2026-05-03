@@ -32,7 +32,7 @@ export class RangeParameter extends ValueParameter<Range> {
         }
 
         this._value.value1 = value;
-        this.changed.set(RcpTypes.ParameterOptions.VALUE, true);
+        this.changed.add(RcpTypes.ParameterOptions.VALUE);
         this.setDirty();
     }
 
@@ -58,7 +58,7 @@ export class RangeParameter extends ValueParameter<Range> {
         }
 
         this._value.value2 = value;
-        this.changed.set(RcpTypes.ParameterOptions.VALUE, true);
+        this.changed.add(RcpTypes.ParameterOptions.VALUE);
         this.setDirty();
     }
 

@@ -1,31 +1,32 @@
 
-import { GroupParameter } from './GroupParameter';
 import KaitaiStream from '../KaitaiStream';
+import { GroupParameter } from './GroupParameter';
 import { TypeDefinition } from '../typedefinition/TypeDefinition';
 import { Writeable } from '../Writeable';
-import { writeTinyString, writeShortString, pushIn32ToArrayBe, pushIn16ToArrayBe } from '../Utils';
-import { RcpTypes, TinyString, ShortString, Userdata } from '../RcpTypes';
+import { RcpInt } from '../RcpInt';
+import { RcpTypes } from '../RcpTypes';
 import { ParameterManager } from '../ParameterManager';
-import { Widget } from '../widget/Widget';
 import { ChangedListener } from '../ChangeListener';
-import { parseWidget } from '../RCPWidgetParser';
-
+import { RcpString } from '../RcpString';
+import { UserData } from '../Userdata';
+import { Widget } from '../widget/Widget';
 
 
 export abstract class Parameter implements Writeable {
 
   static readonly LANGUAGE_ANY = "any";
-  static readonly allOptions: Map<number, boolean> = new Map().
-                    set(RcpTypes.ParameterOptions.VALUE, true).
-                    set(RcpTypes.ParameterOptions.LABEL, true).
-                    set(RcpTypes.ParameterOptions.DESCRIPTION, true).
-                    set(RcpTypes.ParameterOptions.TAGS, true).
-                    set(RcpTypes.ParameterOptions.ORDER, true).
-                    set(RcpTypes.ParameterOptions.PARENTID, true).
-                    set(RcpTypes.ParameterOptions.WIDGET, true).
-                    set(RcpTypes.ParameterOptions.USERDATA, true).
-                    set(RcpTypes.ParameterOptions.USERID, true).
-                    set(RcpTypes.ParameterOptions.READONLY, true);
+  // static readonly allOptions: Map<number, boolean> = new Map().
+  //                   set(RcpTypes.ParameterOptions.VALUE, true).
+  //                   set(RcpTypes.ParameterOptions.LABEL, true).
+  //                   set(RcpTypes.ParameterOptions.DESCRIPTION, true).
+  //                   set(RcpTypes.ParameterOptions.TAGS, true).
+  //                   set(RcpTypes.ParameterOptions.ORDER, true).
+  //                   set(RcpTypes.ParameterOptions.PARENTID, true).
+  //                   // set(RcpTypes.ParameterOptions.WIDGET, true).
+  //                   set(RcpTypes.ParameterOptions.USERDATA, true).
+  //                   set(RcpTypes.ParameterOptions.USERID, true).
+  //                   set(RcpTypes.ParameterOptions.READONLY, true).
+  //                   set(RcpTypes.ParameterOptions.ENABLED, true);
 
   readonly id: number;
   readonly typeDefinition: TypeDefinition;
@@ -41,17 +42,19 @@ export abstract class Parameter implements Writeable {
   private _order?: number;
   private _parent?: GroupParameter;
   private _widget?: Widget;
-  private _userdata?: any;
+  private _userdata?: UserData;
   private _userid?: string;
   private _readonly?: boolean;
+  private _enabled?: boolean;
 
   // other fields
   private manager?: ParameterManager;
-  protected changed: Map<number, boolean> = new Map();
+  protected changed: Set<number> = new Set();
 
   private changedListeners: ChangedListener[] = [];  
 
-  constructor(id: number, typeDefinition: TypeDefinition) {
+  constructor(id: number, typeDefinition: TypeDefinition)
+  {
     this.id = id;
     this.typeDefinition = typeDefinition;
   }
@@ -61,7 +64,7 @@ export abstract class Parameter implements Writeable {
   }
 
   parentChanged() : boolean {
-    return this.changed.get(RcpTypes.ParameterOptions.PARENTID) === true;
+    return this.changed.has(RcpTypes.ParameterOptions.PARENTID);
   }
 
   dispose() {
@@ -86,6 +89,10 @@ export abstract class Parameter implements Writeable {
     return this.changed.size === 1 && 
       this.changed.has(RcpTypes.ParameterOptions.VALUE) &&
       !this.typeDefinition.didChange();
+  }
+
+  changedCount(): number {
+    return this.changed.size;
   }
 
   //------------------------------------
@@ -194,6 +201,14 @@ export abstract class Parameter implements Writeable {
       changed = true;
     }
 
+    // enabled
+    if (parameter._enabled !== undefined
+      && this._enabled !== parameter._enabled)
+    {
+      this._enabled = parameter._enabled;
+      changed = true;
+    }
+
     // if something was changed, call listeners
     if (changed) 
     {
@@ -215,10 +230,10 @@ export abstract class Parameter implements Writeable {
 
   //------------------------------------
   //
-  writeValueUpdate(output: Array<number>) {
-        
+  writeValueUpdate(output: Array<number>)
+  {
     // write id
-    pushIn16ToArrayBe(this.id, output);
+    new RcpInt(this.id).write(output);
 
     // typedefinition
     output.push(this.typeDefinition.datatype);
@@ -236,7 +251,7 @@ export abstract class Parameter implements Writeable {
         output.push("any".charCodeAt(0));
         output.push("any".charCodeAt(1));
         output.push("any".charCodeAt(2));
-        writeTinyString(this._label, output);
+        new RcpString(this._label).write(output);
     }
     if (this.languageLabels.size > 0) {
 
@@ -248,11 +263,11 @@ export abstract class Parameter implements Writeable {
         output.push(code.charCodeAt(0));
         output.push(code.charCodeAt(1));
         output.push(code.charCodeAt(2));
-        writeTinyString(value, output);
+        new RcpString(value).write(output);
       });
     }
 
-    output.push(RcpTypes.TERMINATOR);
+    output.push(0);
   }
 
   writeDescription(output: number[]) {
@@ -262,7 +277,7 @@ export abstract class Parameter implements Writeable {
         output.push("any".charCodeAt(0));
         output.push("any".charCodeAt(1));
         output.push("any".charCodeAt(2));
-        writeShortString(this._description, output);
+        new RcpString(this._description).write(output);
     }
     if (this.languageDescriptions.size > 0) {
 
@@ -274,93 +289,111 @@ export abstract class Parameter implements Writeable {
         output.push(code.charCodeAt(0));
         output.push(code.charCodeAt(1));
         output.push(code.charCodeAt(2));
-        writeShortString(value, output);
+        new RcpString(value).write(output);
       });
     }
 
-    output.push(RcpTypes.TERMINATOR);
+    output.push(0);
   }
 
   writeOptions(output: Array<number>, all: boolean) : void {
 
     let ch = this.changed;
-    if (all) {
-      ch = Parameter.allOptions;
+    if (all)
+    {
+      // ch = Parameter.allOptions;
+    
+      if (this.label) ch.add(RcpTypes.ParameterOptions.LABEL);
+      if (this.description) ch.add(RcpTypes.ParameterOptions.DESCRIPTION);
+      if (this.tags) ch.add(RcpTypes.ParameterOptions.TAGS);
+      if (this.order) ch.add(RcpTypes.ParameterOptions.ORDER);
+      if (this.parent) ch.add(RcpTypes.ParameterOptions.PARENTID);
+      if (this.userdata) ch.add(RcpTypes.ParameterOptions.USERDATA);
+      if (this.userid) ch.add(RcpTypes.ParameterOptions.USERID);
+      if (this.readonly) ch.add(RcpTypes.ParameterOptions.READONLY);
+      if (this.enabled) ch.add(RcpTypes.ParameterOptions.ENABLED);
     }
 
-    ch.forEach((value, key) => {
+    // TODO: get hold of last option... to mask option id
 
-      switch (key) {
+    const keys = Array.from(ch.keys());
+    for (let i = 0; i < keys.length; i++)
+    {
+      const key = keys[i];
+
+      if (key > RcpTypes.ParameterOptions.VALUE &&
+          key <= RcpTypes.ParameterOptions.ENABLED)
+      {
+        // write options id
+        output.push(key | ((i === keys.length-1) ? RcpInt.TERMINATOR : 0));
+      }
+
+      switch (key)
+      {
         case RcpTypes.ParameterOptions.VALUE:
-          // handled in ValueParameter
+          // NOTE: handled in ValueParameter
           break;
 
         case RcpTypes.ParameterOptions.LABEL: {
-
-          output.push(RcpTypes.ParameterOptions.LABEL);
           if (this._label || this.languageLabels.size > 0) {
             this.writeLabel(output);
           } else {
             // label was erased
-            output.push(RcpTypes.TERMINATOR);
+            output.push(RcpInt.TERMINATOR);
           }
           break;
         }
 
         case RcpTypes.ParameterOptions.DESCRIPTION: {
-
-          output.push(RcpTypes.ParameterOptions.DESCRIPTION);
           if (this._description || this.languageDescriptions.size > 0) {
             this.writeDescription(output)            
           } else {
             // description was erased
-            output.push(RcpTypes.TERMINATOR);
+            output.push(RcpInt.TERMINATOR);
           }
           break;
         }
 
         case RcpTypes.ParameterOptions.TAGS: {
-          output.push(RcpTypes.ParameterOptions.TAGS);
-          if (this._tags) {
-            writeTinyString(this._tags, output);
-          } else {
-            writeTinyString("", output);
-          }
+          new RcpString(this._tags || "").write(output);
           break;
         }
 
         case RcpTypes.ParameterOptions.ORDER: {
-          output.push(RcpTypes.ParameterOptions.ORDER);
-          if (this._order != undefined) {
-            pushIn32ToArrayBe(this._order, output);
-          } else {
-            pushIn32ToArrayBe(0, output);
-          }
+          new RcpInt(this._order || 0).write(output);
           break;
         }
 
         case RcpTypes.ParameterOptions.PARENTID: {
-          output.push(RcpTypes.ParameterOptions.PARENTID);
-          if (this._parent) {
-            pushIn16ToArrayBe(this._parent.id, output);
-          } else {
-            pushIn16ToArrayBe(0, output);
-          }
+          new RcpInt(this._parent?.id || 0).write(output);          
           break;
         }
 
         case RcpTypes.ParameterOptions.WIDGET: {
-          output.push(RcpTypes.ParameterOptions.WIDGET);
-          if (this._widget) {
-            this._widget.write(output, all);
+        //   if (this._widget) {
+        //     this._widget.write(output, all);
+        //   } else {
+        //     output.push(RcpTypes.TERMINATOR);
+        //   }
+          console.log("TODO: write widget data")
+          break;
+        }
+
+        case RcpTypes.ParameterOptions.USERDATA: {
+          if (this._userdata != undefined) {
+            this._userdata?.write(output, all);
           } else {
-            output.push(RcpTypes.TERMINATOR);
+            new RcpInt(0).write(output);
           }
           break;
         }
 
+        case RcpTypes.ParameterOptions.USERID: {
+          new RcpString(this._userid || "").write(output);          
+          break;
+        }
+
         case RcpTypes.ParameterOptions.READONLY: {
-          output.push(RcpTypes.ParameterOptions.READONLY);
           if (this._readonly) {
             output.push(this._readonly ? 1 : 0);
           } else {
@@ -369,27 +402,20 @@ export abstract class Parameter implements Writeable {
           break;
         }
 
-        case RcpTypes.ParameterOptions.USERDATA: {
-          //output.push(RcpTypes.ParameterOptions.USERDATA);
-          if (this._userdata != undefined) {
-            // TODO
+        case RcpTypes.ParameterOptions.ENABLED: {
+          if (this._enabled) {
+            output.push(this._enabled ? 1 : 0);
           } else {
-
+            output.push(0);
           }
           break;
         }
 
-        case RcpTypes.ParameterOptions.USERID: {
-          output.push(RcpTypes.ParameterOptions.USERID);
-          if (this._userid) {
-            writeTinyString(this._userid, output);
-          } else {
-            writeTinyString("", output);
-          }
+        default:
+          console.log("unknown parameter option", key);
           break;
-        }
       }
-    });
+    }
 
     if (!all) {
       this.changed.clear();
@@ -400,35 +426,44 @@ export abstract class Parameter implements Writeable {
   write(output: Array<number>, all: boolean): void {
 
     // write id
-    pushIn16ToArrayBe(this.id, output);
+    new RcpInt(this.id).write(output);
 
     // typedefinition
     this.typeDefinition.write(output, all);
 
     // write options
     this.writeOptions(output, all);
-
-    // finish with terminator
-    output.push(RcpTypes.TERMINATOR);
   }
 
   handleOption(optionId: number, io: KaitaiStream): boolean {
     return false;
   }
 
-  parseOptions(io: KaitaiStream) {
+  parseOptions(io: KaitaiStream, hasTypeOptions: boolean) {
 
     // parse mandatory first!
     this.typeDefinition.readMandatory(io);
 
     // first parse type options
-    this.typeDefinition.parseOptions(io);
+    if (hasTypeOptions)
+    {
+      this.typeDefinition.parseOptions(io);
+    }
 
-    while (true) {
+    while (true)
+    {
+      if (io.isEof())
+      {        
+        break;
+      }
+
       // read option
-      const optionId = io.readU1();
+      const v = io.readU1();
+      const optionId = v & ~RcpInt.TERMINATOR;
 
-      if (optionId == RcpTypes.TERMINATOR) {
+      if (optionId == 0)
+      {
+        // terminator
         break;
       }
 
@@ -438,17 +473,19 @@ export abstract class Parameter implements Writeable {
             let current = io.pos;
             let ppeekk  = io.readS1();
   
-            while (ppeekk != 0) {
-  
+            // NOTE: Rcp-Int 128 = value: 0
+            while (ppeekk > 0 &&
+                   ppeekk != 128)
+            {
                 // rewind one
                 io.seek(current);
   
                 const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf8");
-                const label     = new TinyString(io).data;
+                const label     = RcpString.parse(io).value
   
                 if (label) {
                   if (lang_code === "any") {
-                      // console.log("any language label: " + label);
+                      console.log("any language label: " + label);
                       this._label = label;
                   }
                   else {
@@ -471,13 +508,15 @@ export abstract class Parameter implements Writeable {
           let current = io.pos;
           let ppeekk  = io.readS1();
   
-          while (ppeekk != 0) {
+          while (ppeekk > 0 &&
+                 ppeekk != 128)
+          {
   
               // rewind one
               io.seek(current);
   
               const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf8");
-              const description = new ShortString(io).data;
+              const description = RcpString.parse(io).value;
   
               if (description) {
                 if (lang_code === "any") {
@@ -501,16 +540,16 @@ export abstract class Parameter implements Writeable {
 
 
         case RcpTypes.ParameterOptions.TAGS:
-          this._tags = new TinyString(io).data;
+          this._tags = RcpString.parse(io).value;
           break;
 
         case RcpTypes.ParameterOptions.ORDER:
-          this._order = io.readS4be();
+          this._order = RcpInt.parse(io).value;
           break;
 
         case RcpTypes.ParameterOptions.PARENTID:
         {
-          const parentid = io.readS2be();
+          const parentid = RcpInt.parse(io).value;
 
           if (this.manager)
           {
@@ -539,19 +578,24 @@ export abstract class Parameter implements Writeable {
           break;
 
         case RcpTypes.ParameterOptions.WIDGET:
-          this._widget = parseWidget(io, this);
+          this._widget = Widget.parse(io);
+          // this._widget = parseWidget(io, this);
+          break;
+
+        case RcpTypes.ParameterOptions.USERDATA:
+          this._userdata = UserData.parse(io);
+          break;
+
+        case RcpTypes.ParameterOptions.USERID:
+          this._userid = RcpString.parse(io).value;
           break;
 
         case RcpTypes.ParameterOptions.READONLY:
           this._readonly = io.readS1() > 0;
           break;
 
-        case RcpTypes.ParameterOptions.USERDATA:
-          this._userdata = new Userdata(io).data;
-          break;
-
-        case RcpTypes.ParameterOptions.USERID:
-          this._userid = new TinyString(io).data;
+        case RcpTypes.ParameterOptions.ENABLED:
+          this._readonly = io.readS1() > 0;
           break;
 
         case RcpTypes.ParameterOptions.VALUE:        
@@ -560,6 +604,11 @@ export abstract class Parameter implements Writeable {
             throw new Error("parameter option not handled: " + optionId);
           }
           break;
+      }
+
+      if (v & RcpInt.TERMINATOR)
+      {
+        break;
       }
     }
   }
@@ -580,7 +629,7 @@ export abstract class Parameter implements Writeable {
     }
 
     this._label = label;
-    this.changed.set(RcpTypes.ParameterOptions.LABEL, true);
+    this.changed.add(RcpTypes.ParameterOptions.LABEL);
     this.setDirty();
   }
 
@@ -598,19 +647,19 @@ export abstract class Parameter implements Writeable {
 
   clearLanguageLabels() {
     this.languageLabels.clear();
-    this.changed.set(RcpTypes.ParameterOptions.LABEL, true);
+    this.changed.add(RcpTypes.ParameterOptions.LABEL);
     this.setDirty();
   }
 
   setLanguageLabel(code: string, label: string) {
     this.languageLabels.set(code, label);
-    this.changed.set(RcpTypes.ParameterOptions.LABEL, true);
+    this.changed.add(RcpTypes.ParameterOptions.LABEL);
     this.setDirty();
   }
 
   removeLanguageLabel(code: string) {
     this.languageLabels.delete(code);
-    this.changed.set(RcpTypes.ParameterOptions.LABEL, true);
+    this.changed.add(RcpTypes.ParameterOptions.LABEL);
     this.setDirty();
   }
 
@@ -622,7 +671,7 @@ export abstract class Parameter implements Writeable {
     }
 
     this._description = description;
-    this.changed.set(RcpTypes.ParameterOptions.DESCRIPTION, true);
+    this.changed.add(RcpTypes.ParameterOptions.DESCRIPTION);
     this.setDirty();
   }
 
@@ -640,19 +689,19 @@ export abstract class Parameter implements Writeable {
 
   clearLanguageDescriptions() {
     this.languageDescriptions.clear();
-    this.changed.set(RcpTypes.ParameterOptions.DESCRIPTION, true);
+    this.changed.add(RcpTypes.ParameterOptions.DESCRIPTION);
     this.setDirty();
   }
 
   setLanguageDescription(code: string, description: string) {
     this.languageDescriptions.set(code, description);
-    this.changed.set(RcpTypes.ParameterOptions.DESCRIPTION, true);
+    this.changed.add(RcpTypes.ParameterOptions.DESCRIPTION);
     this.setDirty();
   }
 
   removeLanguageDescription(code: string) {
     this.languageDescriptions.delete(code);
-    this.changed.set(RcpTypes.ParameterOptions.DESCRIPTION, true);
+    this.changed.add(RcpTypes.ParameterOptions.DESCRIPTION);
     this.setDirty();
   }
 
@@ -664,7 +713,7 @@ export abstract class Parameter implements Writeable {
     }
 
     this._tags = tags;
-    this.changed.set(RcpTypes.ParameterOptions.TAGS, true);
+    this.changed.add(RcpTypes.ParameterOptions.TAGS);
     this.setDirty();
   }
 
@@ -680,7 +729,7 @@ export abstract class Parameter implements Writeable {
     }
 
     this._order = order;
-    this.changed.set(RcpTypes.ParameterOptions.ORDER, true);
+    this.changed.add(RcpTypes.ParameterOptions.ORDER);
     this.setDirty();
   }
 
@@ -701,7 +750,7 @@ export abstract class Parameter implements Writeable {
 
     this.setParentDirect(parent);
 
-    this.changed.set(RcpTypes.ParameterOptions.PARENTID, true);
+    this.changed.add(RcpTypes.ParameterOptions.PARENTID);
     this.setDirty();
   }
 
@@ -728,7 +777,7 @@ export abstract class Parameter implements Writeable {
       this._widget.parameter = this
     }
 
-    this.changed.set(RcpTypes.ParameterOptions.WIDGET, true);
+    this.changed.add(RcpTypes.ParameterOptions.WIDGET);
     this.setDirty();
   }
 
@@ -744,7 +793,7 @@ export abstract class Parameter implements Writeable {
     }
 
     this._userdata = userdata;
-    this.changed.set(RcpTypes.ParameterOptions.USERDATA, true);
+    this.changed.add(RcpTypes.ParameterOptions.USERDATA);
     this.setDirty();
   }
 
@@ -760,7 +809,7 @@ export abstract class Parameter implements Writeable {
     }
 
     this._userid = userid;
-    this.changed.set(RcpTypes.ParameterOptions.USERID, true);
+    this.changed.add(RcpTypes.ParameterOptions.USERID);
     this.setDirty();
   }
 
@@ -776,12 +825,28 @@ export abstract class Parameter implements Writeable {
     }
 
     this._readonly = value;
-    this.changed.set(RcpTypes.ParameterOptions.READONLY, true);
+    this.changed.add(RcpTypes.ParameterOptions.READONLY);
     this.setDirty();
   }
 
   get readonly(): boolean | undefined{
     return this._readonly;
+  }
+
+  //--------------------------------
+  // enabled
+  set enabled(value: boolean | undefined) {
+    if (this._enabled === value) {
+      return;
+    }
+
+    this._enabled = value;
+    this.changed.add(RcpTypes.ParameterOptions.ENABLED);
+    this.setDirty();
+  }
+
+  get enabled(): boolean | undefined{
+    return this._enabled;
   }
 
 }

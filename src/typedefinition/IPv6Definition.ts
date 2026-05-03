@@ -2,7 +2,6 @@ import { DefaultDefinition } from './DefaultDefinition';
 import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { IPv6 } from 'ip-num';
-import * as bigInt from 'big-integer';
 import { TypeDefinition } from './TypeDefinition';
 
 export class IPv6Definition extends DefaultDefinition<IPv6> {
@@ -54,7 +53,7 @@ export class IPv6Definition extends DefaultDefinition<IPv6> {
 
     // override
     getTypeDefault(): IPv6 {
-        return new IPv6(bigInt(0));
+        return new IPv6(BigInt(0));
     }
 
     writeOptions(output: number[], all: boolean): void {

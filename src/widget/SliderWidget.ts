@@ -12,7 +12,7 @@ export class SliderWidget extends Widget {
 
     handleOption(optionId: number, io: KaitaiStream): boolean {
 
-        if (optionId === RcpTypes.SliderOptions.HORIZONTAL) {
+        if (optionId === RcpTypes.SliderWidgetOptions.HORIZONTAL) {
             this._horizontal = io.readU1() > 0;
             return true;
         }
@@ -22,8 +22,8 @@ export class SliderWidget extends Widget {
 
     writeOptions(output: number[], all: boolean): void {
 
-        if (all || this.changed.has(RcpTypes.SliderOptions.HORIZONTAL)) {
-            output.push(RcpTypes.SliderOptions.HORIZONTAL);
+        if (all || this.changed.has(RcpTypes.SliderWidgetOptions.HORIZONTAL)) {
+            output.push(RcpTypes.SliderWidgetOptions.HORIZONTAL);
             if (this._horizontal) {
                 output.push(this._horizontal ? 1 : 0);
             } else {
@@ -41,7 +41,7 @@ export class SliderWidget extends Widget {
         }
 
         this._horizontal = horizontal;
-        this.changed.set(RcpTypes.SliderOptions.HORIZONTAL, true);
+        this.changed.set(RcpTypes.SliderWidgetOptions.HORIZONTAL, true);
         this.setDirty();
     }
 

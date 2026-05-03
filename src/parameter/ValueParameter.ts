@@ -19,10 +19,16 @@ export abstract class ValueParameter<T> extends Parameter {
         super(id, typedefinition);
 
         this.defaultTypeDefintion = typedefinition;
+        this.defaultTypeDefintion.parameter = this;
     }
 
     valueConstrained(): T {
-        return this._value;
+        if (this._value)
+        {
+            return this._value;
+        }
+
+        return this.defaultTypeDefintion.defaultValue;
     }
 
     // override
@@ -85,8 +91,8 @@ export abstract class ValueParameter<T> extends Parameter {
     writeOptions(output: Array<number>, all: boolean): void {
 
         // write value
-        if (all || this.changed.has(RcpTypes.ParameterOptions.VALUE)) {
-            
+        if (all || this.changed.has(RcpTypes.ParameterOptions.VALUE))
+        {            
             output.push(RcpTypes.ParameterOptions.VALUE);            
             this.defaultTypeDefintion.writeValue(output, this._value);
         }
@@ -123,7 +129,7 @@ export abstract class ValueParameter<T> extends Parameter {
         }
 
         this._value = value
-        this.changed.set(RcpTypes.ParameterOptions.VALUE, true);
+        this.changed.add(RcpTypes.ParameterOptions.VALUE);
         this.setDirty();
 
         this.valueChangedListeners.forEach( (listener) => {
