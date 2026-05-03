@@ -101,7 +101,7 @@ export class RcpTypes {
     USERDATA: 39,
     USERID: 40,
     READONLY: 41,
-    ENABLED: 48,
+    ENABLED: 42,
 
     32: "VALUE",
     33: "LABEL",
@@ -113,7 +113,7 @@ export class RcpTypes {
     39: "USERDATA",
     40: "USERID",
     41: "READONLY",
-    48: "ENABLED",
+    42: "ENABLED",
   });
 
   static Ipv4Options = Object.freeze({
