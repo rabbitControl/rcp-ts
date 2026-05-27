@@ -253,45 +253,42 @@ export abstract class Parameter implements Writeable {
         output.push("any".charCodeAt(2));
         new RcpString(this._label).write(output);
     }
-    if (this.languageLabels.size > 0) {
-
-      this.languageLabels.forEach((value, code) => {
-        if (code.length < 3) {
-          return;
-        }
-      
-        output.push(code.charCodeAt(0));
-        output.push(code.charCodeAt(1));
-        output.push(code.charCodeAt(2));
-        new RcpString(value).write(output);
-      });
-    }
+    
+    this.languageLabels.forEach((value, code) => {
+      if (code.length < 3) {
+        return;
+      }
+    
+      output.push(code.charCodeAt(0));
+      output.push(code.charCodeAt(1));
+      output.push(code.charCodeAt(2));
+      new RcpString(value).write(output);
+    });
 
     output.push(0);
   }
 
   writeDescription(output: number[]) {
 
-    // concat label and all language-labels
+    // concat description and all language-descriptions
     if (this._description) {
         output.push("any".charCodeAt(0));
         output.push("any".charCodeAt(1));
         output.push("any".charCodeAt(2));
         new RcpString(this._description).write(output);
     }
-    if (this.languageDescriptions.size > 0) {
 
-      this.languageDescriptions.forEach((value, code) => {
-        if (code.length < 3) {
-          return;
-        }
-      
-        output.push(code.charCodeAt(0));
-        output.push(code.charCodeAt(1));
-        output.push(code.charCodeAt(2));
-        new RcpString(value).write(output);
-      });
-    }
+    this.languageDescriptions.forEach((value, code) =>
+    {
+      if (code.length < 3) {
+        return;
+      }
+    
+      output.push(code.charCodeAt(0));
+      output.push(code.charCodeAt(1));
+      output.push(code.charCodeAt(2));
+      new RcpString(value).write(output);
+    });
 
     output.push(0);
   }
@@ -304,8 +301,6 @@ export abstract class Parameter implements Writeable {
       ch = Parameter.allOptions;
     }
 
-    // TODO: get hold of last option... to mask option id
-
     const keys = Array.from(ch.keys());
     for (let i = 0; i < keys.length; i++)
     {
@@ -314,7 +309,7 @@ export abstract class Parameter implements Writeable {
       if (key > RcpTypes.ParameterOptions.VALUE &&
           key <= RcpTypes.ParameterOptions.ENABLED)
       {
-        // write options id
+        // write options id (mask last option with 0x80)
         output.push(key | ((i === keys.length-1) ? RcpInt.TERMINATOR : 0));
       }
 
@@ -463,9 +458,8 @@ export abstract class Parameter implements Writeable {
             let current = io.pos;
             let ppeekk  = io.readS1();
   
-            // NOTE: Rcp-Int 128 = value: 0
-            while (ppeekk > 0 &&
-                   ppeekk != 128)
+            // check for 0-byte terminator
+            while (ppeekk > 0)
             {
                 // rewind one
                 io.seek(current);
@@ -473,12 +467,15 @@ export abstract class Parameter implements Writeable {
                 const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf8");
                 const label     = RcpString.parse(io).value
   
-                if (label) {
-                  if (lang_code === "any") {
+                if (label)
+                {
+                  if (lang_code === "any")
+                  {
                       console.log("any language label: " + label);
                       this._label = label;
                   }
-                  else {
+                  else
+                  {
                       console.log("setting language label " +
                                         lang_code +
                                         " : " +
@@ -498,22 +495,24 @@ export abstract class Parameter implements Writeable {
           let current = io.pos;
           let ppeekk  = io.readS1();
   
-          while (ppeekk > 0 &&
-                 ppeekk != 128)
+          // check for 0-byte terminator
+          while (ppeekk > 0)
           {
-  
               // rewind one
               io.seek(current);
   
               const lang_code = KaitaiStream.bytesToStr(io.readBytes(3), "utf8");
               const description = RcpString.parse(io).value;
   
-              if (description) {
-                if (lang_code === "any") {
+              if (description)
+              {
+                if (lang_code === "any")
+                {
                     // console.log("any language description: " + description);
                     this._description = description;
                 }
-                else {
+                else
+                {
                     console.log("setting language label " +
                                       lang_code +
                                       " : " +
