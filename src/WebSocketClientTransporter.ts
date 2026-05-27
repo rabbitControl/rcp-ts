@@ -114,7 +114,7 @@ export class WebSocketClientTransporter extends ClientTransporter
 //     return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset)
 // }
 
-  send(data: Int8Array) {
+  send(data: ArrayBuffer) {
 
     if (!this.websocket) {
       throw new Error(kNotConnectedStr);

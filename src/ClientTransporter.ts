@@ -13,5 +13,5 @@ export abstract class ClientTransporter {
   abstract disconnect(): void;
   abstract isConnected(): boolean;
 
-  abstract send(data: Int8Array): void;
+  abstract send(data: ArrayBuffer): void;
 }

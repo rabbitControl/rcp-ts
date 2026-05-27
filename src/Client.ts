@@ -354,7 +354,7 @@ export class Client extends ParameterManager
       console.log("client writing: ", dataOut);
     }
 
-    this.transporter.send(dataOut);
+    this.transporter.send(dataOut.buffer);
   } 
 
 }
