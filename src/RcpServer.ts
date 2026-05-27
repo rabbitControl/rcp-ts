@@ -1,17 +1,133 @@
-import { BangParameter, BooleanParameter, Float32Parameter, Parameter, RcpTypes } from ".";
+import { BangParameter, BooleanParameter, Float32Parameter, Parameter, RcpTypes, ServerTransporter, WebSocketServerTransporter } from ".";
+import { InfoData } from "./InfoData";
+import KaitaiStream from "./KaitaiStream";
 import { Packet } from "./Packet";
 import { StringParameter } from "./parameter/StringParameter";
 import { ParameterManager } from "./ParameterManager";
 import { RcpInt } from "./RcpInt";
+import { RcpVersion } from "./RcpVersion";
 
 export class RcpServer extends ParameterManager
-{    
+{
     private returnedIds: number[] = [];
     private removedParameters: Parameter[] = [];
+    private transporter: ServerTransporter[] = [];
 
-    constructor()
+    private readonly server_rcp_version = new RcpVersion(1, 0);
+    private readonly server_handshake_version = new RcpVersion(1, 0);
+    private readonly server_is_strict = true;
+
+    private applicationId?: string;
+    private version?: string;
+
+    constructor(applicationId: string = "", version: string = "")
     {
         super(true);
+
+        if (applicationId !== "")
+        {
+            this.applicationId = applicationId;
+        }
+
+        if (version !== "")
+        {
+            this.version = version;
+        }
+    }
+
+    addTransporter(transporter: ServerTransporter)
+    {
+        if (this.transporter.indexOf(transporter) === -1)
+        {
+            this.transporter.push(transporter);
+            transporter.received = (data: ArrayBuffer, id: object) => this.transporterReceived(data, id);
+        }
+    }
+
+    transporterReceived(data: ArrayBuffer, id: object)
+    {
+        const io = new KaitaiStream(data, 0);
+
+        const packet = Packet.parse(io, this);
+
+        switch (packet.type) {
+
+            case RcpTypes.PacketType.INFO:
+
+                // send version info to client
+                const versionPacket = new Packet(RcpTypes.PacketType.INFO);
+                versionPacket.data = new InfoData(
+                    this.server_rcp_version,
+                    this.server_handshake_version,
+                    this.applicationId,
+                    this.version
+                );
+
+                // send to one
+                this.transporter.forEach(t => t.sendToOne(new Uint8Array(versionPacket.serialize(false)).buffer, id));
+
+                // analyze infodata from client
+                const infoData = packet.data as InfoData;
+
+                const client_version_str = infoData.version.toString() + " - " + infoData.handshakeVersion.toString();
+
+                console.log("client app id:", infoData.applicationid);
+                console.log("client app ver:", infoData.applicationversion);
+                console.log("client:", client_version_str);
+
+                // check version
+                /*
+                Compatibility between the server and a client is ensured
+                if the server handshake-version is between the clients rcp-version
+                and clients handshake-version (inclusive). See Protocol Flow for the
+                version handshake and more details.
+                */
+                if (this.server_handshake_version.compare(infoData.version) <= 0 &&
+                    this.server_handshake_version.compare(infoData.handshakeVersion) >= 0) {
+
+                    console.log("VERSION OK - waiting for init");
+
+                    // waiting for init
+                }
+                else if (this.server_is_strict) {
+                    // version not ok and strict
+                    console.log("VERSION NOT OK - disconnect");
+                    this.transporter.forEach(t => t.closeClient(id));
+                }
+                else {
+                    // version is not ok, but server knows that it will be all right
+                    // waiting for init
+                }
+
+                break;
+
+
+            case RcpTypes.PacketType.INITIALIZE:
+                {
+                    // send init
+                    const versionPacket = new Packet(RcpTypes.PacketType.INITIALIZE);
+                    versionPacket.data = new RcpInt(this.valueCache.values.length);
+
+                    this.transporter.forEach(t => t.sendToOne(new Uint8Array(versionPacket.serialize(false)).buffer, id))
+
+                    this.valueCache.forEach((parameter) => {
+                        console.log("sending parameter:", parameter.id, ":", parameter.label);
+
+                        const parameterPacket = new Packet(RcpTypes.PacketType.UPDATE);
+                        parameterPacket.data = parameter;
+
+                        const data = new Uint8Array(parameterPacket.serialize(true)).buffer;
+                        
+                        this.transporter.forEach(t => t.sendToOne(data, id));
+                    });
+
+                    break;
+                }
+
+            default:
+                console.log("invalid packet type", packet.type);
+                break;
+        }
     }
 
     private nextId(): number
