@@ -124,6 +124,15 @@ export class RcpServer extends ParameterManager
                     break;
                 }
 
+            case RcpTypes.PacketType.UPDATE:
+            case RcpTypes.PacketType.UPDATEVALUE:
+                this._update(packet.data as Parameter);
+                break;
+
+            case RcpTypes.PacketType.REMOVE:
+                this._remove((packet.data as RcpInt).value);            
+                break;
+
             default:
                 console.log("invalid packet type", packet.type);
                 break;

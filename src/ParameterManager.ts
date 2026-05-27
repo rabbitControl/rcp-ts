@@ -184,7 +184,7 @@ export abstract class ParameterManager
      * 
      * @param id id of parameter to remove.
      */
-    private _remove(id: number): void {
+    protected _remove(id: number): void {
 
         const cached = this.valueCache.get(id);
 
