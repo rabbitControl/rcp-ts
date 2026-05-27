@@ -391,7 +391,7 @@ export abstract class Parameter implements Writeable {
           if (this._enabled) {
             output.push(this._enabled ? 1 : 0);
           } else {
-            output.push(0);
+            output.push(1);
           }
           break;
         }
