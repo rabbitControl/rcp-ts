@@ -8,25 +8,16 @@ import { Packet } from './Packet';
 import { RcpInt } from './RcpInt';
 import { ParameterManager } from './ParameterManager';
 import { Parameter } from './parameter/Parameter';
-
-enum ClientState {
-  Unknown = "Unknown",
-  Disconnected = "Disconnected",
-  Connected = "Connected",
-  Error = "Error",
-  Handshake = "Handshake",
-  Initialize = "Initialize",
-  FullyInitialized = "FullyInitialized"
-}
+import { ClientState } from './RcpClientState';
 
 export class Client extends ParameterManager
 {
-
   // static
   static VERBOSE: boolean = true;
   static VERBOSE_RECV: boolean = true;
   static VERBOSE_SEND: boolean = true;
 
+  //
   public static rcpVersion: RcpVersion = new RcpVersion(2, 2);
   public static clientHandshakeVersion: RcpVersion = new RcpVersion(1, 0); // aka: backward compatibility version
 
