@@ -158,6 +158,9 @@ export class RcpServer extends ParameterManager
             const packet = new Packet(RcpTypes.PacketType.REMOVE);
             packet.data = new RcpInt(parameter.id);
             this.sendPacket(packet);
+
+            // now we can reuse id
+            this.returnedIds.push(parameter.id);
         })
 
         this.removedParameters = [];
@@ -175,8 +178,7 @@ export class RcpServer extends ParameterManager
         // TODO: when to actuall remove parameter?
         if (this.valueCache.delete(parameter.id))
         {
-            // removed
-            this.returnedIds.push(parameter.id);
+            // removed            
             this.removedParameters.push(parameter);
         }
         else
