@@ -31,6 +31,16 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
     abstract typeMin(): number;
 
 
+    //
+    override print()
+    {
+        super.print();
+        console.log(`--- min: ${this._minimum}`);
+        console.log(`--- max: ${this._maximum}`);
+        console.log(`--- stepsize: ${this._stepsize}`);
+        console.log(`--- unit: ${this._unit}`);
+    }
+
     update(typedefinition: TypeDefinition): boolean {
 
         let changed = false;

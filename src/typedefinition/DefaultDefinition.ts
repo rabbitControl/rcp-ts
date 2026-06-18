@@ -20,6 +20,12 @@ export abstract class DefaultDefinition<T> extends TypeDefinition {
         super(datatype);
     }
 
+    override print()
+    {
+        super.print();
+        console.log(`--- default value: ${this._defaultValue}`);
+    }
+
     // implement
     didChange() : boolean {
         return this.changed.size > 0;

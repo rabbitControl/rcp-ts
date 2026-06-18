@@ -22,6 +22,15 @@ export abstract class ValueParameter<T> extends Parameter {
         this.defaultTypeDefintion.parameter = this;
     }
 
+    override print() {
+        super.print();
+
+        if (this._value)
+        {
+            console.log(`-- value: ${this._value}`);
+        }
+    }    
+
     valueConstrained(): T {
         if (this._value)
         {

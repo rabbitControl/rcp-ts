@@ -11,6 +11,10 @@ export abstract class TypeDefinition implements Writeable {
     this.datatype = datatype;
   }
 
+  print() {
+    console.log(`--- typedefinition: ${this.datatype}`);    
+  };
+
   abstract handleOption(optionId: number, io: KaitaiStream): boolean;
 
   readMandatory(io: KaitaiStream): void {

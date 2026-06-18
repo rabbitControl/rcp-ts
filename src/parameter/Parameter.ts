@@ -59,6 +59,50 @@ export abstract class Parameter implements Writeable {
     this.typeDefinition = typeDefinition;
   }
 
+  print() {
+    console.log(`-- parameter: ${this.label} (${this.id})`);
+    this.typeDefinition.print();
+    
+    this.languageLabels.forEach((v, k) => console.log(`language label: ${k}: ${v}`));
+
+    if (this._description) {
+      console.log(`-- description: ${this._description}`);
+    }
+    this.languageDescriptions.forEach((v, k) => console.log(`language description: ${k}: ${v}`));
+
+    if (this._tags) {
+      console.log(`-- tags: ${this._tags}`);
+    }
+
+    if (this._order) {
+      console.log(`-- order: ${this._order}`);
+    }
+
+    if (this._parent && this._parent.id !== 0) {
+      console.log(`-- parent: ${this._parent.label} (${this._parent.id})`);
+    }
+
+    if (this._widget) {
+      console.log(`-- widget: ${this._widget.widgetType}`);
+    }
+
+    if (this._userdata) {
+      console.log(`-- userdata: ${this._userdata.data.length}`);
+    }
+
+    if (this._userid) {
+      console.log(`-- userid: ${this._userid}`);
+    }
+
+    if (this._readonly) {
+      console.log(`-- readonly: ${this._readonly}`);
+    }
+    
+    if (this._enabled) {
+      console.log(`-- enabled: ${this._enabled}`);
+    }
+  }
+
   clearChanged() {
     this.changed.clear();
   }
