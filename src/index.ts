@@ -16,7 +16,7 @@ export { RcpTypes } from './RcpTypes';
 export { ChangedListener } from './ChangeListener';
 export { Writeable } from './Writeable';
 // client
-export { Client } from './Client';
+export { RcpClient as Client } from './RcpClient';
 export { WebSocketClientTransporter } from './WebSocketClientTransporter';
 export { ClientTransporter } from './ClientTransporter';
 // server

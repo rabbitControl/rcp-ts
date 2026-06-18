@@ -1,6 +1,6 @@
 import { ClientTransporter } from './ClientTransporter';
 import { RcpTypes } from './RcpTypes';
-import { Client } from './Client';
+import { RcpClient } from './RcpClient';
 
 const kNotConnectedStr: string = 'Connection is not open.';
 
@@ -42,7 +42,7 @@ export class WebSocketClientTransporter extends ClientTransporter
     url.protocol = (url.protocol.startsWith("https") || url.protocol.startsWith("wss")) ? "wss" : "ws";
     this.serverURL = url.toString();
     
-    if (Client.VERBOSE) {
+    if (RcpClient.VERBOSE) {
       console.log("connect to: ", this.serverURL);
     }
 

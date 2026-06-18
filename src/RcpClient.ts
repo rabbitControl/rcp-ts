@@ -10,7 +10,7 @@ import { ParameterManager } from './ParameterManager';
 import { Parameter } from './parameter/Parameter';
 import { ClientState } from './RcpClientState';
 
-export class Client extends ParameterManager
+export class RcpClient extends ParameterManager
 {
   // static
   static VERBOSE: boolean = true;
@@ -22,7 +22,7 @@ export class Client extends ParameterManager
   public static clientHandshakeVersion: RcpVersion = new RcpVersion(1, 0); // aka: backward compatibility version
 
   static getRcpVersion() : string {
-    return Client.rcpVersion.toString();
+    return RcpClient.rcpVersion.toString();
   }
 
   // events
@@ -93,8 +93,8 @@ export class Client extends ParameterManager
 
     const versionPacket = new Packet(RcpTypes.PacketType.INFO);
     versionPacket.data = new InfoData(
-      Client.rcpVersion,
-      Client.clientHandshakeVersion, `rcp-ts webclient (${RCP_LIBRARY_VERSION})`, "Version XXX");
+      RcpClient.rcpVersion,
+      RcpClient.clientHandshakeVersion, `rcp-ts webclient (${RCP_LIBRARY_VERSION})`, "Version XXX");
 
     this.sendPacket(versionPacket);    
     this.setState(ClientState.Handshake);
@@ -115,7 +115,7 @@ export class Client extends ParameterManager
   {
     this.setState(ClientState.Disconnected);
 
-    if (Client.VERBOSE) {
+    if (RcpClient.VERBOSE) {
       console.log("transporter disconnected, clear value-cache");        
     }
 
@@ -139,8 +139,8 @@ export class Client extends ParameterManager
 
   transporterReceived = (data: ArrayBuffer) =>
   {
-    if (Client.VERBOSE ||
-        Client.VERBOSE_RECV)
+    if (RcpClient.VERBOSE ||
+        RcpClient.VERBOSE_RECV)
     {
       console.log("client received: ", new Uint8Array(data));
     }
@@ -181,8 +181,8 @@ export class Client extends ParameterManager
             and clients handshake-version (inclusive). See Protocol Flow for the
             version handshake and more details.
             */
-            if (infoData.handshakeVersion.compare(Client.clientHandshakeVersion) >= 0 &&
-                infoData.handshakeVersion.compare(Client.rcpVersion) <= 0)
+            if (infoData.handshakeVersion.compare(RcpClient.clientHandshakeVersion) >= 0 &&
+                infoData.handshakeVersion.compare(RcpClient.rcpVersion) <= 0)
             {
               // send init
               this.initialize();
@@ -342,8 +342,8 @@ export class Client extends ParameterManager
   {
     const dataOut = new Int8Array(packet.serialize(false))
 
-    if (Client.VERBOSE ||
-        Client.VERBOSE_SEND)
+    if (RcpClient.VERBOSE ||
+        RcpClient.VERBOSE_SEND)
     {
       console.log("client writing: ", dataOut);
     }
