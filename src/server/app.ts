@@ -16,6 +16,7 @@ const stringParameter = server.exposeString("String", "test string");
 
 const floatParam = server.exposeFloat("Float", 3.1415);
 // floatParam.description = "A float";
+floatParam.addValueChangeListener(parameter => console.log("float update:", parameter.value));
 
 const boolParam = server.exposeBoolean("Bool", true);
 // boolParam.description = "A Bool";

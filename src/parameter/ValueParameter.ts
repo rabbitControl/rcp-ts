@@ -1,8 +1,8 @@
+import KaitaiStream from '../KaitaiStream';
 import { Parameter } from './Parameter';
 import { DefaultDefinition } from '../typedefinition/DefaultDefinition';
-import KaitaiStream from '../KaitaiStream';
 import { RcpTypes } from '../RcpTypes';
-import { ChangedListener } from '../ChangeListener';
+import { ValueChangedListener } from '../ChangeListener';
 
 export abstract class ValueParameter<T> extends Parameter {
 
@@ -13,7 +13,7 @@ export abstract class ValueParameter<T> extends Parameter {
     protected _value?: T;
 
     //
-    protected valueChangedListeners: ChangedListener[] = [];
+    protected valueChangedListeners: ValueChangedListener<T>[] = [];
 
     constructor(id: number, typedefinition: DefaultDefinition<T>) {
         super(id, typedefinition);
@@ -50,7 +50,7 @@ export abstract class ValueParameter<T> extends Parameter {
 
     //------------------------------------
     // change listener
-    addValueChangeListener(listener: ChangedListener) {
+    addValueChangeListener(listener: ValueChangedListener<T>) {
 
         if (this.valueChangedListeners.indexOf(listener) >= 0) {
             return;
@@ -59,7 +59,7 @@ export abstract class ValueParameter<T> extends Parameter {
         this.valueChangedListeners.push(listener);
     }
 
-    removeValueChangedListener(listener: ChangedListener) {
+    removeValueChangedListener(listener: ValueChangedListener<T>) {
 
         const idx = this.valueChangedListeners.indexOf(listener);
         if (idx < 0) {
@@ -122,12 +122,15 @@ export abstract class ValueParameter<T> extends Parameter {
     //------------------------------------
     // override
     handleOption(optionId: number, io: KaitaiStream): boolean {
-
-        if (optionId === RcpTypes.ParameterOptions.VALUE) {
+        if (optionId === RcpTypes.ParameterOptions.VALUE)
+        {
             this._value = this.defaultTypeDefintion.readValue(io);
+
+            // handled
             return true;
         }
 
+        // not handled
         return false;
     }
 
