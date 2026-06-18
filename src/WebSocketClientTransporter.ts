@@ -126,10 +126,7 @@ export class WebSocketClientTransporter extends ClientTransporter
         throw new Error(kNotConnectedStr);
 
       case RcpTypes.ClientStatus.CONNECTED:
-      case RcpTypes.ClientStatus.OK:
-        
-        console.log("SEND", data);
-
+      case RcpTypes.ClientStatus.OK:        
         this.websocket.send(data);
         break;
     }

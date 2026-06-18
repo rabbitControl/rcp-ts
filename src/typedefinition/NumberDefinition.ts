@@ -23,9 +23,7 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
     private _minimum?: number;
     private _maximum?: number;
     private _stepsize?: number;
-    private _scale?: number;
     private _unit?: string;
-
 
     abstract typeMax(): number;
     abstract typeMin(): number;
@@ -64,11 +62,6 @@ export abstract class NumberDefinition extends DefaultDefinition<number> {
 
             if (typedefinition._stepsize !== undefined) {
                 this._stepsize = typedefinition._stepsize;
-                changed = true;
-            }
-
-            if (typedefinition._scale !== undefined) {
-                this._scale = typedefinition._scale;
                 changed = true;
             }
 

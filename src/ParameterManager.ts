@@ -14,7 +14,7 @@ export abstract class ParameterManager
     protected dirtyParams: Parameter[] = [];
 
     private parentIdCache: Map<number, number> = new Map();
-    private isServer: boolean;
+    private readonly isServer: boolean;
 
     constructor(isServer: boolean) {
         this.isServer = isServer;

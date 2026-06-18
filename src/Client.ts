@@ -236,6 +236,9 @@ export class Client extends ParameterManager
         if (this.state == ClientState.FullyInitialized)
         {
           // TODO: remove parameter ids
+          // TODO: support multiple parameter ids
+          const id = (packet.data as RcpInt).value;
+          this._remove(id);        
         }
         else
         {

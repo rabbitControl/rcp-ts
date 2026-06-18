@@ -57,8 +57,13 @@ export function parseUpdateValue(io: KaitaiStream, manager: ParameterManager): P
     {
         // handle mandatory typedefinition data
         parameter.typeDefinition.readMandatory(io);
+        
         // read value
-        parameter.handleOption(RcpTypes.ParameterOptions.VALUE, io);
+        if (!parameter.handleOption(RcpTypes.ParameterOptions.VALUE, io))
+        {
+            throw new Error("value parameter option not handled");
+        }
+
         return parameter;
     }
 

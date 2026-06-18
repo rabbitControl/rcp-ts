@@ -557,7 +557,7 @@ export abstract class Parameter implements Writeable {
                 }
                 else
                 {
-                    console.log("setting language label " +
+                    console.log("setting language description " +
                                       lang_code +
                                       " : " +
                                       description);
@@ -628,10 +628,10 @@ export abstract class Parameter implements Writeable {
           break;
 
         case RcpTypes.ParameterOptions.ENABLED:
-          this._readonly = io.readS1() > 0;
+          this._enabled = io.readS1() > 0;
           break;
 
-        case RcpTypes.ParameterOptions.VALUE:        
+        case RcpTypes.ParameterOptions.VALUE:
         default:
           if (!this.handleOption(optionId, io)) {
             throw new Error("parameter option not handled: " + optionId);
@@ -774,9 +774,10 @@ export abstract class Parameter implements Writeable {
   // parent
   set parent(parent: GroupParameter | undefined)
   {    
-    if (this._parent !== undefined && 
+    if (this._parent === parent ||
+      (this._parent !== undefined && 
         parent !== undefined && 
-        this._parent.id === parent.id)
+        this._parent.id === parent.id))
     {
       return;
     }

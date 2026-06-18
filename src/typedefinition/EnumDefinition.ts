@@ -14,8 +14,8 @@ export class EnumDefinition extends DefaultDefinition<string> {
                             set(RcpTypes.EnumOptions.MINIMUM_SELECTION_COUNT, true);
 
     private _entries?: string[];
-    private _maxSelectionCount?: number;
     private _minSelectionCount?: number;
+    private _maxSelectionCount?: number;
 
     constructor() {
         super(RcpTypes.Datatype.ENUM);

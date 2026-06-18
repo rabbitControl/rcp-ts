@@ -87,7 +87,8 @@ export abstract class ValueParameter<T> extends Parameter {
         // e.g.: min/max for number parameter
         super.update(parameter);
 
-        if (parameter._value != undefined)
+        if (parameter._value !== undefined &&
+            parameter._value !== this._value)
         {
             this._value = parameter._value;
             this.valueChangedListeners.forEach( (listener) => listener(this) );
