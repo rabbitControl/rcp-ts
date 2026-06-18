@@ -1,14 +1,22 @@
-import { BangParameter, BooleanParameter, Float32Parameter, Parameter, RcpTypes, ServerTransporter, WebSocketServerTransporter } from ".";
+import { BangParameter, BooleanParameter, Float32Parameter, Float64Parameter, GroupParameter, Int16Parameter, Int32Parameter, Int8Parameter, NumberParameter, Parameter, RcpTypes, RGBAParameter, RGBParameter, ServerTransporter } from ".";
 import { InfoData } from "./InfoData";
 import KaitaiStream from "./KaitaiStream";
 import { Packet } from "./Packet";
 import { StringParameter } from "./parameter/StringParameter";
 import { ParameterManager } from "./ParameterManager";
+import { ClientState } from "./RcpClientState";
 import { RcpInt } from "./RcpInt";
 import { RcpVersion } from "./RcpVersion";
+import { ServerTransporterClient } from "./ServerTransporter";
 
 export class RcpServer extends ParameterManager
 {
+    // static
+    static VERBOSE: boolean = true;
+    static VERBOSE_RECV: boolean = true;
+    static VERBOSE_SEND: boolean = true;
+
+    //
     private returnedIds: number[] = [];
     private removedParameters: Parameter[] = [];
     private transporter: ServerTransporter[] = [];
@@ -19,6 +27,8 @@ export class RcpServer extends ParameterManager
 
     private applicationId?: string;
     private version?: string;
+
+    private clientStates: Map<object, ClientState> = new Map();
 
     constructor(applicationId: string = "", version: string = "")
     {
@@ -40,14 +50,36 @@ export class RcpServer extends ParameterManager
         if (this.transporter.indexOf(transporter) === -1)
         {
             this.transporter.push(transporter);
-            transporter.received = (data: ArrayBuffer, id: object) => this.transporterReceived(data, id);
+            transporter.received = (data: ArrayBuffer, id: ServerTransporterClient, transporter: ServerTransporter) => this.transporterReceived(data, id, transporter);
+
+            transporter.connected = (client: ServerTransporterClient, transporter: ServerTransporter) =>
+            {
+                this.clientStates.set(client, ClientState.Connected);
+            };
+            transporter.disconnected = (client: ServerTransporterClient, transporter: ServerTransporter) =>
+            {
+                this.clientStates.delete(client);
+            };
         }
     }
 
-    transporterReceived(data: ArrayBuffer, id: object)
+    removeTransporter(transporter: ServerTransporter)
+    {
+        const index = this.transporter.indexOf(transporter);
+        if (index > -1)
+        {
+            this.transporter.splice(index, 1);            
+        }
+
+        // in any case
+        transporter.received = undefined;
+        transporter.connected = undefined;
+        transporter.disconnected = undefined;
+    }
+
+    transporterReceived(data: ArrayBuffer, id: ServerTransporterClient, transporter: ServerTransporter)
     {
         const io = new KaitaiStream(data, 0);
-
         const packet = Packet.parse(io, this);
 
         switch (packet.type) {
@@ -55,8 +87,8 @@ export class RcpServer extends ParameterManager
             case RcpTypes.PacketType.INFO:
 
                 // send version info to client
-                const versionPacket = new Packet(RcpTypes.PacketType.INFO);
-                versionPacket.data = new InfoData(
+                const init_packet = new Packet(RcpTypes.PacketType.INFO);
+                init_packet.data = new InfoData(
                     this.server_rcp_version,
                     this.server_handshake_version,
                     this.applicationId,
@@ -64,7 +96,7 @@ export class RcpServer extends ParameterManager
                 );
 
                 // send to one
-                this.transporter.forEach(t => t.sendToOne(new Uint8Array(versionPacket.serialize(false)).buffer, id));
+                transporter.sendToOne(new Uint8Array(init_packet.serialize(false)).buffer, id);
 
                 // analyze infodata from client
                 const infoData = packet.data as InfoData;
@@ -87,16 +119,20 @@ export class RcpServer extends ParameterManager
 
                     console.log("VERSION OK - waiting for init");
 
+                    this.clientStates.set(id, ClientState.Handshake);
+
                     // waiting for init
                 }
                 else if (this.server_is_strict) {
                     // version not ok and strict
                     console.log("VERSION NOT OK - disconnect");
-                    this.transporter.forEach(t => t.closeClient(id));
+                    transporter.closeClient(id);
                 }
                 else {
                     // version is not ok, but server knows that it will be all right
                     // waiting for init
+
+                    this.clientStates.set(id, ClientState.Handshake);
                 }
 
                 break;
@@ -104,33 +140,48 @@ export class RcpServer extends ParameterManager
 
             case RcpTypes.PacketType.INITIALIZE:
                 {
-                    // send init
-                    const versionPacket = new Packet(RcpTypes.PacketType.INITIALIZE);
-                    versionPacket.data = new RcpInt(this.valueCache.values.length);
+                    this.clientStates.set(id, ClientState.Initialize);
 
-                    this.transporter.forEach(t => t.sendToOne(new Uint8Array(versionPacket.serialize(false)).buffer, id))
+                    // send init
+                    const init_packet = new Packet(RcpTypes.PacketType.INITIALIZE);
+                    init_packet.data = new RcpInt(this.valueCache.size);            
+
+                    transporter.sendToOne(new Uint8Array(init_packet.serialize(false)).buffer, id);
 
                     this.valueCache.forEach((parameter) => {
-                        console.log("sending parameter:", parameter.id, ":", parameter.label);
+
+                        if (RcpServer.VERBOSE)
+                        {
+                            console.log("sending parameter:", parameter.id, ":", parameter.label);
+                        }
 
                         const parameterPacket = new Packet(RcpTypes.PacketType.UPDATE);
                         parameterPacket.data = parameter;
-
-                        const data = new Uint8Array(parameterPacket.serialize(true)).buffer;
                         
-                        this.transporter.forEach(t => t.sendToOne(data, id));
+                        transporter.sendToOne(new Uint8Array(parameterPacket.serialize(true)).buffer, id);
                     });
+
+                    // fully initialized
+                    this.clientStates.set(id, ClientState.FullyInitialized);
+                    id.sendToAll = true;
 
                     break;
                 }
 
             case RcpTypes.PacketType.UPDATE:
-            case RcpTypes.PacketType.UPDATEVALUE:
-                this._update(packet.data as Parameter);
+            case RcpTypes.PacketType.UPDATEVALUE:                                
+                if (id.sendToAll)
+                {
+                    this._update(packet.data as Parameter);
+                }
+                else
+                {
+                    console.warn("update from not fully initialized client!");                        
+                }
                 break;
 
             case RcpTypes.PacketType.REMOVE:
-                this._remove((packet.data as RcpInt).value);            
+                console.warn("removing parameter not allowed on server:", (packet.data as RcpInt).value);
                 break;
 
             default:
@@ -150,7 +201,7 @@ export class RcpServer extends ParameterManager
         return this.valueCache.size + 1;
     }
 
-    update()
+    override update()
     {
         // send removed parameters
         this.removedParameters.forEach((parameter) =>
@@ -169,13 +220,29 @@ export class RcpServer extends ParameterManager
         super.update();
     }
 
+    // NOTE: sent from ParameterManager::update()
     protected sendPacket(packet: Packet): void {
-        throw new Error("Method not implemented.");
+
+        const data = new Uint8Array(packet.serialize(false)).buffer;
+
+        if (RcpServer.VERBOSE ||
+            RcpServer.VERBOSE_SEND)
+        {
+            console.log("server writing: ", data);
+        }
+
+        // TODO: avoid sending to clients not yet fully initialized!!
+        this.transporter.forEach(t => t.sendToAll(data))
     }
 
     removeParameter(parameter: Parameter)
     {
-        // TODO: when to actuall remove parameter?
+        // TODO: when to actually remove parameter?
+        if (RcpServer.VERBOSE)
+        {
+            console.log("remove parameter: ", parameter.id);            
+        }
+
         if (this.valueCache.delete(parameter.id))
         {
             // removed            
@@ -188,58 +255,128 @@ export class RcpServer extends ParameterManager
         }
     }
 
-    private _addParameter(parameter: Parameter, label: string)
+    private _addParameter(parameter: Parameter, label: string, group?: GroupParameter)
     {
+        parameter.parent = group;
         parameter.label = label;
         parameter.setManager(this);
         this.valueCache.set(parameter.id, parameter);
     }
 
-    exposeBang(label: string): BangParameter
+
+    // expose parameters
+
+    exposeGroup(label: string, group?: GroupParameter): GroupParameter
     {
-        const parameter = new BangParameter(this.nextId());
-        this._addParameter(parameter, label);
+        const parameter = new GroupParameter(this.nextId());
+        this._addParameter(parameter, label, group);
         return parameter;
     }
 
-    exposeBoolean(label: string, value: boolean | undefined): BooleanParameter
+    exposeBang(label: string, group?: GroupParameter): BangParameter
+    {
+        const parameter = new BangParameter(this.nextId());
+        this._addParameter(parameter, label, group);
+        return parameter;
+    }
+
+    exposeBoolean(label: string, value?: boolean, group?: GroupParameter): BooleanParameter
     {
         const parameter = new BooleanParameter(this.nextId());
 
-        if (value)
+        if (value !== undefined)
         {
             parameter.value = value;
         }
 
-        this._addParameter(parameter, label);
+        this._addParameter(parameter, label, group);
 
         return parameter;
     }
 
-    exposeString(label: string, value: string | undefined): StringParameter
+    private _exposeNumberParameter<T extends number>(parameter: NumberParameter, label: string, value?: T, group?: GroupParameter) 
+    {
+        if (value !== undefined)
+        {
+            parameter.value = value;
+        }
+
+        this._addParameter(parameter, label, group);
+    }
+
+    exposeInt8(label: string, value?: number, group?: GroupParameter): Int8Parameter
+    {
+        const parameter = new Int8Parameter(this.nextId());
+        this._exposeNumberParameter(parameter, label, value, group);
+        return parameter;
+    }
+
+    exposeInt16(label: string, value?: number, group?: GroupParameter): Int16Parameter
+    {
+        const parameter = new Int16Parameter(this.nextId());
+        this._exposeNumberParameter(parameter, label, value, group);
+        return parameter;
+    }
+    
+    exposeInt32(label: string, value?: number, group?: GroupParameter): Int32Parameter
+    {
+        const parameter = new Int32Parameter(this.nextId());
+        this._exposeNumberParameter(parameter, label, value, group);
+        return parameter;
+    }
+
+    exposeFloat(label: string, value?: number, group?: GroupParameter): Float32Parameter
+    {
+        const parameter = new Float32Parameter(this.nextId());
+        this._exposeNumberParameter(parameter, label, value, group);
+        return parameter;
+    }
+
+    exposeDouble(label: string, value?: number, group?: GroupParameter): Float64Parameter
+    {
+        const parameter = new Float64Parameter(this.nextId());
+        this._exposeNumberParameter(parameter, label, value, group);
+        return parameter;
+    }
+
+    exposeRGB(label: string, value?: string, group?: GroupParameter): RGBParameter
+    {
+        const parameter = new RGBParameter(this.nextId());
+
+        if (value !== undefined)
+        {
+            parameter.setStringValue(value);
+        }
+
+        this._addParameter(parameter, label, group);
+
+        return parameter;
+    }
+
+    exposeRGBA(label: string, value?: string, group?: GroupParameter): RGBAParameter
+    {
+        const parameter = new RGBParameter(this.nextId());
+
+        if (value !== undefined)
+        {
+            parameter.setStringValue(value);
+        }
+
+        this._addParameter(parameter, label, group);
+
+        return parameter;
+    }
+
+    exposeString(label: string, value?: string, group?: GroupParameter): StringParameter
     {
         const parameter = new StringParameter(this.nextId());
 
-        if (value)
+        if (value !== undefined)
         {
             parameter.value = value;
         }
 
-        this._addParameter(parameter, label);
-
-        return parameter;
-    }
-
-    exposeFloat(label: string, value: number | undefined): Float32Parameter
-    {
-        const parameter = new Float32Parameter(this.nextId());
-
-        if (value)
-        {
-            parameter.value = value;
-        }
-
-        this._addParameter(parameter, label);
+        this._addParameter(parameter, label, group);
 
         return parameter;
     }

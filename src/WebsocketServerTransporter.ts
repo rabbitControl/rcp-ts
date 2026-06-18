@@ -1,4 +1,5 @@
-import { ServerTransporter } from "./ServerTransporter";
+import { RcpServer } from "./RcpServer";
+import { ServerTransporter, ServerTransporterClient } from "./ServerTransporter";
 import WebSocket from 'ws';
 
 function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer 
@@ -14,24 +15,23 @@ function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer
 
 export class WebSocketServerTransporter extends ServerTransporter
 {
-    private wss?: WebSocket.Server
-
-    private clients: Array<WebSocket> = [];
+    private wsServer?: WebSocket.Server
+    private clients: Map<WebSocket, ServerTransporterClient> = new Map();
 
     // override
-    bind(port: number): void
+    override bind(port: number): void
     {
         if (port > 0 && port < 65535)
         {
-            this.wss = new WebSocket.Server({ port: port });
+            this.wsServer = new WebSocket.Server({ port: port });
 
-            this.wss.on('connection', (ws: WebSocket) =>
+            this.wsServer.on('connection', (client: WebSocket) =>
             {
-                console.log(`New client connected: ${ws.url}`);
+                console.log(`New client connected: ${client.url}`);
                 
-                this.clients.push(ws);
+                this.clients.set(client, {client: client, sendToAll: false});
 
-                ws.on('message', (message: WebSocket.RawData) =>
+                client.on('message', (message: WebSocket.RawData) =>
                 {                    
                     if (message instanceof Buffer)
                     {
@@ -41,11 +41,10 @@ export class WebSocketServerTransporter extends ServerTransporter
                         
                         if (this.received)
                         {
-                            this.received(data, ws);
+                            this.received(data, this.clients.get(client)!, this);
                         }
                         else {
-                            console.log("no received!");
-                            
+                            console.log("no received!");                            
                         }
                     }
                     else if (message instanceof ArrayBuffer)
@@ -54,7 +53,7 @@ export class WebSocketServerTransporter extends ServerTransporter
                         
                         if (this.received)
                         {
-                            this.received(message, ws);
+                            this.received(message, this.clients.get(client)!, this);
                         }
                         else {
                             console.log("no received!");
@@ -67,13 +66,16 @@ export class WebSocketServerTransporter extends ServerTransporter
                     }
                 });
 
-                ws.on('close', () => {
-                    console.log('Client disconnected: ' + ws.url);
+                client.on('close', () => {
+
+                    if (RcpServer.VERBOSE) {
+                        console.log('Client disconnected: ' + client.url);
+                    }
 
                     // remove client
-                    const index = this.clients.indexOf(ws);
-                    if (index > -1) {
-                        this.clients.splice(index, 1);
+                    if (this.clients.has(client))
+                    {
+                        this.clients.delete(client);
                     }
                 });
             });
@@ -84,40 +86,35 @@ export class WebSocketServerTransporter extends ServerTransporter
         }
     }
 
-    unbind(): void {
-        if (this.wss)
+    override unbind(): void {
+        if (this.wsServer)
         {
-            this.wss.close();
-            this.wss = undefined;
+            this.wsServer.close();
+            this.wsServer = undefined;
+            this.clients.clear();
         }
     }
 
-    sendToOne(data: ArrayBuffer, id: object): void {
-        const client = this.clients.find(client => client === id);
-        if (client)
-        {
-            client.send(data);
-        }
+    override sendToOne(data: ArrayBuffer, id: ServerTransporterClient): void {
+
+        console.log("sending: ", data);        
+
+        (id.client as WebSocket).send(data);
     }
 
-    sendToAll(data: ArrayBuffer, excludeId: object): void {
-        this.clients.forEach(client => {
-            if (client !== excludeId)
-            {
+    override sendToAll(data: ArrayBuffer, excludeId?: ServerTransporterClient): void {
+        this.clients.forEach((o, client) => {
+            if (o !== excludeId && o.sendToAll) {
                 client.send(data);
             }
         });
     }
 
-    closeClient(id: object): void {
-        const client = this.clients.find(client => client == id);
-        if (client)
-        {
-            client.close();
-        }
+    override closeClient(id: ServerTransporterClient): void {
+        (id.client as WebSocket).close();        
     }
 
-    getConnectionCount(): number {
-        return this.clients.length;
+    override getConnectionCount(): number {
+        return this.clients.size;
     }
 }

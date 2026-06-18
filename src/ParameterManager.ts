@@ -1,13 +1,15 @@
-import { BangParameter, Client, RcpTypes } from '.';
+import { BangParameter, Client, RcpServer, RcpTypes } from '.';
 import { Packet } from './Packet';
 import { GroupParameter } from './parameter/GroupParameter';
 import { Parameter } from './parameter/Parameter';
 
 export abstract class ParameterManager
 {
+    // events
     parameterAdded?: (parameter: Parameter) => void;
     parameterRemoved?: (parameter: Parameter) => void;
 
+    //
     private rootGroup: GroupParameter = new GroupParameter(0);
 
     protected valueCache: Map<number, Parameter> = new Map();
@@ -105,6 +107,10 @@ export abstract class ParameterManager
             if (this.isServer)
             {
                 // NOTE: adding parameters it not allowed on server
+                if (RcpServer.VERBOSE) {
+                    console.warn("add parameter not allowed on server");
+                }
+
                 return;
             }
 
@@ -195,7 +201,6 @@ export abstract class ParameterManager
             }
 
             // remove parameter from parent
-            // TODO: dispose??
             cached.removeFromParent();
 
             // remove parameter
@@ -208,10 +213,8 @@ export abstract class ParameterManager
 
             cached.dispose();
 
-        } else {
-            if (Client.VERBOSE) {
-                console.log("CLIENT: no parameter to remove with id: " + id);
-            }
+        } else if (Client.VERBOSE) {
+            console.log("CLIENT: no parameter to remove with id: " + id);            
         }
     }
 
