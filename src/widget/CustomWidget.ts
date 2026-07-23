@@ -25,8 +25,7 @@ export class CustomWidget extends Widget {
 
             case RcpTypes.CustomwidgetOptions.CONFIG: {
                 this._config = UserData.parse(io).data
-                console.log("custom widget: config: " + KaitaiStream.createStringFromArray(this._config));
-                
+                console.log("custom widget: config: " + KaitaiStream.createStringFromArray(this._config));                
                 return true;
             }
         }
@@ -55,7 +54,7 @@ export class CustomWidget extends Widget {
     // setter / getter
 
     //--------------------------------
-    // uuid
+    // widget id
     set widgetid(widgetid: number | undefined)
     {
         if (this._widgetid === widgetid) {

@@ -3,24 +3,24 @@ import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
 import { RCPLanguageString } from '../RCPLanguageString';
 
-export class PressWidget extends Widget {
+export class SwitchWidget extends Widget {
 
     private _labelOn: RCPLanguageString = new RCPLanguageString();    
     private _labelOff: RCPLanguageString = new RCPLanguageString();    
 
     constructor() {
-        super(RcpTypes.Widgettype.PRESS);
+        super(RcpTypes.Widgettype.SWITCH);
     }
 
-    handleOption(optionId: number, io: KaitaiStream): boolean {
-
-        if (optionId === RcpTypes.PressWidgetOptions.PRESS_LABEL_ON)
+    handleOption(optionId: number, io: KaitaiStream): boolean
+    {
+        if (optionId === RcpTypes.SwitchWidgetOptions.SWITCH_LABEL_ON)
         {
             this._labelOn.update(RCPLanguageString.parse(io));
             return true;
         }
         
-        if (optionId === RcpTypes.PressWidgetOptions.PRESS_LABEL_OFF)
+        if (optionId === RcpTypes.SwitchWidgetOptions.SWITCH_LABEL_OFF)
         {
             this._labelOff.update(RCPLanguageString.parse(io));
             return true;
@@ -29,18 +29,18 @@ export class PressWidget extends Widget {
         return false;
     }
 
-    writeOptions(output: number[], all: boolean): void {
-
-        if (all || this.changed.has(RcpTypes.PressWidgetOptions.PRESS_LABEL_ON)) {
-            output.push(RcpTypes.PressWidgetOptions.PRESS_LABEL_ON);
+    writeOptions(output: number[], all: boolean): void
+    {
+        if (all || this.changed.has(RcpTypes.SwitchWidgetOptions.SWITCH_LABEL_ON)) {
+            output.push(RcpTypes.SwitchWidgetOptions.SWITCH_LABEL_ON);
             this._labelOn.write(output, all);
         }
 
-        if (all || this.changed.has(RcpTypes.PressWidgetOptions.PRESS_LABEL_OFF)) {
-            output.push(RcpTypes.PressWidgetOptions.PRESS_LABEL_OFF);
+        if (all || this.changed.has(RcpTypes.SwitchWidgetOptions.SWITCH_LABEL_OFF)) {
+            output.push(RcpTypes.SwitchWidgetOptions.SWITCH_LABEL_OFF);
             this._labelOff.write(output, all);
         }
     }
 
-    // TODO: getter / setter
+    // TODO: setter and getter
 }

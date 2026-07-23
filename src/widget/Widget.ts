@@ -4,6 +4,7 @@ import KaitaiStream from '../KaitaiStream';
 import { pushIn16ToArrayBe } from '../Utils';
 import { Parameter } from '../parameter/Parameter';
 import { RcpInt } from '../RcpInt';
+import { UserData } from '../Userdata';
 
 export abstract class Widget implements Writeable {
 
@@ -13,20 +14,15 @@ export abstract class Widget implements Writeable {
         set(RcpTypes.WidgetOptions.NEEDS_CONFIRMATION, true).
         set(RcpTypes.WidgetOptions.USERDATA, true);
 
-    static parse(io: KaitaiStream): Widget | undefined {
-        // TODO
-        return undefined;
-    }
-
     //
     // mandatory    
     readonly widgetType: number;
 
     // options
-    private _enabled?: boolean = true;
     private _labelVisible?: boolean = true;
     private _valueVisible?: boolean = true;
     private _needsConfirmation?: boolean = false;
+    private _userdata?: UserData;
 
     //
     changed: Map<number, boolean> = new Map();
@@ -37,6 +33,58 @@ export abstract class Widget implements Writeable {
     }
 
     abstract handleOption(optionId: number, io: KaitaiStream): boolean;
+
+    static widgetTypeToString(type: number): string {
+        switch (type)
+        {
+            case 1: return "DEFAULT";
+            case 2: return "CUSTOM";
+            case 16: return "INFO";
+            case 17: return "TEXTBOX";
+            case 18: return "BUTTON";
+            case 19: return "SWITCH";
+            case 20: return "CHECKBOX";
+            case 21: return "PRESS";
+            case 22: return "NUMBERBOX";
+            case 23: return "DIAL";
+            case 24: return "SLIDER";
+            case 25: return "SLIDER2D";
+            case 26: return "RANGE";
+            case 27: return "DROPDOWN";
+            case 28: return "RADIOBUTTON";
+            case 29: return "COLORCHOOSER";
+            case 30: return "TABLE";
+            case 31: return "URI";
+            case 32: return "IP";
+            case 33: return "IMAGE";
+            case 16384: return "LIST";
+            case 16385: return "TABS";
+
+            default:
+                return "Unknown widget";
+        }
+    }
+
+    print() {
+        console.log("-- widget:", Widget.widgetTypeToString(this.widgetType));
+
+        if (this._labelVisible !== undefined)
+        {
+            console.log("--- label visible:", this._labelVisible);
+        }
+        if (this._valueVisible !== undefined)
+        {
+            console.log("--- value visible:", this._valueVisible);
+        }
+        if (this._needsConfirmation !== undefined)
+        {
+            console.log("--- needs confirmation:", this._needsConfirmation);
+        }
+        if (this._userdata !== undefined)
+        {
+            console.log("--- with userdata");
+        }
+    }
 
     parseOptions(io: KaitaiStream) {
         while (true) {
@@ -61,9 +109,10 @@ export abstract class Widget implements Writeable {
                     break;
                 }
 
-                // case RcpTypes.WidgetOptions.USERDATA: {
-                //     break;
-                // }
+                case RcpTypes.WidgetOptions.USERDATA: {
+                    this._userdata = UserData.parse(io);
+                    break;
+                }
 
                 default:
                     if (!this.handleOption(optionId, io)) {
@@ -101,7 +150,7 @@ export abstract class Widget implements Writeable {
 
                 case RcpTypes.WidgetOptions.LABEL_VISIBLE: {
 
-                    if (this._labelVisible != undefined) {
+                    if (this._labelVisible !== undefined) {
                         output.push(this._labelVisible ? 1 : 0);
                     } else {
                         output.push(1);
@@ -111,7 +160,7 @@ export abstract class Widget implements Writeable {
 
                 case RcpTypes.WidgetOptions.VALUE_VISIBLE: {
 
-                    if (this._valueVisible != undefined) {
+                    if (this._valueVisible !== undefined) {
                         output.push(this._valueVisible ? 1 : 0);
                     } else {
                         output.push(1);
@@ -121,7 +170,7 @@ export abstract class Widget implements Writeable {
 
                 case RcpTypes.WidgetOptions.NEEDS_CONFIRMATION: {
 
-                    if (this._needsConfirmation != undefined) {
+                    if (this._needsConfirmation !== undefined) {
                         output.push(this._needsConfirmation ? 1 : 0);
                     } else {
                         output.push(0);
@@ -131,12 +180,14 @@ export abstract class Widget implements Writeable {
 
                 case RcpTypes.WidgetOptions.USERDATA: {
 
-                    // TODO:
-                    // if (this._needsConfirmation != undefined) {
-                    //     output.push(this._needsConfirmation ? 1 : 0);
-                    // } else {
-                    //     output.push(0);
-                    // }
+                    if (this._userdata !== undefined)
+                    {
+                        this._userdata.write(output, all);
+                    }
+                    else
+                    {
+                        output.push(RcpInt.TERMINATOR);
+                    }
                     break;
                 }
             }
@@ -212,5 +263,29 @@ export abstract class Widget implements Writeable {
     }
 
     //--------------------------------
-    // TODO: userdata
+    // userdata
+    set userdata(value: Uint8Array | undefined) {
+
+        if (this._userdata?.data === value)
+        {
+            return;
+        }
+
+        if (value)
+        {
+            this._userdata = new UserData(value);            
+        }
+        else if (this._userdata !== undefined)
+        {
+            this.userdata = undefined;
+        }
+
+        this.changed.set(RcpTypes.WidgetOptions.USERDATA, true);
+        this.setDirty();
+    }
+
+    get userdata(): Uint8Array | undefined
+    {
+        return this._userdata?.data;
+    }
 }

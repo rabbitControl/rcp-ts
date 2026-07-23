@@ -1,12 +1,13 @@
 import { Widget } from './Widget';
 import { RcpTypes } from '../RcpTypes';
 import KaitaiStream from '../KaitaiStream';
+import { RCPLanguageString } from '../RCPLanguageString';
 
 export class TextboxWidget extends Widget {
 
     private _multiline?: boolean;
-    private _wordwrap?: boolean;
     private _password?: boolean;
+    private _placeholder: RCPLanguageString = new RCPLanguageString();
 
     constructor() {
         super(RcpTypes.Widgettype.TEXTBOX);
@@ -19,13 +20,13 @@ export class TextboxWidget extends Widget {
             return true;
         }
 
-        // if (optionId === RcpTypes.TextboxWidgetOptions.WORDWRAP) {
-        //     this._wordwrap = io.readU1() > 0;
-        //     return true;
-        // }
-
         if (optionId === RcpTypes.TextboxWidgetOptions.PASSWORD) {
             this._password = io.readU1() > 0;
+            return true;
+        }
+
+        if (optionId === RcpTypes.TextboxWidgetOptions.PLACEHOLDER) {
+            this._placeholder.update(RCPLanguageString.parse(io));
             return true;
         }
 
@@ -43,15 +44,6 @@ export class TextboxWidget extends Widget {
             }
         }
 
-        // if (all || this.changed.has(RcpTypes.TextboxWidgetOptions.WORDWRAP)) {
-        //     output.push(RcpTypes.TextboxWidgetOptions.WORDWRAP);
-        //     if (this._wordwrap) {
-        //         output.push(this._wordwrap ? 1 : 0);
-        //     } else {
-        //         output.push(0);
-        //     }
-        // }
-
         if (all || this.changed.has(RcpTypes.TextboxWidgetOptions.PASSWORD)) {
             output.push(RcpTypes.TextboxWidgetOptions.PASSWORD);
             if (this._password) {
@@ -59,6 +51,11 @@ export class TextboxWidget extends Widget {
             } else {
                 output.push(0);
             }
+        }
+
+        if (all || this.changed.has(RcpTypes.TextboxWidgetOptions.PLACEHOLDER)) {
+            output.push(RcpTypes.TextboxWidgetOptions.PASSWORD);
+            this._placeholder.write(output, all);
         }
     }
 
@@ -81,23 +78,6 @@ export class TextboxWidget extends Widget {
         return this._multiline;
     }
 
-    // //--------------------------------
-    // // wordwrap
-    // set wordwrap(wordwrap: boolean | undefined) {
-
-    //     if (this._wordwrap === wordwrap) {
-    //         return;
-    //     }
-
-    //     this._wordwrap = wordwrap;
-    //     this.changed.set(RcpTypes.TextboxWidgetOptions.WORDWRAP, true);
-    //     this.setDirty();
-    // }
-
-    // get wordwrap(): boolean | undefined {
-    //     return this._wordwrap;
-    // }
-
     //--------------------------------
     // password
     set password(password: boolean | undefined) {
@@ -113,5 +93,22 @@ export class TextboxWidget extends Widget {
 
     get password(): boolean | undefined {
         return this._password;
+    }
+
+    //--------------------------------
+    // placeholder
+    set placeholder(placeholder: string | undefined) {
+
+        if (this._placeholder.setAnyLanguage(placeholder))
+        {
+            this.changed.set(RcpTypes.TextboxWidgetOptions.PLACEHOLDER, true);
+            this.setDirty();
+        }
+    }
+
+    // TODO: setting for other languages
+
+    get placeholder(): string | undefined {
+        return this._placeholder.anyLanguage();
     }
 }

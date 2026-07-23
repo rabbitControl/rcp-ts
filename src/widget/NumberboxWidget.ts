@@ -1,163 +1,161 @@
-// import { Widget } from './Widget';
-// import { RcpTypes } from '../RcpTypes';
-// import KaitaiStream from '../KaitaiStream';
-// import { NumberDefinition } from '../typedefinition/NumberDefinition';
+import { Widget } from './Widget';
+import { RcpTypes } from '../RcpTypes';
+import KaitaiStream from '../KaitaiStream';
+import { NumberDefinition } from '../typedefinition/NumberDefinition';
+import { RCPLanguageString } from '../RCPLanguageString';
 
-// export class NumberboxWidget extends Widget {
+export class NumberboxWidget extends Widget {
     
-//     private _precision?: number;
-//     private _format?: number;
-//     private _stepsize?: number;
-//     private _cyclic?: boolean;
+    private _precision?: number;
+    private _stepsizeMultiplier?: number;
+    private _cyclic?: boolean;
+    private _nanMeaning: RCPLanguageString = new RCPLanguageString();
 
-//     constructor() {
-//         super(RcpTypes.Widgettype.NUMBERBOX);
-//     }
+    constructor() {
+        super(RcpTypes.Widgettype.NUMBERBOX);
+    }
 
-//     handleOption(optionId: number, io: KaitaiStream): boolean {
+    handleOption(optionId: number, io: KaitaiStream): boolean {
 
-//         switch(optionId) {
-//             case RcpTypes.NumberboxWidgetOptions.PRECISION:
-//                 this._precision = io.readU1();
-//                 return true;
-//             case RcpTypes.NumberboxWidgetOptions.FORMAT: {
-//                 this._format = io.readU1();
-//                 return true;
-//             }
-//             case RcpTypes.NumberboxWidgetOptions.STEPSIZE: {
+        switch(optionId) {
+            case RcpTypes.NumberboxWidgetOptions.PRECISION:
+                this._precision = io.readU1();
+                return true;
+
+            case RcpTypes.NumberboxWidgetOptions.STEPSIZE_MULTIPLIER: {
                 
-//                 const param = this.parameter;
-//                 if (param) {
-//                     const td = param.typeDefinition;
-//                     if (td instanceof NumberDefinition) {
-//                         this._stepsize = td.readValue(io);
-//                     } else {
-//                         throw new Error('numberbox widget with non-number-parameter: can not read stepsize!');
-//                     }
-//                     return true;
-//                 }
-//             }
+                const param = this.parameter;
+                if (param) {
+                    const td = param.typeDefinition;
+                    if (td instanceof NumberDefinition) {
+                        this._stepsizeMultiplier = td.readValue(io);
+                    } else {
+                        throw new Error('numberbox widget with non-number-parameter: can not read stepsize!');
+                    }
+                    return true;
+                }
+                break;
+            }
 
-//             case RcpTypes.NumberboxWidgetOptions.CYCLIC:
-//                 this._cyclic = io.readU1() > 0;
-//                 return true;
-//         }
+            case RcpTypes.NumberboxWidgetOptions.CYCLIC:
+                this._cyclic = io.readU1() > 0;
+                return true;
 
-//         return false;
-//     }
+            case RcpTypes.NumberboxWidgetOptions.NAN_MEANING:
+                this._nanMeaning.update(RCPLanguageString.parse(io));
+                return true;
+        }
 
-//     writeOptions(output: number[], all: boolean): void {
+        return false;
+    }
 
-//         if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.FORMAT)) {
-//             output.push(RcpTypes.NumberboxWidgetOptions.FORMAT);
-//             if (this._format) {
-//                 output.push(this._format);
-//             } else {
-//                 output.push(RcpTypes.NumberboxFormat.DEC);
-//             }
-//         }
+    writeOptions(output: number[], all: boolean): void {
 
-//         if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.PRECISION)) {
-//             output.push(RcpTypes.NumberboxWidgetOptions.PRECISION);
-//             if (this._precision) {
-//                 output.push(this._precision);
-//             } else {
-//                 output.push(2);
-//             }
-//         }
+        if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.PRECISION)) {
+            output.push(RcpTypes.NumberboxWidgetOptions.PRECISION);
+            if (this._precision) {
+                output.push(this._precision);
+            } else {
+                output.push(2);
+            }
+        }
 
-//         if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.STEPSIZE)) {
-//             output.push(RcpTypes.NumberboxWidgetOptions.STEPSIZE);
+        if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.STEPSIZE_MULTIPLIER)) {            
+            const param = this.parameter;
+            if (param) {
+                const td = param.typeDefinition;
+                if (td instanceof NumberDefinition) {
+                    output.push(RcpTypes.NumberboxWidgetOptions.STEPSIZE_MULTIPLIER);
+                    td.writeValue(output, this._stepsizeMultiplier);                    
+                } else {
+                    throw new Error('numberbox widget with non-number-parameter: can not write stepsize multiplier!');
+                } 
+            }         
+        }
 
-//             const param = this.parameter;
-//             if (param) {
-//                 const td = param.typeDefinition;
-//                 if (td instanceof NumberDefinition) {
-//                     td.writeValue(output, this._stepsize);                    
-//                 } else {
-//                     throw new Error('numberbox widget with non-number-parameter: can not write stepsize!');
-//                 } 
-//             }         
-//         }
+        if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.CYCLIC)) {
+            output.push(RcpTypes.NumberboxWidgetOptions.CYCLIC);
+            if (this._cyclic) {
+                output.push(this._cyclic ? 1 : 0);
+            } else {
+                output.push(0);
+            }
+        }
 
-//         if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.CYCLIC)) {
-//             output.push(RcpTypes.NumberboxWidgetOptions.CYCLIC);
-//             if (this._cyclic) {
-//                 output.push(this._cyclic ? 1 : 0);
-//             } else {
-//                 output.push(0);
-//             }
-//         }
-//     }
+        if (all || this.changed.has(RcpTypes.NumberboxWidgetOptions.NAN_MEANING)) {
+            output.push(RcpTypes.NumberboxWidgetOptions.NAN_MEANING);
+            this._nanMeaning.write(output, all);
+        }
+    }
 
-//     // setter / getter
+    // setter / getter
 
-//     //--------------------------------
-//     // precision
-//     set precision(precision: number | undefined) {
+    //--------------------------------
+    // precision
+    set precision(precision: number | undefined) {
 
-//         if (this._precision === precision) {
-//             return;
-//         }
+        if (this._precision === precision) {
+            return;
+        }
 
-//         this._precision = precision;
-//         this.changed.set(RcpTypes.NumberboxWidgetOptions.PRECISION, true);
-//         this.setDirty();
-//     }
+        this._precision = precision;
+        this.changed.set(RcpTypes.NumberboxWidgetOptions.PRECISION, true);
+        this.setDirty();
+    }
 
-//     get precision(): number | undefined {
-//         return this._precision;
-//     }
+    get precision(): number | undefined {
+        return this._precision;
+    }
 
-//     //--------------------------------
-//     // format
-//     set format(format: number | undefined) {
+    //--------------------------------
+    // stepsize multiplier
+    set stepsizeMultiplier(stepsizeMultiplier: number | undefined) {
 
-//         if (this._format === format) {
-//             return;
-//         }
+        if (this._stepsizeMultiplier === stepsizeMultiplier) {
+            return;
+        }
 
-//         this._format = format;
-//         this.changed.set(RcpTypes.NumberboxWidgetOptions.FORMAT, true);
-//         this.setDirty();
-//     }
+        this._stepsizeMultiplier = stepsizeMultiplier;
+        this.changed.set(RcpTypes.NumberboxWidgetOptions.STEPSIZE_MULTIPLIER, true);
+        this.setDirty();
+    }
 
-//     get format(): number | undefined {
-//         return this._format;
-//     }
+    get stepsizeMultiplier(): number | undefined {
+        return this._stepsizeMultiplier;
+    }
 
-//     //--------------------------------
-//     // stepsize
-//     set stepsize(stepsize: number | undefined) {
+    //--------------------------------
+    // cyclic
+    set cyclic(cyclic: boolean | undefined) {
 
-//         if (this._stepsize === stepsize) {
-//             return;
-//         }
+        if (this._cyclic === cyclic) {
+            return;
+        }
 
-//         this._stepsize = stepsize;
-//         this.changed.set(RcpTypes.NumberboxWidgetOptions.STEPSIZE, true);
-//         this.setDirty();
-//     }
+        this._cyclic = cyclic;
+        this.changed.set(RcpTypes.NumberboxWidgetOptions.CYCLIC, true);
+        this.setDirty();
+    }
 
-//     get stepsize(): number | undefined {
-//         return this._stepsize;
-//     }
+    get cyclic(): boolean | undefined {
+        return this._cyclic;
+    }
 
-//     //--------------------------------
-//     // cyclic
-//     set cyclic(cyclic: boolean | undefined) {
+    //--------------------------------
+    // nan meaning
+    set nanMeaning(nanMeaning: string | undefined) {
 
-//         if (this._cyclic === cyclic) {
-//             return;
-//         }
+        if (this._nanMeaning.setAnyLanguage(nanMeaning))
+        {
+            this.changed.set(RcpTypes.NumberboxWidgetOptions.NAN_MEANING, true);
+            this.setDirty();
+        }
+    }
 
-//         this._cyclic = cyclic;
-//         this.changed.set(RcpTypes.NumberboxWidgetOptions.CYCLIC, true);
-//         this.setDirty();
-//     }
+    // TODO: setting for other languages
 
-//     get cyclic(): boolean | undefined {
-//         return this._cyclic;
-//     }
+    get nanMeaning(): string | undefined {
+        return this._nanMeaning.anyLanguage();
+    }
 
-// }
+}
