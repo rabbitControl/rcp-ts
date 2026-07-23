@@ -1,5 +1,5 @@
 
-export interface Writeable {
-    
-    write(output: number[], all: boolean): void;
+export interface Writeable
+{    
+    write(output: Array<number>, all: boolean): void;
 }
