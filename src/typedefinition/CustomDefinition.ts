@@ -17,19 +17,23 @@ export class CustomDefinition extends DefaultDefinition<Uint8Array> {
     readValue(io: KaitaiStream): Uint8Array {
         return io.readBytes(this.size);
     }
-    writeValue(buffer: Array<number>, value?: Uint8Array): void {
-
+    writeValue(buffer: Array<number>, value?: Uint8Array): void
+    {
         if (value != undefined)
         {
-            
+            buffer.push(...Array.from(value));
         }
         else if (this._defaultValue)
         {
-            
+            buffer.push(...Array.from(this._defaultValue));
         }
         else
         {
-            
+            // TODO: is there a better way?
+            for(var i=0; i<this.size; i++)
+            {
+                buffer.push(0);
+            }
         }
     }
     getDefaultId(): number {
@@ -49,7 +53,7 @@ export class CustomDefinition extends DefaultDefinition<Uint8Array> {
 
     readMandatory(io: KaitaiStream): void {
         // read size
-        this.size = io.readU4be();
+        this.size = RcpInt.parse(io).value;
     }
 
     // implement
@@ -64,9 +68,10 @@ export class CustomDefinition extends DefaultDefinition<Uint8Array> {
             case RcpTypes.CustomtypeOptions.DEFAULT:
                 if (this.size > 0)
                 {
-                    io.readBytes(this.size);
+                    this.defaultValue = io.readBytes(this.size);
                 }
-                else {
+                else
+                {
                     this.defaultValue = undefined;
                 }
                 break;
