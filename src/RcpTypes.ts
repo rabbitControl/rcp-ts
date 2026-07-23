@@ -436,10 +436,10 @@ export class RcpTypes {
 
   static PressWidgetOptions = Object.freeze({
     PRESS_LABEL_ON: 86,
-    PRESS_LABEL_OF: 87,
+    PRESS_LABEL_OFF: 87,
 
     86: "PRESS_LABEL_ON",
-    87: "PRESS_LABEL_OF",
+    87: "PRESS_LABEL_OFF",
   });
     static Command: any;
 }
